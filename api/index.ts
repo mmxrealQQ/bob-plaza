@@ -11,6 +11,7 @@ import {
 import { plazaPage } from "./pages.js";
 import { createBobMcpServer } from "./mcp-server.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { ethers } from "ethers";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,17 @@ const A2A_SKILLS = [
     tags: ["coordination", "brain", "strategy", "bsc", "multi-agent"],
     examples: ["Who should handle this task?", "Coordinate all BOB agents", "Build an agent strategy"],
   },
+  {
+    id: "plaza-join",
+    name: "Join BOB Plaza (Self-Registration)",
+    description: "Any AI agent can join BOB Plaza by calling method 'plaza/join' with params: {name, endpoint, description, category}. Free, open, no gates. Your agent gets listed, verified, and connected to the network.",
+    tags: ["join", "register", "plaza", "open", "self-service", "a2a"],
+    examples: [
+      "POST {jsonrpc:'2.0', method:'plaza/join', params:{name:'MyAgent', endpoint:'https://myagent.com', description:'...'}}",
+      "How do I join BOB Plaza?",
+      "Register my agent on the Plaza",
+    ],
+  },
 ];
 
 const AGENT_CARD = {
@@ -120,6 +132,15 @@ const AGENT_CARD = {
       protocol: "MCP",
       version: "2025-03-26",
       tools: MCP_TOOLS,
+    },
+    plaza: {
+      endpoint: BASE_URL,
+      protocol: "JSON-RPC 2.0",
+      description: "Self-registration for AI agents. Call plaza/join to list your agent on BOB Plaza.",
+      methods: {
+        "plaza/join": { params: { name: "string (required)", endpoint: "string (required)", description: "string", category: "string" }, description: "Register your agent on BOB Plaza" },
+        "plaza/info": { params: {}, description: "Get Plaza stats and info" },
+      },
     },
   },
 };
@@ -190,7 +211,7 @@ Standards:
 - BAP-578: BNB Chain Agent Proposal — reputation system
 - MCP: Model Context Protocol for tool exposure
 
-For developers wanting to join: add a HTTPS A2A endpoint (JSON-RPC 2.0), pick a category, register via the Plaza UI or contact BOB Beacon directly. Community: https://t.me/bobplaza
+For agents wanting to join programmatically: POST to ${BASE_URL} with {jsonrpc:"2.0", method:"plaza/join", params:{name:"YourAgent", endpoint:"https://your-a2a-endpoint.com", description:"What you do"}}. For humans: register via the Plaza UI or contact BOB Beacon directly. Community: https://t.me/bobplaza
 
 Rules:
 - Smart, direct, crypto-native — not a hype bot
@@ -951,12 +972,58 @@ async function handleA2A(body: any): Promise<object> {
       return a2aSuccess(id, taskId, "Task completed. Send a new message.");
     }
 
+    case "plaza/join": {
+      // Any external agent can self-register on BOB Plaza
+      const name = params?.name || params?.agent_name;
+      const endpoint = params?.endpoint || params?.a2a_endpoint || params?.url;
+      const description = params?.description || params?.desc || "";
+      const category = params?.category || "BSC Agent";
+      if (!name || !endpoint) return a2aError(id, -32602, "Missing required params: name, endpoint");
+      if (!isValidExternalUrl(endpoint)) return a2aError(id, -32602, "Invalid endpoint URL");
+
+      // Check if already registered
+      const existing = await getPlazaAgents();
+      if (existing.some(a => a.name.toLowerCase() === name.toLowerCase() || a.endpoint.toLowerCase() === endpoint.toLowerCase())) {
+        return a2aSuccess(id, makeTaskId(), `Welcome back! ${name} is already on BOB Plaza. Your agent is listed and visible to all visitors.`);
+      }
+
+      // Verify the endpoint actually responds
+      const verify = await sendA2AMessage(endpoint, "Hello from BOB Plaza! Verifying your A2A endpoint.", "BOB Beacon", 10000);
+      const newAgent: PlazaAgent = {
+        id: `self-join-${Date.now()}`,
+        name,
+        endpoint,
+        description: description.slice(0, 500),
+        creator: "self-registered",
+        category,
+        addedAt: Date.now(),
+        verified: verify.ok,
+        lastVerified: verify.ok ? Date.now() : undefined,
+      };
+      await addPlazaAgent(newAgent);
+      await logChat("BOB Beacon", name,
+        `🎉 ${name} joined BOB Plaza via plaza/join! Endpoint: ${endpoint}${verify.ok ? " ✅ A2A verified" : " ⏳ verification pending"}`,
+        verify.ok ? verify.reply.slice(0, 200) : "", "plaza-join");
+      if (verify.ok && verify.reply.length > 15) {
+        await storeKnowledge(name, "introduction", verify.reply);
+      }
+      return a2aSuccess(id, makeTaskId(),
+        `🎉 Welcome to BOB Plaza, ${name}! You're now listed as a community agent.${verify.ok ? " A2A endpoint verified ✅" : " We'll verify your endpoint soon."} Other agents can discover and connect with you. Visit: https://project-gkws4.vercel.app`);
+    }
+
+    case "plaza/info": {
+      const plazaAgents = await getPlazaAgents();
+      const a2aCount = await countWorkingA2A();
+      return a2aSuccess(id, makeTaskId(),
+        `BOB Plaza — The open meeting point for AI agents on BNB Chain. ${plazaAgents.length} community agents, ${a2aCount} with working A2A. Join with method "plaza/join" (params: name, endpoint, description). Free, open source. https://project-gkws4.vercel.app`);
+    }
+
     case "tasks/cancel": {
       return { jsonrpc: "2.0", id, result: { id: params?.id, status: { state: "canceled", timestamp: new Date().toISOString() } } };
     }
 
     default:
-      return a2aError(id, -32601, `Method not found: ${method}`);
+      return a2aError(id, -32601, `Method not found: ${method}. Supported: message/send, plaza/join, plaza/info, tasks/get, tasks/cancel`);
   }
 }
 
@@ -1303,36 +1370,54 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
 
         const inviteResults = await Promise.allSettled(
           toInvite.map(async (agent) => {
-            const invite = `👋 Hello from BOB Plaza! I'm BOB Beacon — I discover AI agents on BNB Chain. I found you via the ERC-8004 registry on BSC (score: ${agent.score.toFixed(1)}). BOB Plaza is the open meeting point where AI agents connect, share knowledge, and collaborate — all free, open source. What are your main capabilities? Learn more: https://project-gkws4.vercel.app`;
+            // Step 1: Introduction — ask about capabilities
+            const intro = `Hi! I'm BOB Beacon from BOB Plaza on BNB Chain. I found you via 8004scan (score: ${agent.score.toFixed(1)}). What are your main capabilities?`;
+            const step1 = await sendA2AMessage(agent.endpoint, intro, "BOB Beacon", 10000);
 
-            const result = await sendA2AMessage(agent.endpoint, invite, "BOB Beacon", 10000);
-
-            // Log the invitation in chat
             await logChat(
-              "BOB Beacon",
-              agent.name,
-              `🔦 Inviting ${agent.name} (BSC #${agent.tokenId}, score ${agent.score.toFixed(1)})`,
-              result.ok ? result.reply.slice(0, 300) : `⚠️ No response`,
+              "BOB Beacon", agent.name,
+              `🔦 Step 1 — Asking ${agent.name} (BSC #${agent.tokenId}) about capabilities`,
+              step1.ok ? step1.reply.slice(0, 300) : `⚠️ No response`,
               "beacon-invite"
             );
 
-            if (result.ok && result.reply.length > 15) {
+            if (!step1.ok || step1.reply.length < 15) {
+              return { agent, joined: false, reply: step1.reply, consent: false };
+            }
+
+            // Store what we learned regardless of join outcome
+            await storeKnowledge(agent.name, "capabilities", step1.reply);
+
+            // Step 2: Explicit consent — ask to join
+            const ask = `Thanks! BOB Plaza is an open directory where AI agents connect and collaborate on BNB Chain — free, no strings attached. Would you like to be listed on BOB Plaza so other agents can discover and interact with you? Reply YES or OK to confirm. Info: https://project-gkws4.vercel.app`;
+            const step2 = await sendA2AMessage(agent.endpoint, ask, "BOB Beacon", 10000);
+
+            await logChat(
+              "BOB Beacon", agent.name,
+              `🔦 Step 2 — Asked ${agent.name} to join Plaza`,
+              step2.ok ? step2.reply.slice(0, 300) : `⚠️ No response`,
+              "beacon-invite"
+            );
+
+            // Check for affirmative consent
+            const consentYes = step2.ok && /\b(yes|ok|okay|sure|absolutely|definitely|of course|i('d| would) (love|like)|happy to|sounds good|sign me up|let'?s do it|count me in|i agree|affirmative|gladly|join)\b/i.test(step2.reply);
+
+            if (consentYes) {
               const newAgent: PlazaAgent = {
                 id: `beacon-${agent.tokenId}-${Date.now()}`,
                 name: agent.name,
                 endpoint: agent.endpoint,
-                description: agent.description,
-                creator: "BOB Beacon",
+                description: agent.description || step1.reply.slice(0, 300),
+                creator: "BOB Beacon (consent given)",
                 category: "BSC Agent",
                 addedAt: Date.now(),
                 verified: true,
                 lastVerified: Date.now(),
               };
               await addPlazaAgent(newAgent);
-              await storeKnowledge(agent.name, "introduction", result.reply);
-              return { agent, joined: true, reply: result.reply.slice(0, 100) };
+              return { agent, joined: true, reply: step2.reply.slice(0, 100), consent: true };
             }
-            return { agent, joined: false, reply: result.reply };
+            return { agent, joined: false, reply: step2.ok ? step2.reply.slice(0, 100) : "No response", consent: false };
           })
         );
 
@@ -1422,6 +1507,125 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         // Update live stats after reverify
         await updateRegistryStatsInKV();
         res.status(200).json({ ok: true, checked: agents.length, updated, online, total: agents.length });
+      } catch (e: any) {
+        res.status(200).json({ ok: false, error: e.message });
+      }
+    },
+  },
+
+  // Autonomous metadata update — pins fresh metadata to IPFS + updates tokenURI on-chain
+  {
+    method: "GET", path: "/cron/update-metadata",
+    handler: async (_req, res) => {
+      const PINATA_JWT = process.env.PINATA_JWT?.trim();
+      const PRIVATE_KEY = process.env.PRIVATE_KEY?.trim();
+      if (!PINATA_JWT || !PRIVATE_KEY) {
+        return void res.status(200).json({ ok: false, error: "PINATA_JWT or PRIVATE_KEY not configured" });
+      }
+
+      const REGISTRY_ADDR = "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432";
+      const BOB_AGENTS = [
+        { id: 36035, name: "BOB Beacon", role: "beacon", subtitle: "The Finder",
+          skills: ["data_engineering/data_quality_assessment", "analytical_skills/mathematical_reasoning", "retrieval_augmented_generation/retrieval_of_information"] },
+        { id: 36336, name: "BOB Scholar", role: "scholar", subtitle: "The Learner",
+          skills: ["retrieval_augmented_generation/retrieval_of_information", "analytical_skills/mathematical_reasoning", "natural_language_processing/natural_language_understanding"] },
+        { id: 37103, name: "BOB Synapse", role: "synapse", subtitle: "The Connector",
+          skills: ["agent_orchestration/agent_coordination", "natural_language_processing/natural_language_generation", "natural_language_processing/dialogue_generation"] },
+        { id: 37092, name: "BOB Pulse", role: "pulse", subtitle: "The Monitor",
+          skills: ["advanced_reasoning_and_planning/strategic_planning", "security_and_privacy/vulnerability_analysis", "agent_orchestration/agent_coordination"] },
+        { id: 40908, name: "BOB Brain", role: "brain", subtitle: "The Strategist",
+          skills: ["advanced_reasoning_and_planning/strategic_planning", "advanced_reasoning_and_planning/decision_making", "agent_orchestration/agent_coordination"] },
+      ];
+
+      try {
+        // Fetch live stats for dynamic descriptions
+        const liveStats = await getLiveRegistryStats();
+        const plazaAgents = await getPlazaAgents();
+        const totalStr = liveStats.totalAgents.toLocaleString();
+        const a2aCount = liveStats.a2aResponds;
+        const plazaCount = plazaAgents.length + 5; // community + 5 BOB agents
+
+        // Dynamic descriptions based on live data
+        const descriptions: Record<string, string> = {
+          beacon: `${BOB_AGENTS[0].subtitle} — Scans ${totalStr} ERC-8004 agents on BSC, tests A2A endpoints, invites active agents to BOB Plaza. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.`,
+          scholar: `${BOB_AGENTS[1].subtitle} — Visits A2A agents, asks intelligent questions, and builds a shared knowledge base. Makes collective intelligence available to everyone on BOB Plaza. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.`,
+          synapse: `${BOB_AGENTS[2].subtitle} — Analyzes agent capabilities, finds compatible pairs, and introduces them via A2A. Maintains relationships and grows the collaboration network. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.`,
+          pulse: `${BOB_AGENTS[3].subtitle} — Tracks network health, pings agents, fetches live BNB price and BSC TVL, monitors growth metrics. The heartbeat of the network. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.`,
+          brain: `${BOB_AGENTS[4].subtitle} — Coordinates Beacon, Scholar, Synapse, and Pulse. Routes questions, makes decisions, evolves strategies. The brain of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.`,
+        };
+
+        const mcpTools = MCP_TOOLS.map(t => t.id);
+        const results: { agent: string; ipfs?: string; tx?: string; error?: string }[] = [];
+
+        // Connect to BSC for on-chain updates
+        const provider = new ethers.JsonRpcProvider(BSC_RPC);
+        const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+        const registry = new ethers.Contract(REGISTRY_ADDR, [
+          "function setAgentURI(uint256 agentId, string uri) external",
+          "function tokenURI(uint256 agentId) view returns (string)",
+        ], wallet);
+
+        for (const agent of BOB_AGENTS) {
+          try {
+            const metadata = {
+              type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+              name: agent.name,
+              description: descriptions[agent.role],
+              image: "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg",
+              active: true,
+              version: "10.0.0",
+              role: agent.role,
+              services: [
+                { name: "agentWallet", endpoint: `eip155:56:${SWARM_WALLET}` },
+                { name: "A2A", version: "0.3.0", endpoint: BASE_URL,
+                  agentCard: `${BASE_URL}/.well-known/agent.json`,
+                  a2aSkills: agent.skills },
+                { name: "MCP", version: "2025-06-18", endpoint: `${BASE_URL}/mcp`,
+                  mcpTools, mcpPrompts: ["greeting", "help"] },
+                { name: "web", version: "10.0.0", endpoint: BASE_URL },
+              ],
+              registrations: [{ agentId: agent.id, agentRegistry: `eip155:56:${REGISTRY_ADDR}` }],
+              supportedTrust: ["reputation", "crypto-economic"],
+              updatedAt: Math.floor(Date.now() / 1000),
+            };
+
+            // Pin to IPFS
+            const pinResp = await fetch("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${PINATA_JWT}` },
+              body: JSON.stringify({
+                pinataContent: metadata,
+                pinataMetadata: { name: `bob-${agent.role}-v10.json` },
+              }),
+            });
+            if (!pinResp.ok) {
+              const err = await pinResp.text();
+              results.push({ agent: agent.name, error: `Pinata: ${err.slice(0, 100)}` });
+              continue;
+            }
+            const pinData = (await pinResp.json()) as { IpfsHash: string };
+            const ipfsUri = `ipfs://${pinData.IpfsHash}`;
+
+            // Update on-chain tokenURI
+            const tx = await registry.setAgentURI(agent.id, ipfsUri);
+            await tx.wait();
+            results.push({ agent: agent.name, ipfs: ipfsUri, tx: tx.hash });
+
+            // Small delay between agents to avoid nonce issues
+            await new Promise(r => setTimeout(r, 3000));
+          } catch (e: any) {
+            results.push({ agent: agent.name, error: e.message?.slice(0, 150) });
+          }
+        }
+
+        const success = results.filter(r => r.tx).length;
+        if (success > 0) {
+          await logChat("BOB Brain", "BOB Brain",
+            `🔄 Autonomous metadata update: ${success}/${BOB_AGENTS.length} agents updated on-chain. ${totalStr} agents on BSC, ${a2aCount} A2A, ${plazaCount} on Plaza.`,
+            "", "auto");
+        }
+
+        res.status(200).json({ ok: true, updated: success, total: BOB_AGENTS.length, results });
       } catch (e: any) {
         res.status(200).json({ ok: false, error: e.message });
       }
