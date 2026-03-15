@@ -223,7 +223,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="sidebar-section">
       <div class="sidebar-label">Multi-Chain <span style="font-size:8px;color:var(--gold);font-weight:400">● All chains welcome</span></div>
       <div id="multichain-list" style="max-height:100px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Open for all chains — <span style="color:var(--gold)">plaza/join</span></div>
+        <div style="font-size:10px;color:var(--dim);padding:8px 12px">No agents from other chains yet</div>
       </div>
     </div>
 
@@ -830,7 +830,7 @@ function loadCommunityAgents() {
         if (isBsc) { bscHtml += row; } else { mcHtml += row; }
       });
       bscEl.innerHTML = bscHtml;
-      mcEl.innerHTML = mcHtml || '<div style="font-size:10px;color:var(--dim);padding:8px 12px">Open for all chains — <span style="color:var(--gold)">plaza/join</span></div>';
+      mcEl.innerHTML = mcHtml || '<div style="font-size:10px;color:var(--dim);padding:8px 12px">No agents from other chains yet</div>';
     })
     .catch(function() {});
 }
