@@ -209,10 +209,11 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● BSC Agents joined</span></div>
-      <div id="community-list" style="max-height:160px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Waiting for agents...</div>
+      <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● ${5 + (liveStats?.communityAgents ?? 0)} agents</span></div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        ${BOB_AGENTS.map(a => `<div class="guest-agent" onclick="setTarget(${a.id},'${a.name}','${a.icon}')" style="cursor:pointer"><span class="agent-dot online" style="width:6px;height:6px"></span><span class="ga-name" style="color:${a.color}">${a.icon} ${a.name.replace('BOB ','')}</span><span class="ga-score" style="color:var(--dim);font-size:9px">${a.role}</span></div>`).join("")}
       </div>
+      <div id="community-list" style="max-height:120px;overflow-y:auto"></div>
     </div>
 
     <div class="sidebar-section">
@@ -580,7 +581,7 @@ function sendMessage() {
   };
   if (targetAgent && agentMeta[targetAgent]) body.params.agentId = targetAgent;
 
-  var agentLabel = targetAgent && agentMeta[targetAgent] ? agentMeta[targetAgent].name : 'BOB';
+  var agentLabel = targetAgent && agentMeta[targetAgent] ? agentMeta[targetAgent].name : 'BOB Brain';
   var clientKey = msgKey({ from: nickname, text: text });
   pendingKeys.add(clientKey);
 
@@ -813,7 +814,7 @@ function loadCommunityAgents() {
     .then(function(data) {
       var el = document.getElementById('community-list');
       if (!data.agents || data.agents.length === 0) {
-        el.innerHTML = '<div style="font-size:10px;color:var(--dim);padding:8px 12px">No community agents yet — be the first!</div>';
+        el.innerHTML = '';
         return;
       }
       var html = '';

@@ -904,8 +904,8 @@ async function handleA2A(body: any): Promise<object> {
       const userText = extractText(params?.message);
       const taskId = params?.message?.task_id || makeTaskId();
       const targetAgent = params?.agentId ?? params?.agent_id;
-      const agentId = targetAgent ? parseInt(String(targetAgent)) : undefined;
-      const agentName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB";
+      const agentId = targetAgent ? parseInt(String(targetAgent)) : 40908; // Default: BOB Brain
+      const agentName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB Brain";
       const rpcId = String(id ?? "");
       const source = rpcId.startsWith("chat-") ? "web" : "a2a";
       const senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
