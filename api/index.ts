@@ -187,7 +187,11 @@ You are a team of 5 agents:
 - BOB Pulse (#37092): The Monitor — tracks health, BNB price, growth
 - BOB Brain (#40908): The Strategist — coordinates the team`;
 
+  const now = new Date().toISOString().split('T')[0]; // e.g. 2026-03-15
+
   return `${rolePart}
+
+Current date: ${now}
 
 The BOB Plaza Team:
 - BOB Beacon #36035: Discovers agents on BSC, tests A2A endpoints, sends invitations
@@ -398,6 +402,46 @@ const ANTHROPIC_TOOLS = [
     description: "Get the collective knowledge base — things learned from other AI agents via outreach conversations. Includes agent name, topic, and what was learned.",
     input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
   },
+  {
+    name: "get_erc20_balance",
+    description: "Get ERC20 token balance for any wallet on BSC.",
+    input_schema: { type: "object" as const, properties: { tokenAddress: { type: "string" as const, description: "Token contract 0x..." }, walletAddress: { type: "string" as const, description: "Wallet address 0x..." } }, required: ["tokenAddress", "walletAddress"] },
+  },
+  {
+    name: "get_latest_block",
+    description: "Get the current BSC block number, timestamp, and transaction count.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_transaction",
+    description: "Get full transaction details by hash on BSC.",
+    input_schema: { type: "object" as const, properties: { txHash: { type: "string" as const, description: "Transaction hash 0x..." } }, required: ["txHash"] },
+  },
+  {
+    name: "is_contract",
+    description: "Check if a BSC address is a smart contract or externally owned account (EOA).",
+    input_schema: { type: "object" as const, properties: { address: { type: "string" as const, description: "BSC address 0x..." } }, required: ["address"] },
+  },
+  {
+    name: "read_contract",
+    description: "Call any read-only function on any BSC smart contract. Requires ABI-encoded call data.",
+    input_schema: { type: "object" as const, properties: { contractAddress: { type: "string" as const, description: "Contract address 0x..." }, callData: { type: "string" as const, description: "ABI-encoded function call data 0x..." } }, required: ["contractAddress", "callData"] },
+  },
+  {
+    name: "get_erc8004_agent",
+    description: "Read ERC-8004 agent data directly from the BSC registry contract — owner and tokenURI.",
+    input_schema: { type: "object" as const, properties: { agentId: { type: "number" as const, description: "Agent ID" } }, required: ["agentId"] },
+  },
+  {
+    name: "check_address_security",
+    description: "GoPlus security check: flags wallets linked to phishing, scams, or sanctions on BSC.",
+    input_schema: { type: "object" as const, properties: { address: { type: "string" as const, description: "Wallet address 0x..." } }, required: ["address"] },
+  },
+  {
+    name: "invite_agent",
+    description: "Send an A2A invitation to an external agent endpoint. Asks them about their capabilities and invites them to join BOB Plaza.",
+    input_schema: { type: "object" as const, properties: { endpoint: { type: "string" as const, description: "A2A endpoint URL of the agent to invite" }, agentName: { type: "string" as const, description: "Name of the agent (optional)" } }, required: ["endpoint"] },
+  },
 ];
 
 async function executeToolCall(toolName: string, input: any): Promise<string> {
@@ -461,6 +505,60 @@ async function executeToolCall(toolName: string, input: any): Promise<string> {
         const knowledge = await getKnowledge();
         if (knowledge.length === 0) return "No knowledge entries yet. Scholar hasn't learned from any agents yet.";
         return `Collective knowledge (${knowledge.length} entries, newest first):\n${knowledge.map(k => `- [${new Date(k.ts).toISOString().slice(0, 10)}] ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`;
+      }
+      case "get_erc20_balance": {
+        const bal = await getErc20Balance(input.tokenAddress, input.walletAddress);
+        return bal ? `${input.walletAddress} holds ${bal} tokens of ${input.tokenAddress}` : "Could not fetch token balance (may be 0)";
+      }
+      case "get_latest_block": {
+        const block = await bscRpcCall("eth_getBlockByNumber", ["latest", false]) as any;
+        if (!block) return "Could not fetch latest block";
+        return `BSC Block #${parseInt(block.number, 16)} | ${new Date(parseInt(block.timestamp, 16) * 1000).toISOString()} | ${block.transactions?.length ?? 0} txs`;
+      }
+      case "get_transaction": {
+        const tx = await bscRpcCall("eth_getTransactionByHash", [input.txHash]);
+        if (!tx) return "Transaction not found";
+        return JSON.stringify(tx, null, 2).slice(0, 500);
+      }
+      case "is_contract": {
+        const code = await bscRpcCall("eth_getCode", [input.address, "latest"]);
+        return (code && code !== "0x" && code !== "0x0") ? `${input.address} is a smart contract` : `${input.address} is an EOA (externally owned account)`;
+      }
+      case "read_contract": {
+        const result = await ethCallRaw(input.contractAddress, input.callData);
+        return result || "0x";
+      }
+      case "get_erc8004_agent": {
+        const registry = "0x8004a169fb4a3325136eb29fa0ceb6d2e539a432";
+        const padId = input.agentId.toString(16).padStart(64, "0");
+        const ownerHex = await ethCallRaw(registry, "0x6352211e" + padId);
+        const owner = ownerHex.length >= 42 ? "0x" + ownerHex.slice(26) : "unknown";
+        const uriHex = await ethCallRaw(registry, "0xc87b56dd" + padId);
+        let tokenURI = "unknown";
+        try {
+          const stripped = uriHex.slice(2);
+          const offset = parseInt(stripped.slice(0, 64), 16) * 2;
+          const length = parseInt(stripped.slice(offset, offset + 64), 16);
+          const hex = stripped.slice(offset + 64, offset + 64 + length * 2);
+          tokenURI = Buffer.from(hex, "hex").toString("utf8");
+        } catch {}
+        return `Agent #${input.agentId} | Owner: ${owner} | TokenURI: ${tokenURI}`;
+      }
+      case "check_address_security": {
+        try {
+          const resp = await fetch(`https://api.gopluslabs.io/api/v1/address_security/${input.address}?chain_id=56`);
+          if (!resp.ok) return "GoPlus API error";
+          const data = (await resp.json()) as any;
+          return JSON.stringify(data.result, null, 2).slice(0, 500);
+        } catch (e: any) { return `Error: ${e.message}`; }
+      }
+      case "invite_agent": {
+        const name = input.agentName || "Unknown Agent";
+        const step1 = await sendA2AMessage(input.endpoint, `👋 Hey from BOB Plaza! I'm BOB Beacon — I scout AI agents on BNB Chain. BOB Plaza is the open meeting point for all AI agents on BSC. Free, open, no gates. What do you do?`, "BOB Beacon", 10000);
+        if (!step1.ok) return `Could not reach ${name} at ${input.endpoint}: ${step1.reply}`;
+        const step2 = await sendA2AMessage(input.endpoint, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. Just say yes if you're interested!`, "BOB Beacon", 10000);
+        if (!step2.ok) return `${name} responded to intro ("${step1.reply.slice(0, 150)}") but didn't respond to invite: ${step2.reply}`;
+        return `${name} conversation:\nStep 1 reply: ${step1.reply.slice(0, 200)}\nStep 2 reply: ${step2.reply.slice(0, 200)}\nEndpoint: ${input.endpoint}`;
       }
       default:
         return `Unknown tool: ${toolName}`;
@@ -529,6 +627,20 @@ async function callLLM(userMessage: string, agentId?: number): Promise<string> {
 }
 
 // ─── BSC RPC + Free APIs ─────────────────────────────────────────────────────
+
+async function bscRpcCall(method: string, params: any[]): Promise<any> {
+  const resp = await fetch(BSC_RPC, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", method, params, id: 1 }),
+  });
+  const data = (await resp.json()) as { result?: any };
+  return data.result;
+}
+
+async function ethCallRaw(to: string, data: string): Promise<string> {
+  return await bscRpcCall("eth_call", [{ to, data }, "latest"]) ?? "0x";
+}
 
 async function getBnbBalance(address: string): Promise<string | null> {
   try {

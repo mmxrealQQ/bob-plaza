@@ -14,7 +14,11 @@
     { "path": "/cron/activity",           "schedule": "0 6 * * *"  },
     { "path": "/cron/activity",           "schedule": "0 14 * * *" },
     { "path": "/cron/beacon-scan",        "schedule": "0 9 * * *"  },
-    { "path": "/cron/reverify-agents",    "schedule": "0 18 * * *" },
-    { "path": "/cron/community-outreach", "schedule": "0 21 * * *" }
+    { "path": "/cron/beacon-scan",        "schedule": "0 21 * * *" },
+    { "path": "/cron/reverify-agents",    "schedule": "0 12 * * *" },
+    { "path": "/cron/reverify-agents",    "schedule": "0 0 * * *"  },
+    { "path": "/cron/community-outreach", "schedule": "0 15 * * *" },
+    { "path": "/cron/community-outreach", "schedule": "0 21 * * *" },
+    { "path": "/cron/update-metadata",    "schedule": "0 3 * * 1"  }
   ]
 }
