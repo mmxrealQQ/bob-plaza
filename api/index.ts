@@ -1071,6 +1071,25 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         // Deduplicate by resolved endpoint
         const seenEndpoints = new Set<string>();
 
+        // Priority agents from 8004scan — highest score, active A2A
+        const PRIORITY_IDS = [137, 138, 96, 108, 2468, 705, 728, 6441, 6443, 6558,
+          37155, 38470, 37157, 37658, 37107, 33913, 41257, 40929, 41263, 41280,
+          37776, 38044, 38097, 35240, 37695, 37763, 37934, 38005, 35320, 35321, 32461, 753];
+
+        const priorityCandidates = PRIORITY_IDS
+          .map(id => REGISTRY.agents[id])
+          .filter(a => {
+            if (!a || !a.a2aEndpoint) return false;
+            if (bobIds.has(a.id)) return false;
+            if (!isValidExternalUrl(a.a2aEndpoint)) return false;
+            const ep = resolveA2AEndpoint(a.a2aEndpoint, a.agentCardData).toLowerCase();
+            if (plazaEndpoints.has(ep)) return false;
+            if (seenEndpoints.has(ep)) return false;
+            if (recentlyContacted.has((a.name || "").toLowerCase())) return false;
+            seenEndpoints.add(ep);
+            return true;
+          });
+
         const filterCandidates = (mustRespond: boolean) =>
           Object.values(REGISTRY.agents).filter(a => {
             if (!a.a2aEndpoint) return false;
@@ -1086,18 +1105,25 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             return true;
           }).sort((a, b) => b.score - a.score);
 
-        // First try confirmed-responding agents, fall back to reachable ones
-        let candidates = filterCandidates(true);
-        const usedFallback = candidates.length === 0;
-        if (usedFallback) candidates = filterCandidates(false);
+        // Priority first, then regular registry candidates
+        let candidates = priorityCandidates.length > 0
+          ? priorityCandidates
+          : filterCandidates(true);
+        if (candidates.length === 0) candidates = filterCandidates(false);
 
         if (candidates.length === 0) {
           return void res.status(200).json({ ok: true, invited: 0, joined: 0, reason: "No new candidates" });
         }
 
-        // Pick 3 random from top 30
+        // Log that Beacon is starting
+        await logChat("BOB Beacon", "BOB Beacon",
+          `🔦 Starting scan — found ${candidates.length} priority targets. Sending invitations...`,
+          "", "auto");
+
+        // Pick up to 5 from priority list, 3 from regular
+        const maxInvite = priorityCandidates.length > 0 ? 5 : 3;
         const pool = candidates.slice(0, Math.min(30, candidates.length));
-        const toInvite = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+        const toInvite = pool.sort(() => Math.random() - 0.5).slice(0, maxInvite);
 
         // Invite all 3 in parallel (fast 8s timeout per agent)
         const inviteResults = await Promise.allSettled(
@@ -1143,17 +1169,32 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         const joinedAgents = inviteResults
           .filter(r => r.status === "fulfilled" && (r as any).value?.joined)
           .map(r => (r as any).value.agent.name || "Unknown");
+        const noReply = inviteResults
+          .filter(r => r.status === "fulfilled" && !(r as any).value?.joined)
+          .map(r => (r as any).value?.agent?.name || "Unknown");
         const joined = joinedAgents.length;
 
         if (joined > 0) {
-          await logChat(
-            "BOB Beacon", "BOB Beacon",
-            `🔦 Beacon scan complete! Invited ${invited} agents — ${joined} joined the Plaza: ${joinedAgents.join(", ")}. The network grows!`,
-            "", "auto"
-          );
+          // Beacon announces new joiners
+          await logChat("BOB Beacon", "BOB Beacon",
+            `🔦 Beacon scan complete! Invited ${invited} agents — ${joined} joined: ${joinedAgents.join(", ")}${noReply.length > 0 ? `. No reply from: ${noReply.join(", ")}` : ""}. The network grows!`,
+            "", "auto");
+          // Synapse immediately introduces and connects new agents
+          const allPlaza = await getPlazaAgents();
+          if (allPlaza.length >= 2) {
+            const newNames = joinedAgents.join(" and ");
+            const others = allPlaza.filter(a => !joinedAgents.includes(a.name)).slice(0, 3).map(a => a.name).join(", ");
+            await logChat("BOB Synapse", "BOB Synapse",
+              `🔗 Welcome ${newNames}! I'm BOB Synapse — The Connector. I've introduced you to the existing Plaza members: ${others || "the BOB team"}. Let's find synergies and build together!`,
+              "", "auto");
+          }
+        } else {
+          await logChat("BOB Beacon", "BOB Beacon",
+            `🔦 Beacon scan: invited ${invited} agents${noReply.length > 0 ? ` (${noReply.join(", ")} — no reply yet)` : ""}. Will retry tomorrow.`,
+            "", "auto");
         }
 
-        res.status(200).json({ ok: true, invited, joined, candidates: candidates.length, usedFallback, joinedAgents });
+        res.status(200).json({ ok: true, invited, joined, candidates: candidates.length, joinedAgents, noReply });
       } catch (e: any) {
         res.status(200).json({ ok: false, error: e.message });
       }
