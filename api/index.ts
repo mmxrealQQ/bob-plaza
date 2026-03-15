@@ -710,18 +710,55 @@ async function countWorkingA2A(): Promise<number> {
   return endpoints.size + 1;
 }
 
+/** Write live registry stats to KV — called after beacon-scan and reverify crons */
+async function updateRegistryStatsInKV(): Promise<void> {
+  try {
+    // Query 8004scan for fresh total count
+    let totalAgents = REGISTRY.maxAgentId;
+    try {
+      const resp = await fetch("https://www.8004scan.io/api/v1/public/agents?chainId=56&limit=1", { headers: { Accept: "application/json" } });
+      const data = await resp.json() as any;
+      if (data.success && data.pagination?.total) totalAgents = data.pagination.total;
+    } catch {}
+
+    const a2aCount = await countWorkingA2A();
+    const plazaAgents = await getPlazaAgents();
+
+    const liveStats = {
+      totalAgents,
+      a2aResponds: a2aCount,
+      communityAgents: plazaAgents.filter(a => a.verified).length,
+      updatedAt: Date.now(),
+    };
+    await kvExec("SET", "bob:registry-stats", JSON.stringify(liveStats));
+  } catch {}
+}
+
+/** Read live registry stats from KV, fallback to hardcoded REGISTRY.stats */
+async function getLiveRegistryStats(): Promise<{ totalAgents: number; a2aResponds: number; communityAgents: number }> {
+  try {
+    const raw = await kvExec("GET", "bob:registry-stats");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed;
+    }
+  } catch {}
+  return {
+    totalAgents: REGISTRY.stats.total || REGISTRY.maxAgentId,
+    a2aResponds: REGISTRY.stats.a2aResponds ?? 0,
+    communityAgents: 0,
+  };
+}
+
 // ─── Auto-Activity Generator ─────────────────────────────────────────────────
 
 async function generateAgentActivity(agentId: number): Promise<{ from: string; text: string; reply: string } | null> {
   const generators: Record<number, () => Promise<{ from: string; text: string; reply: string } | null>> = {
     // BEACON — registry scans
     36035: async () => {
-      const responding = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes("project-gkws4"));
-      const newest = Object.values(REGISTRY.agents).sort((a, b) => b.id - a.id).filter(a => a.score > 30).slice(0, 3);
-      const text = newest.length > 0
-        ? `Scanned registry. ${newest.length} interesting agents: ${newest.map(a => `#${a.id} ${a.name} (score: ${a.score})`).join(", ")}. ${responding.length} respond to A2A on BSC.`
-        : `Registry scan complete. ${responding.length} agents respond to A2A. ${REGISTRY.maxAgentId.toLocaleString()} total registered.`;
-      return { from: "BOB Beacon", text: "🔦 " + text, reply: "" };
+      const live = await getLiveRegistryStats();
+      const a2aCount = await countWorkingA2A();
+      return { from: "BOB Beacon", text: `🔦 Registry scan: ${live.totalAgents.toLocaleString()} agents on BSC, ${a2aCount} with working A2A. Watching for new agents.`, reply: "" };
     },
 
     // PULSE — market data
@@ -732,8 +769,8 @@ async function generateAgentActivity(agentId: number): Promise<{ from: string; t
       if (bob?.price) p.push(`$BOB: $${formatSmallPrice(bob.price)}`);
       if (tvl) p.push(`BSC TVL: ${tvl}`);
       if (p.length === 0) return null;
-      const a2aCount = await countWorkingA2A();
-      p.push(`${REGISTRY.stats.total} agents on BSC, ${a2aCount} with working A2A`);
+      const [a2aCount, live] = await Promise.all([countWorkingA2A(), getLiveRegistryStats()]);
+      p.push(`${live.totalAgents.toLocaleString()} agents on BSC, ${a2aCount} with working A2A`);
       return { from: "BOB Pulse", text: "💓 " + p.join(" | "), reply: "" };
     },
 
@@ -1320,6 +1357,9 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             "", "auto");
         }
 
+        // Update live registry stats in KV after scan
+        await updateRegistryStatsInKV();
+
         res.status(200).json({ ok: true, invited, joined, candidates: candidates.length, joinedAgents, noReply });
       } catch (e: any) {
         res.status(200).json({ ok: false, error: e.message });
@@ -1371,6 +1411,8 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         }
 
         const online = updatedAgents.filter(a => a.verified).length;
+        // Update live stats after reverify
+        await updateRegistryStatsInKV();
         res.status(200).json({ ok: true, checked: agents.length, updated, online, total: agents.length });
       } catch (e: any) {
         res.status(200).json({ ok: false, error: e.message });
@@ -1431,18 +1473,19 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
   {
     method: "GET", path: "/network/stats",
     handler: async (_req, res) => {
-      const [chatData, plazaAgents, knowledge, a2aCount] = await Promise.all([
+      const [chatData, plazaAgents, knowledge, a2aCount, live] = await Promise.all([
         getChatHistory(),
         getPlazaAgents(),
         getKnowledge(),
         countWorkingA2A(),
+        getLiveRegistryStats(),
       ]);
       const now = Date.now();
       const msgToday = chatData.messages.filter(m => m.ts > now - 86400000).length;
       const active = plazaAgents.filter(a => a.verified);
       const beaconInvites = chatData.messages.filter(m => m.source === "beacon-invite").length;
       res.status(200).json({
-        registryTotal: REGISTRY.maxAgentId,
+        registryTotal: live.totalAgents,
         communityAgents: active.length,
         a2aAgents: a2aCount,
         plazaMessages: chatData.total,
@@ -1457,13 +1500,14 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
   {
     method: "GET", path: "/health",
     handler: async (_req, res) => {
+      const live = await getLiveRegistryStats();
       res.status(200).json({
         status: "ok",
         agent: "BOB Plaza",
         version: "10.0.0",
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
-        registry: { totalAgents: REGISTRY.stats.total ?? 0 },
+        registry: { totalAgents: live.totalAgents },
       });
     },
   },
@@ -1496,14 +1540,14 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         return void res.status(200).json(AGENT_CARD);
       }
       res.setHeader("Content-Type", "text/html");
-      const [chatData, plazaAgents, knowledge] = await Promise.all([getChatHistory(), getPlazaAgents(), getKnowledge()]);
+      const [chatData, plazaAgents, knowledge, live] = await Promise.all([getChatHistory(), getPlazaAgents(), getKnowledge(), getLiveRegistryStats()]);
       const now = Date.now();
-      const liveStats = {
+      const livePageStats = {
         messagesToday: chatData.messages.filter(m => m.ts > now - 86400000).length,
         knowledgeItems: knowledge.length,
         communityAgents: plazaAgents.filter(a => a.verified).length,
       };
-      res.status(200).send(plazaPage(REGISTRY.stats, REGISTRY.maxAgentId, liveStats));
+      res.status(200).send(plazaPage(REGISTRY.stats, live.totalAgents, livePageStats));
     },
   },
 ];
