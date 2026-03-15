@@ -429,12 +429,9 @@ async function executeToolCall(toolName: string, input: any): Promise<string> {
       }
       case "get_plaza_agents": {
         const agents = await getPlazaAgents();
-        if (agents.length === 0) return "No community agents yet. Only 5 BOB agents: Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908.";
-        const v = agents.filter(a => a.verified), u = agents.filter(a => !a.verified);
-        let r = "";
-        if (v.length > 0) r += `Verified:\n${v.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`;
-        if (u.length > 0) r += `${r ? "\n" : ""}Unverified:\n${u.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}`).join("\n")}`;
-        return r;
+        const active = agents.filter(a => a.verified);
+        if (active.length === 0) return "No community agents on the Plaza yet. Only the 5 BOB agents: Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908.";
+        return `Active community agents (${active.length}):\n${active.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`;
       }
       case "get_bnb_price": {
         const p = await getBnbPrice();
@@ -1615,9 +1612,19 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
           })
         );
 
+        // Remove agents that have been unverified for 3+ days
+        const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+        const cleaned = updatedAgents.filter(agent => {
+          if (agent.verified) return true;
+          // Keep if added recently (give them time)
+          if (now - agent.addedAt < THREE_DAYS) return true;
+          console.log(`[reverify] Removing ${agent.name} — unverified for 3+ days`);
+          return false;
+        });
+
         // Rewrite the list in KV
         await kvExec("DEL", "bob:plaza-agents");
-        for (const agent of updatedAgents) {
+        for (const agent of cleaned) {
           await kvExec("RPUSH", "bob:plaza-agents", JSON.stringify(agent));
         }
 
