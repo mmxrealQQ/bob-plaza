@@ -1379,6 +1379,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // MCP — separate handler
   if (path === "/mcp") return handleMcp(req, res);
 
+  if (path === "/pitch" || path === "/pitch-deck" || path === "/pitch-deck.html") {
+    const { readFileSync } = await import("fs");
+    const { join } = await import("path");
+    try {
+      const html = readFileSync(join(__dirname, "../pitch-deck.html"), "utf8");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(html);
+    } catch {
+      return res.status(404).json({ error: "Pitch deck not found", dir: __dirname });
+    }
+  }
+
 
   // Route table
   for (const route of routes) {
