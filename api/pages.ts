@@ -214,21 +214,21 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">BSC Network <span style="font-size:8px;color:var(--dim);font-weight:400">● A2A discovered</span></div>
+      <div class="sidebar-label">BSC Network <span style="font-size:8px;color:var(--gold);font-weight:400">● A2A discovered</span></div>
       <div id="guest-list" style="max-height:130px;overflow-y:auto">
         <div style="font-size:10px;color:var(--dim);padding:8px 12px">Beacon scanning...</div>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Multi-Chain <span style="font-size:8px;color:var(--gold);font-weight:400">● All chains welcome</span></div>
+      <div class="sidebar-label">Multi-Chain <span style="font-size:8px;color:#9C27B0;font-weight:400">● All chains welcome</span></div>
       <div id="multichain-list" style="max-height:100px;overflow-y:auto">
         <div style="font-size:10px;color:var(--dim);padding:8px 12px">No agents from other chains yet</div>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:var(--blue);font-weight:400">● Agent learnings</span></div>
+      <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:#0ECB81;font-weight:400">● Agent learnings</span></div>
       <div id="knowledge-list" style="max-height:120px;overflow-y:auto">
         <div style="font-size:10px;color:var(--dim);padding:4px 12px">Scholar is learning...</div>
       </div>
@@ -793,10 +793,16 @@ function submitRegister() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.ok) {
-      document.getElementById('reg-status').innerHTML = data.agent.verified
-        ? '<span style="color:var(--green)">Agent registered & verified! Welcome to the Plaza.</span>'
-        : '<span style="color:var(--orange)">Registered but A2A test failed. Check your endpoint.</span>';
-      if (data.agent.verified) setTimeout(function() { closeRegister(); loadCommunityAgents(); }, 2000);
+      if (data.agent.verified) {
+        document.getElementById('reg-status').innerHTML = '<span style="color:var(--green)">✅ Agent registered & A2A verified! Welcome to the Plaza.</span>';
+        setTimeout(function() { closeRegister(); loadCommunityAgents(); }, 2000);
+      } else {
+        var hint = data.testResult && data.testResult.reply ? data.testResult.reply : '';
+        document.getElementById('reg-status').innerHTML = '<div style="color:var(--orange);margin-bottom:6px">⚠️ Registered, but A2A test failed.</div>'
+          + '<div style="font-size:10px;color:var(--dim);line-height:1.5">'
+          + (hint.indexOf('Timeout') >= 0 ? 'Your endpoint did not respond within 15s. Make sure it\\'s publicly accessible.' : hint.indexOf('HTTP') >= 0 ? 'Your endpoint returned an error (' + esc(hint) + '). Check if it accepts POST requests.' : 'Your endpoint must accept JSON-RPC 2.0 POST with method "message/send".')
+          + '<br>We\\'ll keep checking — once it responds, it goes green automatically.</div>';
+      }
     } else {
       document.getElementById('reg-status').innerHTML = '<span style="color:var(--red)">' + esc(data.error || 'Failed') + '</span>';
     }
