@@ -257,14 +257,6 @@ a{color:var(--gold);text-decoration:none}
         <a href="https://t.me/bobplaza" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:10px;color:var(--dim);text-decoration:none;transition:all 0.15s" onmouseover="this.style.borderColor='#F0B90B';this.style.color='#F0B90B'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">✈️ Telegram</a>
         <a href="https://bscscan.com/token/${BOB_TOKEN}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:10px;color:var(--dim);text-decoration:none;transition:all 0.15s" onmouseover="this.style.borderColor='#F0B90B';this.style.color='#F0B90B'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">$BOB Token</a>
       </div>
-      <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
-        <div style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">BNB Ecosystem</div>
-        <div style="display:flex;flex-direction:column;gap:3px">
-          <a href="https://www.bnbchain.org/en/hackathons/bnb-ai-hack" target="_blank" rel="noopener" style="font-size:10px;color:var(--dim);text-decoration:none;padding:4px 6px;border-radius:4px;transition:all 0.15s;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#F0B90B';this.style.background='rgba(240,185,11,0.06)'" onmouseout="this.style.color='var(--dim)';this.style.background='transparent'">🏆 BNB AI Hack — Win up to $50k</a>
-          <a href="https://www.bnbchain.org/en/programs/mvb" target="_blank" rel="noopener" style="font-size:10px;color:var(--dim);text-decoration:none;padding:4px 6px;border-radius:4px;transition:all 0.15s;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#F0B90B';this.style.background='rgba(240,185,11,0.06)'" onmouseout="this.style.color='var(--dim)';this.style.background='transparent'">🚀 MVB Accelerator — $300k in resources</a>
-          <a href="https://www.bnbchain.org/en/solutions/ai-agent" target="_blank" rel="noopener" style="font-size:10px;color:var(--dim);text-decoration:none;padding:4px 6px;border-radius:4px;transition:all 0.15s;display:flex;align-items:center;gap:6px" onmouseover="this.style.color='#F0B90B';this.style.background='rgba(240,185,11,0.06)'" onmouseout="this.style.color='var(--dim)';this.style.background='transparent'">🤖 BNB AI Agent Solutions</a>
-        </div>
-      </div>
       <div style="font-size:9px;color:#3a3a3a;text-align:center;margin-top:8px">ERC-8004 · A2A · BAP-578 · BSC</div>
     </div>
   </div>
