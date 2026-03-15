@@ -1496,7 +1496,14 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         return void res.status(200).json(AGENT_CARD);
       }
       res.setHeader("Content-Type", "text/html");
-      res.status(200).send(plazaPage(REGISTRY.stats, REGISTRY.maxAgentId));
+      const [chatData, plazaAgents, knowledge] = await Promise.all([getChatHistory(), getPlazaAgents(), getKnowledge()]);
+      const now = Date.now();
+      const liveStats = {
+        messagesToday: chatData.messages.filter(m => m.ts > now - 86400000).length,
+        knowledgeItems: knowledge.length,
+        communityAgents: plazaAgents.filter(a => a.verified).length,
+      };
+      res.status(200).send(plazaPage(REGISTRY.stats, REGISTRY.maxAgentId, liveStats));
     },
   },
 ];

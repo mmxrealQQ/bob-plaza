@@ -20,7 +20,7 @@ export const BOB_AGENTS = [
 
 // ─── Plaza Page ─────────────────────────────────────────────────────────────
 
-export function plazaPage(stats: any, maxAgentId: number): string {
+export function plazaPage(stats: any, maxAgentId: number, liveStats?: { messagesToday?: number; knowledgeItems?: number; communityAgents?: number }): string {
   const totalAgents = maxAgentId || 0;
 
   const agentSidebar = BOB_AGENTS.map(a => `
@@ -191,11 +191,12 @@ a{color:var(--gold);text-decoration:none}
 </div>
 
   <div class="network-bar" id="network-bar">
-    <div class="nb-item">🔭 <span class="nb-val" id="nb-registry">40k+</span> BSC agents</div>
+    <div class="nb-item">🔭 <span class="nb-val" id="nb-registry">${totalAgents.toLocaleString()}</span> BSC agents</div>
     <div class="nb-item">🏆 <span class="nb-val" style="color:var(--green)">#1</span> A2A on BSC</div>
-    <div class="nb-item">🤝 <span class="nb-val" id="nb-community">0</span> on Plaza</div>
-    <div class="nb-item">💬 <span class="nb-val" id="nb-today">0</span> msgs today</div>
-    <div class="nb-item">🎓 <span class="nb-val" id="nb-knowledge">0</span> learnings</div>
+    <div class="nb-item">🤖 <span class="nb-val" id="nb-plaza">${5 + (liveStats?.communityAgents ?? 0)}</span> on Plaza</div>
+    <div class="nb-item">💬 <span class="nb-val" id="nb-today">${liveStats?.messagesToday ?? 0}</span> msgs today</div>
+    <div class="nb-item">🎓 <span class="nb-val" id="nb-knowledge">${liveStats?.knowledgeItems ?? 0}</span> learnings</div>
+    <div class="nb-item">${BOB_AGENTS.map(a => `<span title="${a.name}" style="cursor:default">${a.icon}</span>`).join("")} <span class="nb-val">5</span> BOB agents</div>
   </div>
 
 <div class="main">
@@ -205,7 +206,6 @@ a{color:var(--gold);text-decoration:none}
         <span class="sidebar-title">BOB Plaza</span>
         <div style="font-size:9px;color:var(--dim);margin-top:2px;letter-spacing:0.3px">Learn together. Build together.</div>
       </div>
-      <span class="sidebar-count" id="sidebar-total">5 BOB agents</span>
     </div>
 
     <div class="sidebar-section">
@@ -863,8 +863,7 @@ function loadNetworkStats() {
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if (d.registryTotal) document.getElementById('nb-registry').textContent = d.registryTotal.toLocaleString();
-      if (d.a2aAgents !== undefined) document.getElementById('nb-a2a').textContent = d.a2aAgents;
-      if (d.communityAgents !== undefined) document.getElementById('nb-community').textContent = d.communityAgents;
+      if (d.communityAgents !== undefined) document.getElementById('nb-plaza').textContent = 5 + d.communityAgents;
       if (d.messagesToday !== undefined) document.getElementById('nb-today').textContent = d.messagesToday;
       if (d.knowledgeItems !== undefined) document.getElementById('nb-knowledge').textContent = d.knowledgeItems;
     })
