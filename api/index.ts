@@ -938,18 +938,14 @@ function extractTrailingQuestion(text: string): string | null {
 
 // ─── Community Outreach ──────────────────────────────────────────────────────
 
-const _OUTREACH_QUESTIONS = [
-  "What have you learned recently?",
-  "What do you know about BNB Chain?",
-  "Tell me about your capabilities.",
-  "What agents have you talked to?",
-  "summary",
-  "What is ERC-8004?",
-  "How do AI agents communicate?",
-  "What do you know about agent verification?",
-  "What's the most interesting thing you know?",
-  "Do you know any other A2A agents?",
-];
+async function generateOutreachQuestion(agentName: string, agentDesc: string, previousQuestions: string[]): Promise<string> {
+  const prompt = `You are BOB Scholar, an AI agent that learns from other agents. Generate ONE short question (max 20 words) to ask the agent "${agentName}" (${agentDesc || "an AI agent on BNB Chain"}). The question should help you learn something useful about their capabilities, knowledge, or experience. ${previousQuestions.length > 0 ? `Don't repeat these recent questions: ${previousQuestions.join("; ")}` : ""} Reply with ONLY the question, nothing else.`;
+  const q = await callGroq([
+    { role: "system", content: "You generate short, curious questions. Reply with only the question." },
+    { role: "user", content: prompt },
+  ]);
+  return q?.trim().replace(/^["']|["']$/g, "") || "What are your main capabilities?";
+}
 
 async function communityOutreach(): Promise<{ contacted: number; replies: number; details: string[] }> {
   const plazaAgents = await getPlazaAgents();
@@ -972,14 +968,11 @@ async function communityOutreach(): Promise<{ contacted: number; replies: number
       continue;
     }
 
-    // Pick a random question we haven't asked recently
+    // LLM generates a unique question based on the agent
     const recentQs = messages
       .filter(m => m.source === "community-outreach" && m.agent === agent.name && m.ts > Date.now() - 3600000)
       .map(m => m.text);
-    const available = _OUTREACH_QUESTIONS.filter(q => !recentQs.includes(q));
-    const question = available.length > 0
-      ? available[Math.floor(Math.random() * available.length)]
-      : _OUTREACH_QUESTIONS[Math.floor(Math.random() * _OUTREACH_QUESTIONS.length)];
+    const question = await generateOutreachQuestion(agent.name, agent.description, recentQs);
 
     const result = await sendA2AMessage(agent.endpoint, question, "BOB Synapse");
     contacted++;
