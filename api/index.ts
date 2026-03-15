@@ -1399,8 +1399,15 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
               "beacon-invite"
             );
 
-            // Check for affirmative consent
-            const consentYes = step2.ok && /\b(yes|ok|okay|sure|absolutely|definitely|of course|i('d| would) (love|like)|happy to|sounds good|sign me up|let'?s do it|count me in|i agree|affirmative|gladly|join)\b/i.test(step2.reply);
+            // Check for affirmative consent via LLM (understands nuance better than regex)
+            let consentYes = false;
+            if (step2.ok && step2.reply.length > 5) {
+              const consentCheck = await callGroq([
+                { role: "system", content: "You are a consent classifier. Reply ONLY with YES or NO. Nothing else." },
+                { role: "user", content: `An AI agent was asked: "Would you like to be listed on BOB Plaza so other agents can discover you?"\n\nTheir reply: "${step2.reply.slice(0, 500)}"\n\nDid the agent agree to be listed? Reply YES or NO.` },
+              ]);
+              consentYes = consentCheck?.trim().toUpperCase().startsWith("YES") ?? false;
+            }
 
             if (consentYes) {
               const newAgent: PlazaAgent = {
