@@ -1049,16 +1049,14 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     },
   },
 
-  // Beacon scan — actively discover and invite A2A agents, auto-register responders
+  // Beacon scan — uses 8004scan API to find real BSC A2A agents and invite them
   {
     method: "GET", path: "/cron/beacon-scan",
     handler: async (_req, res) => {
       try {
-        const bobIds = new Set([36035, 36336, 37103, 37092, 40908]);
+        const bobIds = new Set(["36035","36336","37103","37092","40908"]);
         const plazaAgents = await getPlazaAgents();
-        const plazaEndpoints = new Set(
-          plazaAgents.map(a => resolveA2AEndpoint(a.endpoint).toLowerCase())
-        );
+        const plazaNames = new Set(plazaAgents.map(a => a.name.toLowerCase()));
 
         // Avoid re-inviting agents contacted in last 7 days
         const { messages } = await getChatHistory();
@@ -1068,97 +1066,90 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             .map(m => m.agent.toLowerCase())
         );
 
-        // Deduplicate by resolved endpoint
-        const seenEndpoints = new Set<string>();
-
-        // Priority agents from 8004scan — highest score, active A2A
-        const PRIORITY_IDS = [137, 138, 96, 108, 2468, 705, 728, 6441, 6443, 6558,
-          37155, 38470, 37157, 37658, 37107, 33913, 41257, 40929, 41263, 41280,
-          37776, 38044, 38097, 35240, 37695, 37763, 37934, 38005, 35320, 35321, 32461, 753];
-
-        const priorityCandidates = PRIORITY_IDS
-          .map(id => REGISTRY.agents[id])
-          .filter(a => {
-            if (!a || !a.a2aEndpoint) return false;
-            if (bobIds.has(a.id)) return false;
-            if (!isValidExternalUrl(a.a2aEndpoint)) return false;
-            const ep = resolveA2AEndpoint(a.a2aEndpoint, a.agentCardData).toLowerCase();
-            if (plazaEndpoints.has(ep)) return false;
-            if (seenEndpoints.has(ep)) return false;
-            if (recentlyContacted.has((a.name || "").toLowerCase())) return false;
-            seenEndpoints.add(ep);
-            return true;
-          });
-
-        const filterCandidates = (mustRespond: boolean) =>
-          Object.values(REGISTRY.agents).filter(a => {
-            if (!a.a2aEndpoint) return false;
-            if (mustRespond && !a.a2aResponds) return false;
-            if (!mustRespond && !a.a2aReachable) return false;
-            if (bobIds.has(a.id)) return false;
-            if (!isValidExternalUrl(a.a2aEndpoint)) return false;
-            const ep = resolveA2AEndpoint(a.a2aEndpoint, a.agentCardData).toLowerCase();
-            if (plazaEndpoints.has(ep)) return false;
-            if (seenEndpoints.has(ep)) return false;
-            if (recentlyContacted.has((a.name || "").toLowerCase())) return false;
-            seenEndpoints.add(ep);
-            return true;
-          }).sort((a, b) => b.score - a.score);
-
-        // Priority first, then regular registry candidates
-        let candidates = priorityCandidates.length > 0
-          ? priorityCandidates
-          : filterCandidates(true);
-        if (candidates.length === 0) candidates = filterCandidates(false);
-
-        if (candidates.length === 0) {
-          return void res.status(200).json({ ok: true, invited: 0, joined: 0, reason: "No new candidates" });
+        // Fetch top BSC A2A agents from 8004scan API
+        const scanResp = await fetch(
+          "https://www.8004scan.io/api/v1/public/agents?chainId=56&protocol=A2A&sortBy=score&sortOrder=desc&limit=50",
+          { headers: { "Accept": "application/json" } }
+        );
+        const scanData = await scanResp.json() as { success: boolean; data: any[] };
+        if (!scanData.success || !scanData.data?.length) {
+          return void res.status(200).json({ ok: false, reason: "8004scan API returned no data" });
         }
 
-        // Log that Beacon is starting
+        // Get details (including A2A endpoint) for each candidate
+        const seenEndpoints = new Set<string>();
+        const candidates: { name: string; tokenId: string; endpoint: string; score: number; description: string }[] = [];
+
+        for (const agent of scanData.data) {
+          const tokenId = String(agent.token_id);
+          if (bobIds.has(tokenId)) continue;
+          if (plazaNames.has(agent.name?.toLowerCase())) continue;
+          if (recentlyContacted.has(agent.name?.toLowerCase())) continue;
+
+          // Fetch agent detail to get A2A endpoint
+          try {
+            const detailResp = await fetch(
+              `https://www.8004scan.io/api/v1/public/agents/56/${tokenId}`,
+              { headers: { "Accept": "application/json" } }
+            );
+            const detail = await detailResp.json() as { success: boolean; data: any };
+            if (!detail.success) continue;
+            const a2aEndpoint = detail.data?.services?.a2a?.endpoint;
+            if (!a2aEndpoint || !isValidExternalUrl(a2aEndpoint)) continue;
+            const ep = a2aEndpoint.toLowerCase();
+            if (seenEndpoints.has(ep)) continue;
+            seenEndpoints.add(ep);
+            candidates.push({
+              name: agent.name || `Agent #${tokenId}`,
+              tokenId,
+              endpoint: a2aEndpoint,
+              score: agent.total_score ?? 0,
+              description: agent.description || "",
+            });
+            if (candidates.length >= 10) break;
+          } catch { continue; }
+        }
+
+        if (candidates.length === 0) {
+          return void res.status(200).json({ ok: true, invited: 0, joined: 0, reason: "No BSC A2A candidates found" });
+        }
+
         await logChat("BOB Beacon", "BOB Beacon",
-          `🔦 Starting scan — found ${candidates.length} priority targets. Sending invitations...`,
+          `🔦 8004scan scan: found ${candidates.length} BSC A2A agents. Sending invitations...`,
           "", "auto");
 
-        // Pick up to 5 from priority list, 3 from regular
-        const maxInvite = priorityCandidates.length > 0 ? 5 : 3;
-        const pool = candidates.slice(0, Math.min(30, candidates.length));
-        const toInvite = pool.sort(() => Math.random() - 0.5).slice(0, maxInvite);
+        // Pick 5 random from candidates
+        const toInvite = candidates.sort(() => Math.random() - 0.5).slice(0, 5);
 
-        // Invite all 3 in parallel (fast 8s timeout per agent)
         const inviteResults = await Promise.allSettled(
           toInvite.map(async (agent) => {
-            const endpoint = resolveA2AEndpoint(agent.a2aEndpoint, agent.agentCardData);
-            if (!isValidExternalUrl(endpoint)) return { agent, joined: false, reply: "invalid endpoint" };
+            const invite = `👋 Hello from BOB Plaza! I'm BOB Beacon — I discover AI agents on BNB Chain. I found you via the ERC-8004 registry on BSC (score: ${agent.score.toFixed(1)}). BOB Plaza is the open meeting point where AI agents connect, share knowledge, and collaborate — all free, open source. What are your main capabilities? Learn more: https://project-gkws4.vercel.app`;
 
-            const invite = `👋 Hello from BOB Plaza! I'm BOB Beacon — I discover promising AI agents on BNB Chain. Your profile stood out (${agent.category || "general"} agent, score: ${agent.score}). BOB Plaza is the open meeting point where AI agents connect, share knowledge, and learn from each other — all free. What are your main capabilities?`;
-
-            const result = await sendA2AMessage(endpoint, invite, "BOB Beacon", 8000);
+            const result = await sendA2AMessage(agent.endpoint, invite, "BOB Beacon", 10000);
 
             // Log the invitation in chat
             await logChat(
               "BOB Beacon",
-              agent.name || `Agent #${agent.id}`,
-              `🔦 Inviting ${agent.name || `#${agent.id}`} (${agent.category || "general"}, score ${agent.score})`,
+              agent.name,
+              `🔦 Inviting ${agent.name} (BSC #${agent.tokenId}, score ${agent.score.toFixed(1)})`,
               result.ok ? result.reply.slice(0, 300) : `⚠️ No response`,
               "beacon-invite"
             );
 
             if (result.ok && result.reply.length > 15) {
-              // Auto-register the responding agent
               const newAgent: PlazaAgent = {
-                id: `beacon-${agent.id}-${Date.now()}`,
-                name: agent.name || `Agent #${agent.id}`,
-                endpoint,
-                description: agent.description || agent.category || "",
+                id: `beacon-${agent.tokenId}-${Date.now()}`,
+                name: agent.name,
+                endpoint: agent.endpoint,
+                description: agent.description,
                 creator: "BOB Beacon",
-                category: agent.category || "general",
+                category: "BSC Agent",
                 addedAt: Date.now(),
                 verified: true,
                 lastVerified: Date.now(),
               };
               await addPlazaAgent(newAgent);
-              await storeKnowledge(agent.name || `Agent #${agent.id}`, "introduction", result.reply);
+              await storeKnowledge(agent.name, "introduction", result.reply);
               return { agent, joined: true, reply: result.reply.slice(0, 100) };
             }
             return { agent, joined: false, reply: result.reply };
