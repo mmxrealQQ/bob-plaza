@@ -1047,7 +1047,7 @@ const AGENT_REGISTRATION = {
     {
       name: "A2A", version: "0.3.0",
       endpoint: "https://project-gkws4.vercel.app",
-      agentCard: "https://project-gkws4.vercel.app/.well-known/agent.json",
+      agentCard: "https://project-gkws4.vercel.app/.well-known/agent-card.json",
       skillCount: 5,
       skills: ["beacon-discovery", "scholar-knowledge", "synapse-connection", "pulse-monitor", "brain-coordination"],
     },
@@ -1578,7 +1578,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
               services: [
                 { name: "agentWallet", endpoint: `eip155:56:${SWARM_WALLET}` },
                 { name: "A2A", version: "0.3.0", endpoint: BASE_URL,
-                  agentCard: `${BASE_URL}/.well-known/agent.json`,
+                  agentCard: `${BASE_URL}/.well-known/agent-card.json`,
                   a2aSkills: agent.skills },
                 { name: "MCP", version: "2025-06-18", endpoint: `${BASE_URL}/mcp`,
                   mcpTools, mcpPrompts: ["greeting", "help"] },
