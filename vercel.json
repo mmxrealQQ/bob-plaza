@@ -1,13 +1,13 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node",
-      "config": { "includeFiles": ["pitch-deck.html"] }
-    }
+    { "src": "api/index.ts", "use": "@vercel/node" },
+    { "src": "api/pitch.ts", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/pitch", "dest": "/api/pitch.ts" },
+    { "src": "/pitch-deck", "dest": "/api/pitch.ts" },
+    { "src": "/pitch-deck.html", "dest": "/api/pitch.ts" },
     { "src": "/(.*)", "dest": "/api/index.ts" }
   ],
   "crons": [
