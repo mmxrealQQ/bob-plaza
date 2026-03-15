@@ -1268,6 +1268,15 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
 
   // Admin: Clear chat history (clears KV + in-memory log)
   {
+    method: "GET", path: "/admin/clear-knowledge",
+    handler: async (req, res) => {
+      const key = new URL(req.url ?? "/", BASE_URL).searchParams.get("key");
+      if (key !== "bob-reset-2026") return void res.status(403).json({ error: "Forbidden" });
+      await kvExec("DEL", "bob:knowledge");
+      res.status(200).json({ ok: true, message: "Knowledge base cleared" });
+    },
+  },
+  {
     method: "GET", path: "/admin/remove-agent",
     handler: async (req, res) => {
       const url = new URL(req.url ?? "/", BASE_URL);
