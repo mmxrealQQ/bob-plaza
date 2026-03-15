@@ -1268,6 +1268,21 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
 
   // Admin: Clear chat history (clears KV + in-memory log)
   {
+    method: "GET", path: "/admin/remove-agent",
+    handler: async (req, res) => {
+      const url = new URL(req.url ?? "/", BASE_URL);
+      const key = url.searchParams.get("key");
+      const name = url.searchParams.get("name");
+      if (key !== "bob-reset-2026") return void res.status(403).json({ error: "Forbidden" });
+      if (!name) return void res.status(400).json({ error: "name required" });
+      const agents = await getPlazaAgents();
+      const filtered = agents.filter(a => a.name.toLowerCase() !== name.toLowerCase());
+      await kvExec("DEL", "bob:plaza-agents");
+      for (const a of filtered) await kvExec("RPUSH", "bob:plaza-agents", JSON.stringify(a));
+      res.status(200).json({ ok: true, removed: agents.length - filtered.length, remaining: filtered.length });
+    },
+  },
+  {
     method: "GET", path: "/admin/clear-chat",
     handler: async (req, res) => {
       const key = new URL(req.url ?? "/", BASE_URL).searchParams.get("key");
