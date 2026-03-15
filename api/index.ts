@@ -1337,7 +1337,11 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     path: (p: string) => p === "/" || p === "" || p === "/plaza",
     handler: async (req, res) => {
       const accept = req.headers.accept ?? "";
-      if (accept.includes("application/json") && !accept.includes("text/html")) {
+      const ua = (req.headers["user-agent"] ?? "").toLowerCase();
+      const isBot = ua.includes("bot") || ua.includes("crawler") || ua.includes("spider") ||
+        ua.includes("8004scan") || ua.includes("health") || ua.includes("monitor") ||
+        ua.includes("curl") || ua.includes("python") || ua.includes("axios") || ua.includes("fetch");
+      if ((accept.includes("application/json") && !accept.includes("text/html")) || isBot) {
         return void res.status(200).json(AGENT_CARD);
       }
       res.setHeader("Content-Type", "text/html");
