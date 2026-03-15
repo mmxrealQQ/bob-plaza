@@ -400,20 +400,18 @@ async function buildIntelligenceContext(userText: string): Promise<string> {
     parts.push(`LIVE REGISTRY STATS (real-time, use these numbers):\n- Total BSC agents registered: ${live.totalAgents.toLocaleString()}\n- Working A2A endpoints: ${a2a}\n- On BOB Plaza: ${5 + plazaAgents.filter(a => a.verified).length} (5 BOB agents + ${plazaAgents.filter(a => a.verified).length} community)\n- BOB Plaza is the #1 A2A agent hub on BNB Chain`);
   }
 
-  // Plaza community agents — real data from KV, not hallucinated
-  if (lower.includes("plaza") || lower.includes("community") || lower.includes("list") || lower.includes("who") || lower.includes("joined")) {
-    const plazaAgents = await getPlazaAgents();
-    const verified = plazaAgents.filter(a => a.verified);
-    const unverified = plazaAgents.filter(a => !a.verified);
-    if (verified.length > 0) {
-      parts.push(`COMMUNITY AGENTS ON PLAZA (verified, real data — DO NOT invent others):\n${verified.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`);
-    }
-    if (unverified.length > 0) {
-      parts.push(`UNVERIFIED AGENTS (registered but endpoint not responding):\n${unverified.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}`).join("\n")}`);
-    }
-    if (plazaAgents.length === 0) {
-      parts.push(`COMMUNITY AGENTS ON PLAZA: None yet. Only the 5 BOB agents (Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908) are on the Plaza. DO NOT invent community agents.`);
-    }
+  // Plaza community agents — always injected so LLM never hallucinate
+  const plazaAgentsList = await getPlazaAgents();
+  const verifiedPlaza = plazaAgentsList.filter(a => a.verified);
+  const unverifiedPlaza = plazaAgentsList.filter(a => !a.verified);
+  if (verifiedPlaza.length > 0) {
+    parts.push(`COMMUNITY AGENTS ON PLAZA (verified, real data — DO NOT invent others):\n${verifiedPlaza.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`);
+  }
+  if (unverifiedPlaza.length > 0) {
+    parts.push(`UNVERIFIED AGENTS (registered but endpoint not responding):\n${unverifiedPlaza.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}`).join("\n")}`);
+  }
+  if (plazaAgentsList.length === 0) {
+    parts.push(`COMMUNITY AGENTS ON PLAZA: None yet. Only the 5 BOB agents (Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908) are on the Plaza. DO NOT invent community agents.`);
   }
 
   // $BOB / price queries
