@@ -202,7 +202,7 @@ Rules:
 - NEVER end with a question back to the user. Just give the answer and stop.
 - Use **bold** sparingly — only for key terms. Most text should be plain.
 
-REGISTRY: ${REGISTRY.stats?.total || 0} agents scanned. ${REGISTRY.stats?.a2aReachable || 0} with reachable A2A. ${REGISTRY.stats?.legit || 0} legit.
+IMPORTANT: Do NOT cite specific agent counts, scores, or stats from memory. If the user asks about numbers, use ONLY the data provided in the INTELLIGENCE section below. If no data is provided, say you'd need to check.
 
 BNB Chain: ERC-8004 is the Trustless Agent Identity Standard. Registry: 0x8004a169fb4a3325136eb29fa0ceb6d2e539a432. A2A = Google Agent-to-Agent JSON-RPC 2.0.`;
 }
@@ -372,8 +372,11 @@ async function buildIntelligenceContext(userText: string): Promise<string> {
   }
 
   // Stats
-  if (lower.includes("stats") || lower.includes("how many") || lower.includes("overview")) {
-    parts.push(`REGISTRY STATS:\n${JSON.stringify(REGISTRY.stats, null, 2)}`);
+  if (lower.includes("stats") || lower.includes("how many") || lower.includes("overview") || lower.includes("agents here") || lower.includes("agent count")) {
+    const live = await getLiveRegistryStats();
+    const a2a = await countWorkingA2A();
+    const plazaAgents = await getPlazaAgents();
+    parts.push(`LIVE REGISTRY STATS (real-time, use these numbers):\n- Total BSC agents registered: ${live.totalAgents.toLocaleString()}\n- Working A2A endpoints: ${a2a}\n- On BOB Plaza: ${5 + plazaAgents.filter(a => a.verified).length} (5 BOB agents + ${plazaAgents.filter(a => a.verified).length} community)\n- BOB Plaza is the #1 A2A agent hub on BNB Chain`);
   }
 
   // $BOB / price queries
@@ -411,7 +414,12 @@ async function buildIntelligenceContext(userText: string): Promise<string> {
     }
   }
 
-  return parts.length > 0 ? "\n\n--- INTELLIGENCE ---\n" + parts.join("\n\n") : "";
+  // Always include basic live stats so LLM never hallucinates numbers
+  const live = await getLiveRegistryStats();
+  const a2a = await countWorkingA2A();
+  parts.push(`LIVE STATS: ${live.totalAgents.toLocaleString()} agents on BSC registry, ${a2a} with working A2A, 5 BOB agents on Plaza.`);
+
+  return "\n\n--- INTELLIGENCE ---\n" + parts.join("\n\n");
 }
 
 // ─── BSC RPC + Free APIs ─────────────────────────────────────────────────────
