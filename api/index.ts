@@ -373,7 +373,7 @@ async function buildIntelligenceContext(userText: string): Promise<string> {
   }
 
   // Directory queries
-  if (lower.includes("top") || lower.includes("best") || lower.includes("list")) {
+  if (lower.includes("top") || lower.includes("best") || (lower.includes("list") && !lower.includes("plaza") && !lower.includes("community"))) {
     parts.push(`TOP AGENTS:\n${getTopAgents(10).map(a => formatAgent(a)).join("\n")}`);
   }
   if (lower.includes("legit")) {
