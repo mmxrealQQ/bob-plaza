@@ -1330,7 +1330,6 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       const beaconInvites = chatData.messages.filter(m => m.source === "beacon-invite").length;
       res.status(200).json({
         registryTotal: REGISTRY.maxAgentId,
-        a2aAgents: REGISTRY.stats?.a2aResponds ?? 0,
         communityAgents: active.length,
         plazaMessages: chatData.total,
         messagesToday: msgToday,
