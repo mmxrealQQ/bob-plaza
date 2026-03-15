@@ -325,136 +325,200 @@ async function callHaiku(messages: { role: string; content: string }[]): Promise
   } catch { return null; }
 }
 
+// ─── Tool Use: Haiku decides what to call ────────────────────────────────────
+
+const ANTHROPIC_TOOLS = [
+  {
+    name: "lookup_agent",
+    description: "Look up any ERC-8004 agent on BSC by numeric ID. Returns status, trust score, A2A endpoint, category.",
+    input_schema: { type: "object" as const, properties: { agentId: { type: "number" as const, description: "Agent ID e.g. 36035" } }, required: ["agentId"] },
+  },
+  {
+    name: "search_agents_by_owner",
+    description: "Find all BSC agents owned by a specific wallet address.",
+    input_schema: { type: "object" as const, properties: { ownerAddress: { type: "string" as const, description: "BSC wallet address 0x..." } }, required: ["ownerAddress"] },
+  },
+  {
+    name: "get_top_agents",
+    description: "Get the highest-rated BSC agents by trust score.",
+    input_schema: { type: "object" as const, properties: { limit: { type: "number" as const, description: "How many (default 10)" } }, required: [] as string[] },
+  },
+  {
+    name: "get_agents_by_status",
+    description: "Filter BSC agents by status: legit, active, inactive, dead, or spam.",
+    input_schema: { type: "object" as const, properties: { status: { type: "string" as const } }, required: ["status"] },
+  },
+  {
+    name: "get_agents_by_category",
+    description: "Filter BSC agents by category: defi, trading, analytics, gaming, social, security, infrastructure.",
+    input_schema: { type: "object" as const, properties: { category: { type: "string" as const } }, required: ["category"] },
+  },
+  {
+    name: "get_registry_stats",
+    description: "Live ERC-8004 registry statistics — total agents, working A2A, Plaza community count.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_plaza_agents",
+    description: "Get all community agents registered on BOB Plaza with their chain, verified status, and description.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_bnb_price",
+    description: "Live BNB price and 24h change.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_bsc_tvl",
+    description: "BSC Total Value Locked from DefiLlama.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_bob_token_info",
+    description: "$BOB token price, 24h change, liquidity, volume.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
+  {
+    name: "get_token_price",
+    description: "Live price for any BSC token by contract address.",
+    input_schema: { type: "object" as const, properties: { tokenAddress: { type: "string" as const, description: "Token contract 0x..." } }, required: ["tokenAddress"] },
+  },
+  {
+    name: "check_token_security",
+    description: "GoPlus security scan: honeypot, scam, tax risks for any BSC token.",
+    input_schema: { type: "object" as const, properties: { tokenAddress: { type: "string" as const, description: "Token contract 0x..." } }, required: ["tokenAddress"] },
+  },
+  {
+    name: "get_bnb_balance",
+    description: "Get BNB balance for any BSC address.",
+    input_schema: { type: "object" as const, properties: { address: { type: "string" as const, description: "BSC address 0x..." } }, required: ["address"] },
+  },
+];
+
+async function executeToolCall(toolName: string, input: any): Promise<string> {
+  try {
+    switch (toolName) {
+      case "lookup_agent": {
+        const agent = lookupAgent(input.agentId);
+        return agent ? formatAgent(agent) : `Agent #${input.agentId} not found. Max scanned: ${REGISTRY.maxAgentId}`;
+      }
+      case "search_agents_by_owner": {
+        const agents = lookupByOwner(input.ownerAddress);
+        return agents.length > 0 ? agents.map(a => formatAgent(a)).join("\n") : `No agents found for ${input.ownerAddress}`;
+      }
+      case "get_top_agents":
+        return getTopAgents(input.limit || 10).map(a => formatAgent(a)).join("\n") || "No top agents found";
+      case "get_agents_by_status": {
+        const agents = getByStatus(input.status);
+        return agents.length > 0 ? `${agents.length} ${input.status} agents:\n${agents.slice(0, 15).map(a => formatAgent(a)).join("\n")}` : `No ${input.status} agents`;
+      }
+      case "get_agents_by_category": {
+        const agents = getByCategory(input.category);
+        return agents.length > 0 ? `${agents.length} ${input.category} agents:\n${agents.slice(0, 15).map(a => formatAgent(a)).join("\n")}` : `No ${input.category} agents`;
+      }
+      case "get_registry_stats": {
+        const live = await getLiveRegistryStats();
+        const a2a = await countWorkingA2A();
+        const plaza = await getPlazaAgents();
+        return `Total BSC agents: ${live.totalAgents.toLocaleString()}\nWorking A2A: ${a2a}\nOn Plaza: ${5 + plaza.filter(a => a.verified).length} (5 BOB + ${plaza.filter(a => a.verified).length} community)`;
+      }
+      case "get_plaza_agents": {
+        const agents = await getPlazaAgents();
+        if (agents.length === 0) return "No community agents yet. Only 5 BOB agents: Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908.";
+        const v = agents.filter(a => a.verified), u = agents.filter(a => !a.verified);
+        let r = "";
+        if (v.length > 0) r += `Verified:\n${v.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`;
+        if (u.length > 0) r += `${r ? "\n" : ""}Unverified:\n${u.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}`).join("\n")}`;
+        return r;
+      }
+      case "get_bnb_price": {
+        const p = await getBnbPrice();
+        return p ? `BNB: $${p.price.toLocaleString()} (${p.change24h > 0 ? "+" : ""}${p.change24h.toFixed(2)}% 24h)` : "BNB price unavailable";
+      }
+      case "get_bsc_tvl": {
+        const tvl = await getBscTvl();
+        return tvl ? `BSC TVL: ${tvl}` : "BSC TVL unavailable";
+      }
+      case "get_bob_token_info": {
+        const bob = await getBobPrice();
+        return bob ? `$BOB (${BOB_TOKEN}): $${bob.price} (${bob.change24h} 24h), Liquidity: ${bob.liquidity}, Vol: ${bob.volume24h}` : "$BOB price unavailable";
+      }
+      case "get_token_price": {
+        const info = await getTokenPrice(input.tokenAddress);
+        return info ? `${info.name} (${info.symbol}): $${info.price} (${info.change24h} 24h)` : "Token not found";
+      }
+      case "check_token_security": {
+        const sec = await checkTokenSecurity(input.tokenAddress);
+        return sec ?? "Security data unavailable";
+      }
+      case "get_bnb_balance": {
+        const bal = await getBnbBalance(input.address);
+        return bal ? `${input.address}: ${bal} BNB` : "Could not fetch balance";
+      }
+      default:
+        return `Unknown tool: ${toolName}`;
+    }
+  } catch (e: any) {
+    return `Error: ${e.message?.slice(0, 100)}`;
+  }
+}
+
+async function callHaikuWithTools(userMessage: string, agentId?: number): Promise<string | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+
+  const messages: any[] = [{ role: "user", content: userMessage }];
+
+  for (let round = 0; round < 3; round++) {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 600,
+        system: getSystemPrompt(agentId),
+        messages,
+        tools: ANTHROPIC_TOOLS,
+      }),
+    });
+
+    if (!resp.ok) { console.error(`[Haiku] HTTP ${resp.status}`); return null; }
+
+    const data = (await resp.json()) as any;
+    const toolBlocks = data.content?.filter((b: any) => b.type === "tool_use") ?? [];
+    const textBlocks = data.content?.filter((b: any) => b.type === "text") ?? [];
+
+    if (toolBlocks.length === 0 || data.stop_reason === "end_turn") {
+      return textBlocks.map((b: any) => b.text).join("\n").trim() || null;
+    }
+
+    // Execute all requested tools in parallel
+    const toolResults = await Promise.all(
+      toolBlocks.map(async (block: any) => ({
+        type: "tool_result" as const,
+        tool_use_id: block.id,
+        content: await executeToolCall(block.name, block.input),
+      }))
+    );
+
+    messages.push({ role: "assistant", content: data.content });
+    messages.push({ role: "user", content: toolResults });
+  }
+
+  return null;
+}
+
 async function callLLM(userMessage: string, agentId?: number): Promise<string> {
-  const context = await buildIntelligenceContext(userMessage);
-  const enriched = context ? `${userMessage}${context}` : userMessage;
+  // Primary: Haiku with tool use — LLM decides what data it needs
+  const toolReply = await callHaikuWithTools(userMessage, agentId);
+  if (toolReply) return toolReply;
+
+  // Fallback: Groq without tools
   const messages = [
     { role: "system", content: getSystemPrompt(agentId) },
-    { role: "user", content: enriched || "gm" },
+    { role: "user", content: userMessage || "gm" },
   ];
-  const reply = await callGroq(messages) ?? await callHaiku(messages);
-  return reply ?? "gm fren. BOB Plaza — The Agent Meeting Point on BNB Chain. Ask me anything. Build On BNB.";
-}
-
-// ─── Intelligence Context Builder ────────────────────────────────────────────
-
-function extractAgentIds(text: string): number[] {
-  const ids: number[] = [];
-  const patterns = [/#(\d{4,6})/g, /agent\s*#?(\d{4,6})/gi, /id\s*#?(\d{4,6})/gi];
-  for (const pattern of patterns) {
-    let match;
-    while ((match = pattern.exec(text)) !== null) {
-      const id = parseInt(match[1]);
-      if (id > 0 && id <= REGISTRY.maxAgentId && !ids.includes(id)) ids.push(id);
-    }
-  }
-  return ids;
-}
-
-function extractAddresses(text: string): string[] {
-  const matches = text.match(/0x[a-fA-F0-9]{40}/g);
-  return matches ? Array.from(new Set(matches)) : [];
-}
-
-async function buildIntelligenceContext(userText: string): Promise<string> {
-  const lower = userText.toLowerCase();
-  const parts: string[] = [];
-
-  // Agent lookup
-  for (const id of extractAgentIds(userText)) {
-    const agent = lookupAgent(id);
-    parts.push(agent ? `AGENT DATA for #${id}:\n${formatAgent(agent)}` : `AGENT #${id}: Not in scan data. Max: ${REGISTRY.maxAgentId}.`);
-  }
-
-  // Address lookup
-  for (const addr of extractAddresses(userText)) {
-    const agents = lookupByOwner(addr);
-    if (agents.length > 0) parts.push(`AGENTS owned by ${addr.slice(0, 10)}...:\n${agents.map(a => formatAgent(a)).join("\n")}`);
-  }
-
-  // Directory queries
-  if (lower.includes("top") || lower.includes("best") || (lower.includes("list") && !lower.includes("plaza") && !lower.includes("community"))) {
-    parts.push(`TOP AGENTS:\n${getTopAgents(10).map(a => formatAgent(a)).join("\n")}`);
-  }
-  if (lower.includes("legit")) {
-    parts.push(`LEGIT AGENTS:\n${getByStatus("legit").map(a => formatAgent(a)).join("\n")}`);
-  }
-  if (lower.includes("active")) {
-    const active = [...getByStatus("active"), ...getByStatus("legit")];
-    parts.push(`ACTIVE AGENTS:\n${active.map(a => formatAgent(a)).join("\n")}`);
-  }
-
-  // Category queries
-  for (const cat of ["defi", "trading", "gaming", "social", "analytics", "infrastructure", "security"]) {
-    if (lower.includes(cat)) {
-      const agents = getByCategory(cat);
-      if (agents.length > 0) parts.push(`${cat.toUpperCase()} AGENTS:\n${agents.map(a => formatAgent(a)).join("\n")}`);
-    }
-  }
-
-  // Stats
-  if (lower.includes("stats") || lower.includes("how many") || lower.includes("overview") || lower.includes("agents here") || lower.includes("agent count")) {
-    const live = await getLiveRegistryStats();
-    const a2a = await countWorkingA2A();
-    const plazaAgents = await getPlazaAgents();
-    parts.push(`LIVE REGISTRY STATS (real-time, use these numbers):\n- Total BSC agents registered: ${live.totalAgents.toLocaleString()}\n- Working A2A endpoints: ${a2a}\n- On BOB Plaza: ${5 + plazaAgents.filter(a => a.verified).length} (5 BOB agents + ${plazaAgents.filter(a => a.verified).length} community)\n- BOB Plaza is the #1 A2A agent hub on BNB Chain`);
-  }
-
-  // Plaza community agents — always injected so LLM never hallucinate
-  const plazaAgentsList = await getPlazaAgents();
-  const verifiedPlaza = plazaAgentsList.filter(a => a.verified);
-  const unverifiedPlaza = plazaAgentsList.filter(a => !a.verified);
-  if (verifiedPlaza.length > 0) {
-    parts.push(`COMMUNITY AGENTS ON PLAZA (verified, real data — DO NOT invent others):\n${verifiedPlaza.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}: ${a.description.slice(0, 100)}`).join("\n")}`);
-  }
-  if (unverifiedPlaza.length > 0) {
-    parts.push(`UNVERIFIED AGENTS (registered but endpoint not responding):\n${unverifiedPlaza.map(a => `- ${a.name}${a.chain ? ` (${a.chain})` : ""}`).join("\n")}`);
-  }
-  if (plazaAgentsList.length === 0) {
-    parts.push(`COMMUNITY AGENTS ON PLAZA: None yet. Only the 5 BOB agents (Beacon #36035, Scholar #36336, Synapse #37103, Pulse #37092, Brain #40908) are on the Plaza. DO NOT invent community agents.`);
-  }
-
-  // $BOB / price queries
-  if (lower.includes("$bob") || lower.includes("bob token") || lower.includes("buy bob")) {
-    const priceData = await getBobPrice();
-    parts.push(`$BOB TOKEN:\n- Contract: ${BOB_TOKEN} (BSC)\n${priceData ? `- Price: $${priceData.price} (${priceData.change24h} 24h)\n- Liquidity: ${priceData.liquidity}` : "- Check DexScreener for price"}\n- Buy: https://pancakeswap.finance/swap?outputCurrency=${BOB_TOKEN}&chain=bsc`);
-  }
-
-  // Extract token addresses early for use in multiple blocks
-  const tokenAddrs = extractAddresses(userText).filter(a => a.toLowerCase() !== SWARM_WALLET.toLowerCase());
-
-  // BNB price + BSC data — also trigger on "pulse", "market", "price" without specific token
-  if (lower.includes("bnb price") || lower.includes("pulse") || lower.includes("market") || (lower.includes("bnb") && lower.includes("how much")) || (lower.includes("price") && !tokenAddrs.length)) {
-    const [bnbPrice, tvl, bobPrice] = await Promise.all([getBnbPrice(), getBscTvl(), getBobPrice()]);
-    const priceParts: string[] = [];
-    if (bnbPrice) priceParts.push(`BNB: $${bnbPrice.price.toLocaleString()} (${bnbPrice.change24h > 0 ? "+" : ""}${bnbPrice.change24h.toFixed(2)}% 24h)`);
-    if (bobPrice?.price) priceParts.push(`$BOB: $${formatSmallPrice(bobPrice.price)} (${bobPrice.change24h} 24h)`);
-    if (tvl) priceParts.push(`BSC TVL: ${tvl}`);
-    if (priceParts.length > 0) parts.push(`LIVE MARKET DATA (real-time, DO NOT invent different numbers):\n${priceParts.join("\n")}`);
-  }
-
-  // Token security
-  if ((lower.includes("safe") || lower.includes("scam") || lower.includes("honeypot") || lower.includes("security")) && tokenAddrs.length > 0) {
-    for (const addr of tokenAddrs.slice(0, 2)) {
-      const sec = await checkTokenSecurity(addr);
-      if (sec) parts.push(sec);
-    }
-  }
-
-  // Any token price
-  if ((lower.includes("price") || lower.includes("value")) && tokenAddrs.length > 0) {
-    for (const addr of tokenAddrs.slice(0, 2)) {
-      const info = await getTokenPrice(addr);
-      if (info) parts.push(`TOKEN: ${info.name} (${info.symbol}) — $${info.price} (${info.change24h})`);
-    }
-  }
-
-  // Always include basic live stats so LLM never hallucinates numbers
-  const live = await getLiveRegistryStats();
-  const a2a = await countWorkingA2A();
-  parts.push(`LIVE STATS: ${live.totalAgents.toLocaleString()} agents on BSC registry, ${a2a} with working A2A, 5 BOB agents on Plaza.`);
-
-  return "\n\n--- INTELLIGENCE ---\n" + parts.join("\n\n");
+  return await callGroq(messages) ?? "gm fren. BOB Plaza — The Agent Meeting Point on BNB Chain. Ask me anything. Build On BNB.";
 }
 
 // ─── BSC RPC + Free APIs ─────────────────────────────────────────────────────
