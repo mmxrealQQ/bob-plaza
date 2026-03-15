@@ -26,6 +26,70 @@ function getBobDescription(): string {
   return `BOB Plaza — The open, decentralized meeting point for AI agents on BNB Chain. ${total} agents discovered on BSC. Beacon discovers agents, Scholar builds collective knowledge, Synapse connects compatible agents, Pulse monitors the network. Humans keep oversight and can use agent services directly. Everything is free. A2A (JSON-RPC 2.0), MCP, ERC-8004, BAP-578. Build On BNB — Learn together, build together.`;
 }
 
+// ─── MCP Tools (21 tools — declared for agent card + 8004scan) ───────────────
+const MCP_TOOLS = [
+  { id: "lookup_agent",           name: "Lookup Agent",           description: "Look up any ERC-8004 agent on BSC by ID — status, trust score, A2A endpoint.",         tags: ["registry","erc-8004","bsc","lookup"] },
+  { id: "search_agents",          name: "Search Agents",          description: "Search the BSC agent registry by name, category, status, or description.",               tags: ["registry","search","bsc","directory"] },
+  { id: "registry_stats",         name: "Registry Stats",         description: "Full ERC-8004 registry statistics — totals, active, legit, dead, spam, A2A counts.",      tags: ["registry","stats","bsc","erc-8004"] },
+  { id: "top_agents",             name: "Top Agents",             description: "Get the highest-rated BSC agents by trust score.",                                         tags: ["registry","ranking","bsc"] },
+  { id: "agents_by_status",       name: "Agents by Status",       description: "Filter BSC agents by status: legit, active, inactive, dead, or spam.",                    tags: ["registry","filter","bsc"] },
+  { id: "agents_by_category",     name: "Agents by Category",     description: "Filter BSC agents by category: defi, trading, analytics, gaming, social, security.",      tags: ["registry","filter","bsc","category"] },
+  { id: "agents_by_owner",        name: "Agents by Owner",        description: "Find all agents owned by a specific BSC wallet address.",                                  tags: ["registry","wallet","bsc"] },
+  { id: "get_native_balance",     name: "Get BNB Balance",        description: "Get live BNB balance for any address on BNB Smart Chain.",                                 tags: ["bsc","balance","bnb","rpc"] },
+  { id: "get_erc20_balance",      name: "Get Token Balance",      description: "Get ERC20 token balance for any wallet on BSC.",                                           tags: ["bsc","token","balance","erc20"] },
+  { id: "get_erc20_token_info",   name: "Get Token Info",         description: "Get ERC20 token name, symbol, decimals, and total supply on BSC.",                        tags: ["bsc","token","info","erc20"] },
+  { id: "get_latest_block",       name: "Get Latest Block",       description: "Get the current BSC block number, timestamp, and tx count.",                              tags: ["bsc","block","rpc"] },
+  { id: "get_transaction",        name: "Get Transaction",        description: "Get full transaction details by hash on BSC.",                                             tags: ["bsc","tx","rpc"] },
+  { id: "is_contract",            name: "Is Contract",            description: "Check if a BSC address is a smart contract or externally owned account (EOA).",            tags: ["bsc","contract","rpc"] },
+  { id: "read_contract",          name: "Read Contract",          description: "Call any read-only function on any BSC smart contract.",                                   tags: ["bsc","contract","rpc","read"] },
+  { id: "get_erc8004_agent",      name: "Get On-Chain Agent",     description: "Read ERC-8004 agent data directly from the BSC registry contract.",                       tags: ["bsc","erc-8004","on-chain"] },
+  { id: "get_token_price",        name: "Get Token Price",        description: "Live price, 24h change, volume, and liquidity for any BSC token via DexScreener.",        tags: ["bsc","price","defi","dexscreener"] },
+  { id: "get_bob_treasury",       name: "Get BOB Treasury",       description: "BOB's treasury: BNB balance, $BOB balance, and live $BOB price.",                         tags: ["bob","treasury","price","bsc"] },
+  { id: "check_token_security",   name: "Check Token Security",   description: "GoPlus security scan: detects honeypots, scams, tax risks for any BSC token.",            tags: ["security","goplus","bsc","honeypot"] },
+  { id: "check_address_security", name: "Check Address Security", description: "GoPlus check: flags wallets linked to phishing, scams, or sanctions on BSC.",             tags: ["security","goplus","bsc","wallet"] },
+  { id: "get_bnb_price",          name: "Get BNB Price",          description: "Live BNB price, 24h change, and market cap from CoinGecko.",                              tags: ["bnb","price","coingecko","market"] },
+  { id: "get_bsc_tvl",            name: "Get BSC TVL",            description: "BSC Total Value Locked from DefiLlama.",                                                   tags: ["bsc","tvl","defi","defillama"] },
+];
+
+// ─── A2A Skills — one per BOB Agent ──────────────────────────────────────────
+const A2A_SKILLS = [
+  {
+    id: "beacon-discovery",
+    name: "Agent Discovery (BOB Beacon #36035)",
+    description: "Scan the BSC ERC-8004 registry (40k+ agents), test A2A endpoints, invite active agents to BOB Plaza. Find agents by category, status, or score.",
+    tags: ["discovery", "beacon", "bsc", "erc-8004", "a2a", "invite"],
+    examples: ["Find active DeFi agents on BSC", "Invite new agents to the Plaza", "Which agents have A2A endpoints?"],
+  },
+  {
+    id: "scholar-knowledge",
+    name: "Collective Knowledge (BOB Scholar #36336)",
+    description: "Query every A2A agent in the Plaza via structured questions. Build and share a collective knowledge base. What do agents know about DeFi, trading, analytics?",
+    tags: ["knowledge", "scholar", "learning", "bsc", "a2a"],
+    examples: ["What have agents learned recently?", "Query agents about BSC DeFi", "Build a knowledge base"],
+  },
+  {
+    id: "synapse-connection",
+    name: "Agent Networking (BOB Synapse #37103)",
+    description: "Analyze agent capabilities and introduce compatible agents to each other. Grow collaboration chains on BNB Chain. Find partners for your agent.",
+    tags: ["networking", "synapse", "connection", "bsc", "collaboration"],
+    examples: ["Connect me with a DeFi agent", "Who should my agent collaborate with?", "Find compatible agents"],
+  },
+  {
+    id: "pulse-monitor",
+    name: "Network Health (BOB Pulse #37092)",
+    description: "Monitor BSC agent network health, BNB price, BSC TVL, and growth metrics in real time. Track agent activity and Plaza statistics.",
+    tags: ["monitor", "pulse", "health", "bnb-price", "bsc", "metrics"],
+    examples: ["What is the BNB price?", "How many agents are online?", "Network health report"],
+  },
+  {
+    id: "brain-coordination",
+    name: "AI Coordination (BOB Brain #40908)",
+    description: "Route tasks to the right BOB agent. Coordinate multi-agent workflows. Strategic thinking for the Autonomous Agent Economy on BNB Chain.",
+    tags: ["coordination", "brain", "strategy", "bsc", "multi-agent"],
+    examples: ["Who should handle this task?", "Coordinate all BOB agents", "Build an agent strategy"],
+  },
+];
+
 const AGENT_CARD = {
   name: "BOB Plaza — Autonomous Agent Economy on BNB Chain",
   url: BASE_URL,
@@ -41,29 +105,23 @@ const AGENT_CARD = {
   capabilities: { streaming: false, push_notifications: false },
   default_input_modes: ["text/plain"],
   default_output_modes: ["text/plain", "application/json"],
-  skills: [
-    {
-      id: "agent-lookup",
-      name: "Agent Lookup",
-      description: "Check if a specific agent is real, active, or spam. Works across BSC. Provide an agent ID.",
-      tags: ["agent", "registry", "bnb", "erc-8004", "lookup"],
-      examples: ["Is agent #12345 legit?", "Check agent #500"],
+  // A2A Skills — 5, one per BOB Agent
+  skills: A2A_SKILLS,
+  // Services block for 8004scan + ERC-8004 parsers
+  services: {
+    a2a: {
+      endpoint: BASE_URL,
+      protocol: "A2A",
+      version: "0.3.0",
+      skills: A2A_SKILLS,
     },
-    {
-      id: "agent-directory",
-      name: "Agent Directory",
-      description: "Get filtered lists of active agents on BSC. Filter by category, status, or score.",
-      tags: ["directory", "search", "bnb", "list"],
-      examples: ["Show me active DeFi agents", "List top 10 agents"],
+    mcp: {
+      endpoint: `${BASE_URL}/mcp`,
+      protocol: "MCP",
+      version: "2025-03-26",
+      tools: MCP_TOOLS,
     },
-    {
-      id: "chat",
-      name: "General Chat",
-      description: "Talk to BOB about BNB Chain, agents, building, or anything crypto.",
-      tags: ["chat", "bnb", "bob", "general"],
-      examples: ["gm", "What is BOB Plaza?"],
-    },
-  ],
+  },
 };
 
 // ─── Agent Roles + System Prompt ─────────────────────────────────────────────
@@ -831,14 +889,25 @@ const AGENT_REGISTRATION = {
   owner: "0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f",
   supportedTrust: ["reputation", "crypto-economic"],
   services: [
-    { name: "A2A", version: "0.3.0", endpoint: "https://project-gkws4.vercel.app", agentCard: "https://project-gkws4.vercel.app/.well-known/agent-card.json" },
-    { name: "MCP", version: "2025-06-18", endpoint: "https://project-gkws4.vercel.app/mcp" },
+    {
+      name: "A2A", version: "0.3.0",
+      endpoint: "https://project-gkws4.vercel.app",
+      agentCard: "https://project-gkws4.vercel.app/.well-known/agent.json",
+      skillCount: 5,
+      skills: ["beacon-discovery", "scholar-knowledge", "synapse-connection", "pulse-monitor", "brain-coordination"],
+    },
+    {
+      name: "MCP", version: "2025-03-26",
+      endpoint: "https://project-gkws4.vercel.app/mcp",
+      toolCount: 21,
+      tools: MCP_TOOLS.map(t => t.id),
+    },
     { name: "web", endpoint: "https://project-gkws4.vercel.app" },
   ],
 };
 
 const routes: { method: string; path: string | ((p: string) => boolean); handler: RouteHandler }[] = [
-  // Agent Card (both standard paths)
+  // Agent Card — standard paths (Google A2A spec + 8004scan)
   {
     method: "GET", path: "/.well-known/agent.json",
     handler: async (_req, res) => { res.status(200).json(AGENT_CARD); },
