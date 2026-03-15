@@ -191,7 +191,6 @@ a{color:var(--gold);text-decoration:none}
   </div>
   <div style="margin-left:16px;font-size:10px;color:var(--dim);display:none" id="topbar-motto" class="topbar-motto">Learn together. Build together.</div>
   <div class="topbar-stats">
-    <a href="https://t.me/bobplaza" target="_blank" rel="noopener" style="color:var(--dim);font-size:11px;display:flex;align-items:center;gap:4px;text-decoration:none;transition:color 0.15s" onmouseover="this.style.color='#F0B90B'" onmouseout="this.style.color='var(--dim)'">✈️ Telegram</a>
     <span><span class="val" id="stat-online">5</span> online</span>
     <span><span class="val" id="stat-msgs">0</span> msgs</span>
   </div>
