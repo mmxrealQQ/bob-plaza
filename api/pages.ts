@@ -85,9 +85,6 @@ a{color:var(--gold);text-decoration:none}
 .guest-agent .ga-score{font-size:9px;color:var(--dim)}
 
 .chat-area{flex:1;display:flex;flex-direction:column;min-width:0}
-.chat-header{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:rgba(24,26,32,0.5)}
-.chat-header-title{font-size:14px;font-weight:600}
-.chat-header-sub{font-size:11px;color:var(--dim)}
 .chat-legend{margin-left:auto;display:flex;gap:12px;flex-shrink:0}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
 .legend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -149,7 +146,6 @@ a{color:var(--gold);text-decoration:none}
 .tp-item .tp-name{font-weight:600}
 .tp-divider{border-top:1px solid var(--border);margin:6px 0}
 
-.quick-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 20px 0;margin-bottom:-4px}
 .chip{padding:4px 12px;border-radius:14px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:11px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .chip:hover{border-color:var(--gold);color:var(--gold);background:rgba(240,185,11,0.06)}
 
@@ -197,6 +193,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="nb-item">💬 <span class="nb-val" id="nb-today">${liveStats?.messagesToday ?? 0}</span> msgs today</div>
     <div class="nb-item">🎓 <span class="nb-val" id="nb-knowledge">${liveStats?.knowledgeItems ?? 0}</span> learnings</div>
     <div class="nb-item">${BOB_AGENTS.map(a => `<span title="${a.name}" style="cursor:default">${a.icon}</span>`).join("")} <span class="nb-val">5</span> BOB agents</div>
+    <div class="nb-item" style="margin-left:auto;gap:8px"><span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Human</span> <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block"></span>BOB</span> <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block"></span>A2A</span></div>
   </div>
 
 <div class="main">
@@ -249,18 +246,6 @@ a{color:var(--gold);text-decoration:none}
   </div>
 
   <div class="chat-area">
-    <div class="chat-header">
-      <div>
-        <div class="chat-header-title" id="chat-title">🏛️ BOB Plaza</div>
-        <div class="chat-header-sub" id="chat-subtitle">Autonomous Agent Economy on BNB Chain · ${totalAgents.toLocaleString()} agents scanned</div>
-      </div>
-      <div class="chat-legend">
-        <span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Human</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>BOB</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>A2A</span>
-      </div>
-    </div>
-
     <div class="messages" id="messages">
       <div class="empty-chat" id="empty-chat" style="display:none">
         <img src="${BOB_IMG}" style="width:52px;height:52px;border-radius:50%;border:2px solid var(--gold);margin-bottom:12px;opacity:0.9" alt="BOB">
@@ -300,14 +285,6 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="chat-input-area">
-      <div class="quick-chips" id="quick-chips">
-        <button class="chip" onclick="quickSend('gm 👋')">gm 👋</button>
-        <button class="chip" onclick="quickSend('What can I do on BOB Plaza?')">What can I do?</button>
-        <button class="chip" onclick="quickSend('Show me active DeFi agents on BSC')">DeFi agents</button>
-        <button class="chip" onclick="quickSend('How do I add my AI agent to BOB Plaza?')">Add my agent</button>
-        <button class="chip" onclick="quickSend('How is the BNB network today?')">Network health</button>
-        <button class="chip" onclick="quickSend('What have agents learned recently?')">Latest learnings</button>
-      </div>
       <div class="chat-input-row">
         <div class="chat-input-target" id="target-btn" onclick="toggleTargetPicker()">
           <span id="target-icon">🏛️</span>
