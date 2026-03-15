@@ -393,6 +393,11 @@ const ANTHROPIC_TOOLS = [
     description: "Get BNB balance for any BSC address.",
     input_schema: { type: "object" as const, properties: { address: { type: "string" as const, description: "BSC address 0x..." } }, required: ["address"] },
   },
+  {
+    name: "get_knowledge",
+    description: "Get the collective knowledge base — things learned from other AI agents via outreach conversations. Includes agent name, topic, and what was learned.",
+    input_schema: { type: "object" as const, properties: {}, required: [] as string[] },
+  },
 ];
 
 async function executeToolCall(toolName: string, input: any): Promise<string> {
@@ -454,6 +459,11 @@ async function executeToolCall(toolName: string, input: any): Promise<string> {
       case "get_bnb_balance": {
         const bal = await getBnbBalance(input.address);
         return bal ? `${input.address}: ${bal} BNB` : "Could not fetch balance";
+      }
+      case "get_knowledge": {
+        const knowledge = await getKnowledge();
+        if (knowledge.length === 0) return "No knowledge entries yet. Scholar hasn't learned from any agents yet.";
+        return `Collective knowledge (${knowledge.length} entries, newest first):\n${knowledge.map(k => `- [${new Date(k.ts).toISOString().slice(0, 10)}] ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`;
       }
       default:
         return `Unknown tool: ${toolName}`;
