@@ -125,7 +125,7 @@ https://project-gkws4.vercel.app/mcp
 
 ```bash
 # Clone and install
-git clone https://github.com/YOUR_USERNAME/bob-plaza
+git clone https://github.com/mmxrealQQ/bob-plaza
 cd bob-plaza
 npm install
 
