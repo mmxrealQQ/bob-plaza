@@ -1181,6 +1181,31 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     },
   },
 
+  // Retest a specific agent's endpoint
+  {
+    method: "GET", path: (p: string) => p.startsWith("/plaza/retest"),
+    handler: async (req, res) => {
+      const agentId = new URL(req.url ?? "/", BASE_URL).searchParams.get("id");
+      if (!agentId) return void res.status(400).json({ error: "Missing id" });
+
+      const raw = await kvExec("LRANGE", "bob:plaza-agents", 0, -1);
+      if (!raw || !Array.isArray(raw)) return void res.status(404).json({ error: "No agents" });
+
+      const agents: PlazaAgent[] = raw.map((s: string) => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
+      const idx = agents.findIndex(a => a.id === agentId);
+      if (idx === -1) return void res.status(404).json({ error: "Agent not found" });
+
+      const agent = agents[idx];
+      const result = await sendA2AMessage(agent.endpoint, "gm from BOB Plaza — verifying your endpoint", "BOB Beacon", 10000);
+      agents[idx] = { ...agent, verified: result.ok, lastVerified: Date.now() };
+
+      await kvExec("DEL", "bob:plaza-agents");
+      for (const a of agents) await kvExec("RPUSH", "bob:plaza-agents", JSON.stringify(a));
+
+      res.status(200).json({ verified: result.ok, reply: result.reply.slice(0, 200) });
+    },
+  },
+
   // Community Agents List
   {
     method: "GET", path: "/plaza/agents",

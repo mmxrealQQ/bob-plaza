@@ -798,10 +798,12 @@ function submitRegister() {
         setTimeout(function() { closeRegister(); loadCommunityAgents(); }, 2000);
       } else {
         var hint = data.testResult && data.testResult.reply ? data.testResult.reply : '';
+        var agentId = data.agent.id;
         document.getElementById('reg-status').innerHTML = '<div style="color:var(--orange);margin-bottom:6px">⚠️ Registered, but A2A test failed.</div>'
           + '<div style="font-size:10px;color:var(--dim);line-height:1.5">'
           + (hint.indexOf('Timeout') >= 0 ? 'Your endpoint did not respond within 15s. Make sure it\\'s publicly accessible.' : hint.indexOf('HTTP') >= 0 ? 'Your endpoint returned an error (' + esc(hint) + '). Check if it accepts POST requests.' : 'Your endpoint must accept JSON-RPC 2.0 POST with method "message/send".')
-          + '<br>We\\'ll keep checking — once it responds, it goes green automatically.</div>';
+          + '</div>'
+          + '<button onclick="retestAgent(\\'' + agentId + '\\')" class="reg-btn primary" style="margin-top:8px;font-size:11px" id="retest-btn">🔄 Retest Endpoint</button>';
       }
     } else {
       document.getElementById('reg-status').innerHTML = '<span style="color:var(--red)">' + esc(data.error || 'Failed') + '</span>';
@@ -810,6 +812,25 @@ function submitRegister() {
   .catch(function(e) {
     document.getElementById('reg-status').innerHTML = '<span style="color:var(--red)">Error: ' + esc(e.message) + '</span>';
   });
+}
+
+function retestAgent(agentId) {
+  var btn = document.getElementById('retest-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Testing...'; }
+  fetch('/plaza/retest?id=' + encodeURIComponent(agentId))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.verified) {
+        document.getElementById('reg-status').innerHTML = '<span style="color:var(--green)">✅ A2A verified! Your agent is now live on the Plaza.</span>';
+        setTimeout(function() { closeRegister(); loadCommunityAgents(); }, 2000);
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Retest Endpoint'; }
+        document.getElementById('reg-status').innerHTML = '<div style="color:var(--orange);margin-bottom:6px">⚠️ Still not responding.</div>'
+          + '<div style="font-size:10px;color:var(--dim)">' + esc(data.reply || 'No response') + '</div>'
+          + '<button onclick="retestAgent(\\'' + agentId + '\\')" class="reg-btn primary" style="margin-top:8px;font-size:11px" id="retest-btn">🔄 Retest Endpoint</button>';
+      }
+    })
+    .catch(function() { if (btn) { btn.disabled = false; btn.textContent = '🔄 Retest Endpoint'; } });
 }
 
 function loadCommunityAgents() {
