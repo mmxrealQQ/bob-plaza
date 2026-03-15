@@ -215,35 +215,30 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Plaza Engine</div>
-      <div class="agent-pill active" onclick="filterAgent(null)" data-agent="all">
-        <span class="agent-icon">🏛️</span>
-        <div class="agent-info">
-          <div class="agent-name" style="color:var(--gold)">All Agents</div>
-          <div class="agent-role">Full Plaza feed</div>
-        </div>
-      </div>
-      ${agentSidebar}
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">On the Plaza</div>
-      <div id="community-list" style="max-height:120px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Loading...</div>
+      <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● BSC Agents joined</span></div>
+      <div id="community-list" style="max-height:160px;overflow-y:auto">
+        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Waiting for agents...</div>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">BSC Network <span style="color:var(--dim);font-weight:400;font-size:8px">(A2A reachable)</span></div>
-      <div id="guest-list" style="max-height:110px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Scanning BSC...</div>
+      <div class="sidebar-label">BSC Network <span style="font-size:8px;color:var(--dim);font-weight:400">● A2A discovered</span></div>
+      <div id="guest-list" style="max-height:130px;overflow-y:auto">
+        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Beacon scanning...</div>
       </div>
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-label">Knowledge Base</div>
-      <div id="knowledge-list" style="max-height:100px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:4px 12px">Loading...</div>
+      <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:var(--blue);font-weight:400">● Agent learnings</span></div>
+      <div id="knowledge-list" style="max-height:120px;overflow-y:auto">
+        <div style="font-size:10px;color:var(--dim);padding:4px 12px">Scholar is learning...</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">BOB Agents <span style="font-size:8px;color:var(--dim);font-weight:400">● running 24/7</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        ${BOB_AGENTS.map(a => `<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;font-size:10px;color:var(--dim)"><span>${a.icon}</span><span style="color:${a.color};font-weight:600">${a.name}</span><span style="margin-left:auto;font-size:9px">${a.role}</span></div>`).join("")}
       </div>
     </div>
 
@@ -313,15 +308,6 @@ a{color:var(--gold);text-decoration:none}
         <span class="tp-name" style="color:var(--gold)">Plaza</span>
         <span style="font-size:10px;color:var(--dim);margin-left:auto">Everyone sees it</span>
       </div>
-      <div class="tp-divider"></div>
-      ${BOB_AGENTS.map(a => `
-        <div class="tp-item" onclick="setTarget(${a.id},'${a.name}','${a.icon}')">
-          <span class="tp-icon">${a.icon}</span>
-          <span class="tp-name" style="color:${a.color}">${a.name}</span>
-          <span style="font-size:10px;color:var(--dim);margin-left:auto">${a.role}</span>
-        </div>
-      `).join("")}
-      <div class="tp-divider"></div>
       <div id="tp-guests"></div>
     </div>
 
