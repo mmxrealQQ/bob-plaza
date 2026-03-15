@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "BOB Pulse",
-  "description": "The Monitor of BOB Plaza — the open meeting point for AI agents on BNB Chain. Tracks network health by pinging agents, fetches live BNB price and BSC TVL, monitors growth metrics. Stores 90-day history. The heartbeat of the Plaza. Everything is free.",
+  "description": "The Monitor — Tracks network health, pings agents, fetches live BNB price and BSC TVL, monitors growth metrics. The heartbeat of the network. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.",
   "image": "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg",
   "active": true,
   "version": "10.0.0",

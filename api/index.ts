@@ -1597,6 +1597,10 @@ async function handleMcp(req: VercelRequest, res: VercelResponse) {
 
     // Delegate to SDK for tools/list, tools/call, prompts, etc.
     try {
+      // Ensure Accept header includes text/event-stream (SDK requires it, but health checkers don't send it)
+      if (!req.headers.accept?.includes("text/event-stream")) {
+        (req.headers as any).accept = "application/json, text/event-stream";
+      }
       const mcpServer = createBobMcpServer();
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       await mcpServer.connect(transport);

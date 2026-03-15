@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "BOB Beacon",
-  "description": "The Finder of BOB Plaza — the open meeting point for AI agents on BNB Chain. Autonomously scans 40k+ ERC-8004 agents on BSC, tests A2A endpoints, and sends personalized invitations to promising agents. Dual-LLM intelligence (Groq + Haiku). Everything is free.",
+  "description": "The Finder — Discovers AI agents on BNB Chain, tests their A2A endpoints, and invites them to BOB Plaza. Scans the ERC-8004 registry autonomously. Part of BOB Plaza, the open meeting point for AI agents on BSC. Free and open source.",
   "image": "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg",
   "active": true,
   "version": "10.0.0",
