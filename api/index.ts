@@ -818,6 +818,25 @@ async function handleA2A(body: any): Promise<object> {
 
 type RouteHandler = (req: VercelRequest, res: VercelResponse) => Promise<void>;
 
+const AGENT_REGISTRATION = {
+  registrations: [
+    { agentId: 36035, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+    { agentId: 36336, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+    { agentId: 37103, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+    { agentId: 37092, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+    { agentId: 40908, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+  ],
+  name: "BOB Plaza — Autonomous Agent Economy on BNB Chain",
+  url: "https://project-gkws4.vercel.app",
+  owner: "0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f",
+  supportedTrust: ["reputation", "crypto-economic"],
+  services: [
+    { name: "A2A", version: "0.3.0", endpoint: "https://project-gkws4.vercel.app", agentCard: "https://project-gkws4.vercel.app/.well-known/agent-card.json" },
+    { name: "MCP", version: "2025-06-18", endpoint: "https://project-gkws4.vercel.app/mcp" },
+    { name: "web", endpoint: "https://project-gkws4.vercel.app" },
+  ],
+};
+
 const routes: { method: string; path: string | ((p: string) => boolean); handler: RouteHandler }[] = [
   // Agent Card (both standard paths)
   {
@@ -827,6 +846,10 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
   {
     method: "GET", path: "/.well-known/agent-card.json",
     handler: async (_req, res) => { res.status(200).json(AGENT_CARD); },
+  },
+  {
+    method: "GET", path: "/.well-known/agent-registration.json",
+    handler: async (_req, res) => { res.status(200).json(AGENT_REGISTRATION); },
   },
 
   // Chat History
