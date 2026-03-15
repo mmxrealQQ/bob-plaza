@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/index.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.ts" }
+  ],
+  "crons": [
+    { "path": "/cron/activity",           "schedule": "0 6 * * *"  },
+    { "path": "/cron/activity",           "schedule": "0 14 * * *" },
+    { "path": "/cron/beacon-scan",        "schedule": "0 9 * * *"  },
+    { "path": "/cron/reverify-agents",    "schedule": "0 18 * * *" },
+    { "path": "/cron/community-outreach", "schedule": "0 21 * * *" }
+  ]
+}

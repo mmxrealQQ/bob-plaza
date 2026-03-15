@@ -1,0 +1,22 @@
+[
+  {
+    "name": "SCOUT",
+    "address": "0x93B4150114fd96377fEaB30Fd4597405b9f0CE33",
+    "privateKey": "0xa33e1d45cb2e579dc77676c74924d9bcab494e5ab5fac7de05885001a8c6ca6c"
+  },
+  {
+    "name": "DATABASE",
+    "address": "0xB14Ac40b0F85621631f61612abC31631C7C0E749",
+    "privateKey": "0xe4869031e53d56dd1c99be125bdffb2a6268e5e2c6844d4f3c4b91ff8b8fff63"
+  },
+  {
+    "name": "PUSHER",
+    "address": "0xd671164Da3133501356488613CB16632e8195481",
+    "privateKey": "0x30559811506fc7ac79af3cfc6880b2caedfa11da7b3dc9d98ab33de43ae1ff1e"
+  },
+  {
+    "name": "ORACLE",
+    "address": "0x68B3875C669352e9fE2145Ff14419815C22df45E",
+    "privateKey": "0xf6e1cb526c7f6019603d92f0d8a7310b1bd31bba17578d22b8d2ecec4aa3a6f5"
+  }
+]

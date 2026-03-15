@@ -1,0 +1,31 @@
+{
+  "improvements": [
+    {
+      "ts": 1773488970211,
+      "file": "src/scout-fast.ts",
+      "description": "Add JSON validation before parsing metadata to prevent malformed base64/JSON crashes. The errors show spam agents with corrupted metadata causing parse failures. This adds a try-catch wrapper around JSON.parse in fetchIPFS to gracefully handle invalid JSON instead of crashing the entire scan.",
+      "linesChanged": 9,
+      "success": true,
+      "reverted": false
+    },
+    {
+      "ts": 1773489048356,
+      "file": "src/scout-fast.ts",
+      "description": "Add JSON validation before parsing base64-encoded metadata to prevent malformed data crashes. The errors show spam agents with corrupted metadata causing parse failures. This validates the decoded string before JSON.parse() to catch and skip invalid metadata gracefully.",
+      "linesChanged": 11,
+      "success": true,
+      "reverted": false
+    },
+    {
+      "ts": 1773489131911,
+      "file": "src/scout-fast.ts",
+      "description": "Add try-catch around JSON.parse in fetchIPFS for data: URIs to prevent crashes from malformed base64/JSON. The errors show exit code 3221226505 (memory access violation) caused by corrupted metadata parsing. By catching parse errors early and returning null, we prevent the cascade failure.",
+      "linesChanged": 17,
+      "success": true,
+      "reverted": false
+    }
+  ],
+  "totalApplied": 3,
+  "totalReverted": 0,
+  "lastRun": 1773489131915
+}

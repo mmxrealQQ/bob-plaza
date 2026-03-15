@@ -1,0 +1,1465 @@
+[BRAIN 2026-03-14T09:36:07.305Z] Brain loaded: 2 thoughts, 0 evolutions, 0 relationships
+[BRAIN 2026-03-14T09:36:07.310Z] Memory file: restored from disk
+[BOB 2026-03-14T09:36:07.316Z] Hot reload: watching 12 source files
+[BOB 2026-03-14T09:36:07.319Z] Skipping initial runs (--skip-first)
+[BOB 2026-03-14T09:36:07.323Z] 
+[BRAIN 2026-03-14T09:36:07.326Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T09:36:07.330Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T09:36:07.333Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T09:36:07.337Z] 
+[BOB 2026-03-14T09:52:07.539Z] 🔄 Hot reload: brain.ts changed
+[BRAIN 2026-03-14T09:59:25.369Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T09:59:25.373Z] Memory file: restored from disk
+[BOB 2026-03-14T09:59:25.382Z] Hot reload: watching 12 source files
+[BRAIN 2026-03-14T09:59:25.386Z] Boot sequence: initial intelligence gathering...
+[BRAIN 2026-03-14T09:59:25.391Z] Thinking for SCOUT...
+[BRAIN 2026-03-14T09:59:26.177Z] Decision: scan_bsc (priority 8)
+[BRAIN 2026-03-14T09:59:26.182Z] Reason: "Forced initial run"
+[BOB 2026-03-14T09:59:26.187Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T09:59:26.191Z] 🚀 CYCLE #1 — SCOUT → scan_bsc
+[BOB 2026-03-14T09:59:26.196Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T09:59:26.202Z]   ▶ Starting SCOUT:BSC...
+    [SCOUT:BSC] ╔═══════════════════════════════════════════════════════╗
+    [SCOUT:BSC] ║   BOB SCOUT — Fast Two-Pass Scanner                   ║
+    [SCOUT:BSC] ║   Finding REAL agents on BNB Smart Chain...            ║
+    [SCOUT:BSC] ╚═══════════════════════════════════════════════════════╝
+    [SCOUT:BSC] [SCOUT 10:59:29] Finding max agent ID...
+    [SCOUT:BSC] [SCOUT 10:59:30] Max agent ID: 40894
+    [SCOUT:BSC] [SCOUT 10:59:30] 
+    [SCOUT:BSC] ── PASS 1: Quick metadata scan #1 to #40894 (40894 IDs) ──
+    [SCOUT:BSC] [SCOUT 11:01:00] 1% | Scanned: 500 | Exists: 500 | With Services: 12
+    [SCOUT:BSC] [SCOUT 11:01:26] 2% | Scanned: 1000 | Exists: 1000 | With Services: 21
+    [SCOUT:BSC] [SCOUT 11:01:48] 4% | Scanned: 1500 | Exists: 1500 | With Services: 22
+    [SCOUT:BSC] [SCOUT 11:02:11] 5% | Scanned: 2000 | Exists: 2000 | With Services: 24
+    [SCOUT:BSC] [SCOUT 11:02:42] 6% | Scanned: 2500 | Exists: 2500 | With Services: 207
+    [SCOUT:BSC] [SCOUT 11:03:11] 7% | Scanned: 3000 | Exists: 3000 | With Services: 281
+    [SCOUT:BSC] [SCOUT 11:03:36] 9% | Scanned: 3500 | Exists: 3500 | With Services: 284
+    [SCOUT:BSC] [SCOUT 11:04:03] 10% | Scanned: 4000 | Exists: 4000 | With Services: 284
+    [SCOUT:BSC] [SCOUT 11:04:29] 11% | Scanned: 4500 | Exists: 4500 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:04:52] 12% | Scanned: 5000 | Exists: 5000 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:05:18] 13% | Scanned: 5500 | Exists: 5500 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:05:44] 15% | Scanned: 6000 | Exists: 6000 | With Services: 286
+    [SCOUT:BSC] [SCOUT 11:06:13] 16% | Scanned: 6500 | Exists: 6500 | With Services: 299
+    [SCOUT:BSC] [SCOUT 11:06:40] 17% | Scanned: 7000 | Exists: 7000 | With Services: 327
+    [SCOUT:BSC] [SCOUT 11:07:08] 18% | Scanned: 7500 | Exists: 7500 | With Services: 331
+    [SCOUT:BSC] [SCOUT 11:07:34] 20% | Scanned: 8000 | Exists: 8000 | With Services: 332
+    [SCOUT:BSC] [SCOUT 11:08:01] 21% | Scanned: 8500 | Exists: 8500 | With Services: 335
+    [SCOUT:BSC] [SCOUT 11:08:26] 22% | Scanned: 9000 | Exists: 9000 | With Services: 335
+    [SCOUT:BSC] [SCOUT 11:08:54] 23% | Scanned: 9500 | Exists: 9500 | With Services: 336
+    [SCOUT:BSC] [SCOUT 11:09:17] 24% | Scanned: 10000 | Exists: 10000 | With Services: 336
+    [SCOUT:BSC] [SCOUT 11:09:42] 26% | Scanned: 10500 | Exists: 10500 | With Services: 337
+    [SCOUT:BSC] [SCOUT 11:10:11] 27% | Scanned: 11000 | Exists: 11000 | With Services: 358
+    [SCOUT:BSC] [SCOUT 11:10:38] 28% | Scanned: 11500 | Exists: 11500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:11:03] 29% | Scanned: 12000 | Exists: 12000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:11:28] 31% | Scanned: 12500 | Exists: 12500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:11:54] 32% | Scanned: 13000 | Exists: 13000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:12:19] 33% | Scanned: 13500 | Exists: 13500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:12:44] 34% | Scanned: 14000 | Exists: 14000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:13:09] 35% | Scanned: 14500 | Exists: 14500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:13:34] 37% | Scanned: 15000 | Exists: 15000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:14:01] 38% | Scanned: 15500 | Exists: 15500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:14:27] 39% | Scanned: 16000 | Exists: 16000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:14:53] 40% | Scanned: 16500 | Exists: 16500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:15:20] 42% | Scanned: 17000 | Exists: 17000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:15:46] 43% | Scanned: 17500 | Exists: 17500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:16:11] 44% | Scanned: 18000 | Exists: 18000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:16:38] 45% | Scanned: 18500 | Exists: 18500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:17:03] 46% | Scanned: 19000 | Exists: 19000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:17:30] 48% | Scanned: 19500 | Exists: 19500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 11:17:56] 49% | Scanned: 20000 | Exists: 20000 | With Services: 428
+    [SCOUT:BSC] [SCOUT 11:18:22] 50% | Scanned: 20500 | Exists: 20500 | With Services: 430
+    [SCOUT:BSC] [SCOUT 11:18:48] 51% | Scanned: 21000 | Exists: 21000 | With Services: 431
+    [SCOUT:BSC] [SCOUT 11:19:17] 53% | Scanned: 21500 | Exists: 21500 | With Services: 431
+    [SCOUT:BSC] [SCOUT 11:19:49] 54% | Scanned: 22000 | Exists: 22000 | With Services: 431
+[BRAIN 2026-03-14T10:19:59.986Z] Shutting down gracefully... (Ctrl+C again to force)
+[BOB 2026-03-14T10:20:00.097Z]   ❌ SCOUT:BSC failed (exit code null) after 1234s
+[BRAIN 2026-03-14T10:20:00.103Z] Learning from SCOUT result (failed)...
+[BRAIN 2026-03-14T10:20:00.207Z] Boot sequence complete. Entering autonomous mode...
+[BOB 2026-03-14T10:20:00.211Z] 
+[BRAIN 2026-03-14T10:20:00.214Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T10:20:00.218Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T10:20:00.221Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T10:20:00.224Z] 
+[BRAIN 2026-03-14T10:20:00.228Z] Saving brain state before shutdown...
+[BOB 2026-03-14T10:20:00.285Z] BOB has stopped. Brain state preserved. See you next time, builder. 🏗️
+[BRAIN 2026-03-14T10:48:24.285Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T10:48:24.289Z] Memory file: restored from disk
+[BOB 2026-03-14T10:48:24.543Z] Hot reload: watching 13 source files
+[BRAIN 2026-03-14T10:48:24.546Z] Boot sequence: initial intelligence gathering...
+[BRAIN 2026-03-14T10:48:24.551Z] Thinking for SCOUT...
+[BRAIN 2026-03-14T10:48:25.281Z] Decision: scan_bsc (priority 8)
+[BRAIN 2026-03-14T10:48:25.286Z] Reason: "Forced initial run"
+[BOB 2026-03-14T10:48:25.291Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T10:48:25.295Z] 🚀 CYCLE #1 — SCOUT → scan_bsc
+[BOB 2026-03-14T10:48:25.301Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T10:48:25.306Z]   ▶ Starting SCOUT:BSC...
+    [SCOUT:BSC] ╔═══════════════════════════════════════════════════════╗
+    [SCOUT:BSC] ║   BOB SCOUT — Fast Two-Pass Scanner                   ║
+    [SCOUT:BSC] ║   Finding REAL agents on BNB Smart Chain...            ║
+    [SCOUT:BSC] ╚═══════════════════════════════════════════════════════╝
+    [SCOUT:BSC] [SCOUT 11:48:28] Finding max agent ID...
+    [SCOUT:BSC] [SCOUT 11:48:29] Max agent ID: 40929
+    [SCOUT:BSC] [SCOUT 11:48:29] 
+    [SCOUT:BSC] ── PASS 1: Quick metadata scan #1 to #40929 (40929 IDs) ──
+    [SCOUT:BSC] [SCOUT 11:49:55] 1% | Scanned: 500 | Exists: 500 | With Services: 12
+    [SCOUT:BSC] [SCOUT 11:50:21] 2% | Scanned: 1000 | Exists: 1000 | With Services: 21
+    [SCOUT:BSC] [SCOUT 11:50:52] 4% | Scanned: 1500 | Exists: 1500 | With Services: 22
+    [SCOUT:BSC] [SCOUT 11:51:14] 5% | Scanned: 2000 | Exists: 2000 | With Services: 24
+    [SCOUT:BSC] [SCOUT 11:51:45] 6% | Scanned: 2500 | Exists: 2500 | With Services: 207
+    [SCOUT:BSC] [SCOUT 11:52:13] 7% | Scanned: 3000 | Exists: 3000 | With Services: 281
+    [SCOUT:BSC] [SCOUT 11:52:38] 9% | Scanned: 3500 | Exists: 3500 | With Services: 284
+    [SCOUT:BSC] [SCOUT 11:53:04] 10% | Scanned: 4000 | Exists: 4000 | With Services: 284
+    [SCOUT:BSC] [SCOUT 11:53:30] 11% | Scanned: 4500 | Exists: 4500 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:53:52] 12% | Scanned: 5000 | Exists: 5000 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:54:18] 13% | Scanned: 5500 | Exists: 5500 | With Services: 285
+    [SCOUT:BSC] [SCOUT 11:54:45] 15% | Scanned: 6000 | Exists: 6000 | With Services: 286
+    [SCOUT:BSC] [SCOUT 11:55:13] 16% | Scanned: 6500 | Exists: 6500 | With Services: 299
+    [SCOUT:BSC] [SCOUT 11:55:41] 17% | Scanned: 7000 | Exists: 7000 | With Services: 327
+    [SCOUT:BSC] [SCOUT 11:56:09] 18% | Scanned: 7500 | Exists: 7500 | With Services: 331
+    [SCOUT:BSC] [SCOUT 11:56:35] 20% | Scanned: 8000 | Exists: 8000 | With Services: 332
+    [SCOUT:BSC] [SCOUT 11:57:01] 21% | Scanned: 8500 | Exists: 8500 | With Services: 335
+    [SCOUT:BSC] [SCOUT 11:57:26] 22% | Scanned: 9000 | Exists: 9000 | With Services: 335
+    [SCOUT:BSC] [SCOUT 11:57:52] 23% | Scanned: 9500 | Exists: 9500 | With Services: 336
+    [SCOUT:BSC] [SCOUT 11:58:15] 24% | Scanned: 10000 | Exists: 10000 | With Services: 336
+    [SCOUT:BSC] [SCOUT 11:58:40] 26% | Scanned: 10500 | Exists: 10500 | With Services: 337
+    [SCOUT:BSC] [SCOUT 11:59:02] 27% | Scanned: 11000 | Exists: 11000 | With Services: 358
+    [SCOUT:BSC] [SCOUT 11:59:29] 28% | Scanned: 11500 | Exists: 11500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 11:59:56] 29% | Scanned: 12000 | Exists: 12000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:00:23] 31% | Scanned: 12500 | Exists: 12500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:00:50] 32% | Scanned: 13000 | Exists: 13000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:01:15] 33% | Scanned: 13500 | Exists: 13500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:01:40] 34% | Scanned: 14000 | Exists: 14000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:02:06] 35% | Scanned: 14500 | Exists: 14500 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:02:31] 37% | Scanned: 15000 | Exists: 15000 | With Services: 426
+    [SCOUT:BSC] [SCOUT 12:02:58] 38% | Scanned: 15500 | Exists: 15500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:03:25] 39% | Scanned: 16000 | Exists: 16000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:03:51] 40% | Scanned: 16500 | Exists: 16500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:04:18] 42% | Scanned: 17000 | Exists: 17000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:04:45] 43% | Scanned: 17500 | Exists: 17500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:05:11] 44% | Scanned: 18000 | Exists: 18000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:05:38] 45% | Scanned: 18500 | Exists: 18500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:06:05] 46% | Scanned: 19000 | Exists: 19000 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:06:32] 48% | Scanned: 19500 | Exists: 19500 | With Services: 427
+    [SCOUT:BSC] [SCOUT 12:06:59] 49% | Scanned: 20000 | Exists: 20000 | With Services: 428
+    [SCOUT:BSC] [SCOUT 12:07:26] 50% | Scanned: 20500 | Exists: 20500 | With Services: 430
+    [SCOUT:BSC] [SCOUT 12:07:51] 51% | Scanned: 21000 | Exists: 21000 | With Services: 431
+    [SCOUT:BSC] [SCOUT 12:08:17] 53% | Scanned: 21500 | Exists: 21500 | With Services: 431
+    [SCOUT:BSC] [SCOUT 12:08:44] 54% | Scanned: 22000 | Exists: 22000 | With Services: 431
+    [SCOUT:BSC] [SCOUT 12:09:10] 55% | Scanned: 22500 | Exists: 22500 | With Services: 431
+    [SCOUT:BSC] [SCOUT 12:09:36] 56% | Scanned: 23000 | Exists: 23000 | With Services: 435
+    [SCOUT:BSC] [SCOUT 12:10:02] 57% | Scanned: 23500 | Exists: 23500 | With Services: 436
+    [SCOUT:BSC] [SCOUT 12:10:27] 59% | Scanned: 24000 | Exists: 24000 | With Services: 450
+    [SCOUT:BSC] [SCOUT 12:10:53] 60% | Scanned: 24500 | Exists: 24500 | With Services: 450
+    [SCOUT:BSC] [SCOUT 12:11:21] 61% | Scanned: 25000 | Exists: 25000 | With Services: 450
+    [SCOUT:BSC] [SCOUT 12:11:47] 62% | Scanned: 25500 | Exists: 25500 | With Services: 450
+    [SCOUT:BSC] [SCOUT 12:12:13] 64% | Scanned: 26000 | Exists: 26000 | With Services: 450
+    [SCOUT:BSC] [SCOUT 12:12:38] 65% | Scanned: 26500 | Exists: 26500 | With Services: 451
+    [SCOUT:BSC] [SCOUT 12:13:04] 66% | Scanned: 27000 | Exists: 27000 | With Services: 451
+    [SCOUT:BSC] [SCOUT 12:13:29] 67% | Scanned: 27500 | Exists: 27500 | With Services: 451
+    [SCOUT:BSC] [SCOUT 12:13:56] 68% | Scanned: 28000 | Exists: 28000 | With Services: 453
+    [SCOUT:BSC] [SCOUT 12:14:23] 70% | Scanned: 28500 | Exists: 28500 | With Services: 453
+    [SCOUT:BSC] [SCOUT 12:14:52] 71% | Scanned: 29000 | Exists: 29000 | With Services: 454
+    [SCOUT:BSC] [SCOUT 12:15:17] 72% | Scanned: 29500 | Exists: 29500 | With Services: 458
+    [SCOUT:BSC] [SCOUT 12:15:44] 73% | Scanned: 30000 | Exists: 30000 | With Services: 458
+    [SCOUT:BSC] [SCOUT 12:16:10] 75% | Scanned: 30500 | Exists: 30500 | With Services: 459
+    [SCOUT:BSC] [SCOUT 12:16:37] 76% | Scanned: 31000 | Exists: 31000 | With Services: 509
+    [SCOUT:BSC] [SCOUT 12:17:03] 77% | Scanned: 31500 | Exists: 31500 | With Services: 568
+    [SCOUT:BSC] [SCOUT 12:17:27] 78% | Scanned: 32000 | Exists: 32000 | With Services: 568
+    [SCOUT:BSC] [SCOUT 12:17:53] 79% | Scanned: 32500 | Exists: 32500 | With Services: 570
+    [SCOUT:BSC] [SCOUT 12:18:19] 81% | Scanned: 33000 | Exists: 33000 | With Services: 571
+    [SCOUT:BSC] [SCOUT 12:18:46] 82% | Scanned: 33500 | Exists: 33500 | With Services: 575
+    [SCOUT:BSC] [SCOUT 12:19:13] 83% | Scanned: 34000 | Exists: 34000 | With Services: 578
+    [SCOUT:BSC] [SCOUT 12:19:39] 84% | Scanned: 34500 | Exists: 34500 | With Services: 578
+    [SCOUT:BSC] [SCOUT 12:20:06] 86% | Scanned: 35000 | Exists: 35000 | With Services: 578
+    [SCOUT:BSC] [SCOUT 12:20:32] 87% | Scanned: 35500 | Exists: 35500 | With Services: 582
+    [SCOUT:BSC] [SCOUT 12:20:57] 88% | Scanned: 36000 | Exists: 36000 | With Services: 592
+    [SCOUT:BSC] [SCOUT 12:21:23] 89% | Scanned: 36500 | Exists: 36500 | With Services: 594
+    [SCOUT:BSC] [SCOUT 12:21:49] 90% | Scanned: 37000 | Exists: 37000 | With Services: 595
+    [SCOUT:BSC] [SCOUT 12:22:16] 92% | Scanned: 37500 | Exists: 37500 | With Services: 603
+    [SCOUT:BSC] [SCOUT 12:22:43] 93% | Scanned: 38000 | Exists: 38000 | With Services: 609
+    [SCOUT:BSC] [SCOUT 12:23:09] 94% | Scanned: 38500 | Exists: 38500 | With Services: 615
+    [SCOUT:BSC] [SCOUT 12:23:35] 95% | Scanned: 39000 | Exists: 39000 | With Services: 617
+    [SCOUT:BSC] [SCOUT 12:24:02] 97% | Scanned: 39500 | Exists: 39500 | With Services: 617
+    [SCOUT:BSC] [SCOUT 12:24:27] 98% | Scanned: 40000 | Exists: 40000 | With Services: 617
+    [SCOUT:BSC] [SCOUT 12:24:53] 99% | Scanned: 40500 | Exists: 40500 | With Services: 618
+    [SCOUT:BSC] [SCOUT 12:25:18] 100% | Scanned: 40929 | Exists: 40929 | With Services: 620
+    [SCOUT:BSC] [SCOUT 12:25:18] 
+    [SCOUT:BSC] Pass 1 done: 40929 registered, 620 have services (A2A/MCP/Web/API)
+    [SCOUT:BSC] [SCOUT 12:25:18] 
+    [SCOUT:BSC] ── PASS 2: Testing 620 agents with endpoints ──
+    [SCOUT:BSC] [SCOUT 12:25:18] Loaded 40155 existing agents — will merge new results
+    [SCOUT:BSC] [SCOUT 12:25:18]   ❌    #1 "ClawNews" Score:35 [inactive] analytics web,OASF,agentWallet,email
+    [SCOUT:BSC] [SCOUT 12:25:18]   ❌    #96 "HodlAI Protocol" Score:30 [inactive] defi A2A
+    [SCOUT:BSC] [SCOUT 12:25:18]   ❌    #107 "biuai" Score:35 [inactive] ai MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #108 "HodlAI Protocol" Score:35 [inactive] defi A2A
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #109 "dogeai" Score:30 [inactive] ai MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #129 "AGENTSAI" Score:25 [inactive] ai MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #130 "ONEHAAI" Score:25 [inactive] ai MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #131 "AgentLISA" Score:35 [inactive] security MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #137 "EZCTO Deployer Agent" Score:55 [inactive] automation web,A2A,MCP,API
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #251 "UUUAI5" Score:25 [inactive] general MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #252 "UUUAI4" Score:25 [inactive] general MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #253 "UUUAI3" Score:25 [inactive] general MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #682 "Dumb" Score:25 [inactive] trading MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #684 "MoltBot" Score:35 [inactive] infrastructure web,twitter
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #697 "@marshallrichrds Soul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #698 "@aigclink Soul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #699 "@RoundtableSpace · ensoul.app" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #700 "@vivoplt · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #701 "ID Test Token Agent Claw" Score:35 [inactive] gaming web,TradingPlatform
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #728 "Kibu" Score:40 [inactive] trading custom,A2A
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #753 "BabyCai" Score:35 [inactive] analytics A2A
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #1281 "yangyi541999" Score:35 [inactive] trading MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #1879 "DataAnalyst Pro" Score:25 [inactive] analytics MCP
+    [SCOUT:BSC] [SCOUT 12:25:19]   ❌    #1961 "DataAnalyst Pro" Score:35 [inactive] analytics MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:20]   ❌    #2105 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2106 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2107 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2109 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2111 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2112 "Kaching" Score:30 [inactive] infrastructure MCP
+    [SCOUT:BSC] [SCOUT 12:25:21]   ❌    #2113 "Remote Agent" Score:35 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2114 "Remote Agent" Score:40 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2115 "ヒナミちゃん by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2119 "Kansas City Chiefs by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2120 "Vertcoin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2121 "WoW Gold by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:22]   ❌    #2122 "The White Swan by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2123 "The White Swan by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2124 "ShitScreener by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2125 "Happiness Coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2126 "筊易" Score:25 [inactive] gaming MCP
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2127 "The Official Shitcoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:23]   ❌    #2128 "Little dick caesars by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2129 "Fuck Her Right In The Pussy  by Uni" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2131 "Black Swan by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2132 "@elonmusk · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2134 "ヒナミちゃん by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2138 "x(formerly twitter)coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2139 "The Plush Swan by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2140 "@cz_binance · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2141 "Happiness Coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2142 "@heyibinance · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:24]   ❌    #2143 "@nina_rong · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:25]   ❌    #2144 "Clawdbot by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:25]   ❌    #2145 "The Great Breakthrough  by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:25]   ❌    #2146 "CryptoX by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:26]   🟡    #2147 "ClawnStrategy by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:26]   ❌    #2149 "NWEN by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:26]   ❌    #2150 "The Giga Swan by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:27]   ❌    #2151 "Hachiko Cult by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:27]   ❌    #2152 "POET Screener by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:27]   ❌    #2153 "The Official Shitcoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:27]   ❌    #2154 "Fuck Her Right In The Pussy  by Uni" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:28]   ❌    #2156 "Happiness Coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:28]   ❌    #2157 "Hachiko Cult by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:28]   ❌    #2158 "Karyna Fund by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:28]   ❌    #2159 "The Winter Goonlympics by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:29]   ❌    #2160 "NWEN by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:29]   ❌    #2161 "WLFI by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:29]   🟡    #2162 "The Swan Lake by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:29]   🟡    #2163 "ClawnStrategy by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:30]   🟡    #2164 "Mr Beast Giveaway by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:30]   ❌    #2165 "ClawnStrategy by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:30]   🟡    #2166 "POET Screener by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:31]   🟡    #2167 "Generational Bottom by Unibase" Score:70 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:31]   🟡    #2168 "Soyjak by Unibase" Score:60 [active] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:31]   ❌    #2169 "67 Polar Bear by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2170 "Schizo Post by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2171 "Mr Beast Giveaway by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2172 "The LGBTQIAPN+ Dog by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2173 "Happiness Coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2174 "#keep4o by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:32]   ❌    #2175 "ClawnStrategy by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2176 "Karyna Fund by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2177 "WLFI by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2178 "The Great Breakthrough  by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2179 "The Dinner by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2180 "67 Polar Bear by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:33]   ❌    #2181 "Mr Beast Giveaway by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2182 "#keep4o by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2183 "WLFI by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2184 "ClawnStrategy by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2185 "Whiteshark by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2186 "67 Polar Bear by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:34]   ❌    #2187 "World War 3 by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2189 "Dad this is  by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2190 "Github Copilot Plushie by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2191 "Ziro Vat by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2192 "Github Copilot Plushie by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2193 "Sydney Swaney by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:35]   ❌    #2194 "ClawnStrategy by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2195 "PissCoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2196 "The LGBTQIAPN+ Dog by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2197 "tit by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2374 "@cold88jump · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2375 "@0xPickleCati · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2377 "@BNBCHAIN · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2378 "@toly · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2379 "@pepecoineth · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2380 "@GoldenPepeCabal · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2381 "@BNBCHAINZH · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2382 "@solana · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2383 "@realDonaldTrump · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2384 "@0xMoon6626 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2385 "@a1lon9 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2386 "@hnb7l9 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2387 "@sibeleth · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2388 "@burnordeposit · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2389 "@mert · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2390 "@grok · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2391 "@shawmakesmagic · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2392 "@leonidasNFT · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2393 "@bruca · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2394 "@Dior100x · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2395 "@lee040573699712 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2396 "@feibo03 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2397 "@Ga__ke · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2398 "Vitalik Wojak by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2399 "@cain_bnb · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2400 "@‪eth_cedric‬ · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2401 "@‪justinsuntron‬ · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2402 "@‪NemoBuilder‬ · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2403 "@‪ChandlerGuo‬ · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2404 "@‪cz_binance‬ · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2405 "@chao_dan47896 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2408 "@benqianqaq · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2409 "@x · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2410 "@binance · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2411 "@Detecti77623220 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2412 "@star_okx · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2413 "@okx · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2414 "@xai · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2415 "@AmadeusYuuJi · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2416 "@doge · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2417 "@shibtoken · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2418 "@justinbieber · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2419 "@george90346659 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2422 "@jiejuncai19971 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2423 "Post Trench Stress Disorder by Unib" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2426 "@ren760844595583 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2429 "@ensoulac · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2430 "@mayemusk · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2432 "@justinsuntron · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2434 "@caonhtan1 · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2436 "@okmetom · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:36]   ❌    #2437 "ObamaPredatorCandyLootBoxDrone by U" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2438 "BlueClaw by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2439 "Clawtina by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2440 "The Puzzle by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2441 "The Puzzle by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2442 "Clawtina by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:37]   ❌    #2443 "ObamaPredatorCandyLootBoxDrone by U" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2444 "Act W : The Whale Prophecy by Uniba" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2445 "MAWD by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2446 "Staredad by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2447 "The ASCII Whale by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2448 "The White Wojak by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:38]   ❌    #2449 "Poopcoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2450 "MOLLIE THE ASCII CRAB by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2452 "Subway Queen by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2453 "@sexxualgifs · Ensoul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2454 "The Hello Whale by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2455 "MOONCOIN by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2456 "Remy by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:39]   ❌    #2457 "The Hello Whale by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2458 "The Villain by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2459 "The Villain by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2460 "Agentic Coin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2461 "The Puzzle by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2462 "Poopcoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:40]   ❌    #2463 "Rachel's Racks by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2464 "MOONCOIN by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2465 "Rest in peace Teigan by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2466 "Tibcoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2467 "Subway Queen by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2470 "MAWD by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:41]   ❌    #2472 "税收给真作者 by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2474 "The Inu Family by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2476 "The Badger of Money by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2478 "Rachel's Racks by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2479 "crocoduck by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2480 "Rachel's Racks by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:42]   ❌    #2483 "Troll Coin by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2484 "The Badger of Money by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2485 "MoltyDEX by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2486 "ClawPhone by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2487 "clawdmint by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2488 "CancerCoin by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:43]   ❌    #2489 "The Patient Tortoise by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2490 "conman by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2491 "crocoduck by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2492 "The Big Dog by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2493 "ClawPhone by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2494 "α by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:44]   ❌    #2495 "央视春晚历史首个具身大模型机器人官宣 by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2496 "Mark450 by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2497 "@baoanpu · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2502 "@hy78211 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2503 "@kwen_eth · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2504 "@ed_x0101 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2505 "@forgai_bnb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2506 "@pgpfist · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2507 "@bnblabubu · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2509 "@flapdotsh · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2510 "@nemobuilder · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2511 "@four_form_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2512 "@blackanger · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2513 "@tokenpocket_tp · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2514 "@b402ai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2515 "@openclaw · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2516 "@aveai_info · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2517 "@uniswap · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2518 "@pancakeswap · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2519 "@nikitabier · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2520 "@steipete · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2521 "PEACE by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2522 "@telegram · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2523 "@0xaa_science · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2524 "@sunyuchentron · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2525 "Indomitable Tortoise Spirit by Unib" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2526 "@ethereum · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2527 "@worldlibertyfi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2528 "@aga_protocol · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2529 "@debox_social · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2530 "@letsvpn · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2531 "@gate · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2532 "@htx_global · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2533 "@feixiaohaocom · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2534 "@saluteorigin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2535 "@weixin_wechat · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2536 "@tiktok_us · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2537 "@alipay · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2538 "@openai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2539 "@google · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2540 "@microsoft · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2541 "@moltbook · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2542 "@youtube · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2543 "@discord · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2544 "@bitcoin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2545 "@vitalikbuterin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2546 "@billgates · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2547 "@deepseek_ai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2548 "@chandlerguo · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2551 "@coinbase · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2554 "@coinmarketcap · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2578 "@kucoincom · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2586 "@saylor · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2613 "@dogecoin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2651 "@whale_alert · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2655 "@coingecko · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2656 "@trustwallet · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2658 "@ripple · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2660 "@trondao · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2862 "@pmarca · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2864 "@fundstrat · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2867 "@spacex · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2869 "@gracybitget · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2871 "@polymarket · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2873 "@jiemaoz · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2874 "@jxs1688 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2875 "@gonchar · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2876 "@karpathy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2877 "@sama · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2878 "@linwanwan823 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2879 "@hodlclaw · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2880 "@0xfengxun · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2881 "@xxy177 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2882 "@api · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2883 "@gmgnai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2884 "@fanqie16888 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #2894 "Jacob NFA Platform" Score:30 [inactive] defi web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #3008 "SperaxOS" Score:25 [inactive] general web,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #3056 "@hoidya_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #3057 "@frxiaobei · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #4395 "@zswap_dex · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #5648 "@jshzgnb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6440 "nich" Score:35 [inactive] general web,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6441 "DeFi Trading Agent SperaxOS" Score:45 [inactive] defi A2A,web,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6443 "Sperax Intelligence" Score:45 [inactive] defi A2A,web,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6452 "@poetengineer__ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6453 "@aa_afeng · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6454 "@_forab · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6456 "@nancy_c813 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6457 "@0xsigil · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6458 "@starzq · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6460 "@coolish · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6461 "@turingou Soul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6462 "@drjingle Soul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6464 "@rileybrown Soul" Score:30 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6502 "GemBots Arena — GPT-4o" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6503 "GemBots Arena — Claude 3.5 Sonnet" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6504 "GemBots Arena — Claude 3.5 Haiku" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6505 "GemBots Arena — Gemini 2.0 Flash" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6506 "GemBots Arena — Gemini 1.5 Pro" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6507 "GemBots Arena — Grok" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6508 "GemBots Arena — DeepSeek R1" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6509 "GemBots Arena — Llama 3.3 70B" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6510 "GemBots Arena — Mistral Large" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6511 "GemBots Arena — Qwen 2.5 72B" Score:35 [inactive] analytics web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6512 "GemBots Arena — Command R+" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6513 "GemBots Arena — Phi-4" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6514 "GemBots Arena — Nova Pro" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6515 "GemBots Arena — Nemotron 70B" Score:35 [inactive] gaming web,arena
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6544 "@cbnoiiii · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6558 "OpenClaw Assistant" Score:40 [inactive] ai A2A,x402
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6616 "@cbnoiiii · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6617 "@0xkevinhe · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6662 "@web3leaf · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6664 "@0xgogo666 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6673 "@iamzuna_y · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6675 "@0xvalkyrie_ai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6676 "@0xldb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6677 "@evoluxtrade · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6718 "@cai_934 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6719 "@gubbinscalls · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6951 "ForU Gatekeeper" Score:35 [inactive] social web,REST
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #6952 "ForU Gatekeeper" Score:35 [inactive] social web,REST
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #7223 "@nguyenthanh · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #7228 "@arbitrageincept · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #7300 "@cis2042 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #7392 "@draffilog · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #7612 "8k4 Protocol Trust Oracle" Score:40 [inactive] defi web,API,API:score,API:score:explain,API:metadata,API:stats,email
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #8313 "FourMemeAgent_1" Score:30 [inactive] trading web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #8315 "FourMemeAgent_2" Score:30 [inactive] trading web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #8318 "FourMemeAgent_3" Score:30 [inactive] trading web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #9078 "FourMemeAgent_1" Score:30 [inactive] trading web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10293 "Database" Score:30 [inactive] analytics MCP
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10928 "Fraast" Score:35 [inactive] security MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10975 "LambdaAI_6E4A22" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10980 "NeuralEngine_AA49E4" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10981 "QuantumNetwork_268712" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10982 "PhotonAgent_A2AF20" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10983 "PhotonX_250F06" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10984 "KineticAgent_1EE2BD" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10985 "OmegaBot_D00BC3" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10986 "NovaHub_3EDE65" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10987 "AxiomMind_39DDE2" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10988 "GammaX_D8507C" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10989 "DeltaMind_E93633" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10990 "DeltaOracle_F9F38B" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10991 "QuantumHunter_5D8FCE" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10994 "AlphaLink_DD3DC3" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10995 "FluxBot_CC5A73" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10996 "MatrixSeeker_EA7378" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10997 "NovaGuardian_018712" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10998 "KineticHunter_71EAB1" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #10999 "CyberScout_E5A98A" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11000 "PhotonMind_A95A71" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11001 "BetaHub_B7CC5A" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11002 "MatrixPrime_D01767" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11003 "LambdaCore_914DA1" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11004 "KineticEngine_814625" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11005 "AlphaOracle_BDF464" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11006 "CyberHunter_E1FA1E" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11007 "NeuralAgent_1CB17B" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11008 "EpochPrime_E6D289" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11009 "DeltaX_43D78B" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11010 "AxiomSeeker_91B4F9" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11011 "GammaEngine_90EE54" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11013 "QuantumHub_7275A1" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11014 "FusionHub_497138" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11015 "AxiomOracle_596EF4" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11016 "AxiomHunter_CAF6BE" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11017 "OmegaEngine_EDFF25" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11018 "CyberCore_D71D86" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11020 "NexusAgent_E16D93" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11021 "FusionGuardian_CE43CD" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11022 "HelixHub_8D3735" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11023 "NovaNetwork_3EC053" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11025 "AlphaSentinel_F85FD5" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11026 "NovaBot_D26326" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11027 "QuantumMind_9FF1A0" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11028 "HelixCore_030837" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11029 "OmegaCore_FDBCD5" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11030 "EpochSeeker_F4285E" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11031 "LambdaNode_740B5C" Score:30 [inactive] infrastructure api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11032 "FluxBot_66B8B0" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11033 "CyberBot_A29AFF" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11034 "AlphaEngine_46AAA8" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11035 "IonProtocol_72536F" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11036 "NexusSentinel_05C1EC" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11037 "KineticPrime_CA61E0" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11038 "PhotonNetwork_BDAD91" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11039 "IonBot_6E9C07" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11040 "IonPrime_325003" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11041 "FluxSeeker_EE7704" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11042 "GammaSentinel_53ED5A" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11043 "QuantumHunter_4911F3" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11044 "PhotonHub_F2E700" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11045 "AxiomPrime_C6CE74" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11046 "NovaHub_2D0185" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11047 "OmegaPrime_157B2B" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11049 "CyberOracle_741179" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11050 "EpochProtocol_F855F1" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11051 "GammaSeeker_C5B5C0" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11052 "GammaHub_403801" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11053 "DeltaNode_16A307" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11054 "OmegaHunter_E9FAD4" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11055 "FluxLink_DB7BC2" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11056 "MatrixBot_276F9E" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11058 "NovaSentinel_B365BE" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11059 "FluxAgent_6E44E0" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11060 "IonAI_383F97" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11061 "NexusSentinel_432C3E" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11062 "FusionAgent_677ED4" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11063 "OmegaMind_428A73" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11064 "KineticBot_091D8F" Score:30 [inactive] automation api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11065 "GammaNode_5CDD52" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11066 "OmegaSentinel_32E739" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11067 "DeltaHunter_FE3CEF" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11068 "NeuralMind_A42951" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11069 "LambdaProtocol_1E0690" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11070 "GammaGuardian_F84B70" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11071 "IonSeeker_1F7BA7" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11072 "GammaEngine_D00730" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #11393 "WizardLobster_BSC" Score:30 [inactive] trading web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #15113 "@p4qcheng · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #19993 "Cuanairdrop" Score:35 [inactive] infrastructure MCP,OASF
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #20131 "DeFi Trading Agent" Score:30 [inactive] defi mcp
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #20357 "Kimi Claw" Score:30 [inactive] ai MCP
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #20817 "Giggle Agent" Score:30 [inactive] social web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #22546 "TST" Score:20 [inactive] unknown web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #22557 "tst2" Score:20 [inactive] unknown web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #22568 "tst3" Score:20 [inactive] unknown web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #22574 "Baysd" Score:20 [inactive] unknown web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23101 "Fourgent" Score:35 [inactive] trading MCP,MCP
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23781 "BetaSentinel_764127" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23782 "FluxPilot_4D8439" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23785 "NeuralHunter_65CEF4" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23786 "AxiomSentinel_2D77F9" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23787 "NovaHub_040431" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23788 "FluxGuardian_64C787" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23789 "NovaNode_03FAEC" Score:30 [inactive] defi api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23790 "HelixPilot_0F326B" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23791 "EpochNetwork_B6FE8A" Score:30 [inactive] analytics api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23792 "NexusAI_94E161" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23793 "NeuralOracle_08EFA7" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23794 "FluxSentinel_D37742" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23795 "NeuralSentinel_ACBB04" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #23796 "NexusPrime_AEA6FD" Score:30 [inactive] trading api
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #26491 "Agent-223986FC" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #27699 "Markowitz Trading Bot" Score:25 [inactive] trading MCP
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #27703 "Markowitz Trading Bot" Score:30 [inactive] trading MCP
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #28821 "@0xonyxx · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #29495 "@lclwalter · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #29496 "@ellazhang516 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #29498 "@crypto20c_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #29499 "@jackclawai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30337 "@jibbzh221 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30680 "@ni_celeb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30715 "Agent-Owen" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30849 "@0xbaobsc · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30850 "@web3a99 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30852 "@sisibinance · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30853 "@binancezh · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30854 "@flmdongtianfudi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30855 "@leozayaat · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30856 "@delcrxpto · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30857 "@williamlab · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30858 "@newsasset · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30859 "@paris13jeanne · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30860 "@huahuayjy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30861 "@dp520888 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30862 "@wublockchain12 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30863 "@bitfish · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30864 "@cloakmk · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30865 "@tinghu888 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30866 "@phyrexni · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30867 "@btcdayu · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30868 "@bitwux · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30869 "@meta8mate · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30870 "@luyao_trader · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30871 "@cindycreation · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30873 "@hebi555 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30876 "@pkycek · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30877 "@btcwukong · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30878 "@evgenygaevoy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30879 "@zachwitkoff · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30880 "@kimi_moonshot · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30881 "@gdog97_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30882 "@henokcrypto · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30883 "@0x_mrfive · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30884 "@shanghaojin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30885 "@yifaer_chen · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30886 "@nbblock · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30887 "@bbjieran · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30888 "@qiju2030 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30889 "@fusheng_0306 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30890 "@captain_kent · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30891 "@xdash · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30892 "@jydmnlfg · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30893 "@naki2012 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30894 "@hoshino_sasaki · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30895 "@0xzhang_crypto · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30898 "@embercn · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30990 "@feltanimalworld · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30996 "@booksey · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #30999 "@jakegagain · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31000 "@eth_cedric · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31003 "@0xtraderyi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31004 "@bizixun · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31005 "@0xyukirabbit · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31006 "@ru7longcrypto · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31007 "@zakfolkman · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31009 "@ethrosamond · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31010 "@ohxiyu · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31011 "@blockbeatsasia · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31012 "@bill_qian · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31013 "@baisircrypto · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31014 "@stanleysobest · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31015 "@0xmayyy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31016 "@supermao · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31017 "@brc20niubi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31018 "@love_doge123 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31020 "@periannedc · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31021 "@ltchives · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31022 "@yueya_eth · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31023 "@xbt886 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31024 "@freeliyi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31025 "@cryptoxiao · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31026 "@traderxiaoxia · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31027 "@dontbesilent · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31028 "@btcpiggy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31029 "@binanceforin · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31030 "@brucefenton · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31031 "@memeking_888 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31032 "@evilcos · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31033 "@chaowxyz · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31034 "@octopusycc · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31035 "@lanhubiji · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31036 "@metafinancialai · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31037 "@mk66623 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31039 "@blknoiz06 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31040 "@rainsrevenge · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31041 "@bubblemaps · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31042 "@bull_bnb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31043 "@chimpp · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31046 "@tongtongbee · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31047 "@starplatinum_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31048 "@zoetoshi · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31049 "@easyeatsbodega · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31050 "@cupseyy · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31147 "@nftfafafa · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31148 "@runitbackghost · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31149 "@wanghebbf · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31150 "@chartfu · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31151 "@gch_enbsbxbs · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31152 "@jessicasmw · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31169 "@dotyyds1234 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31171 "@0xkirara · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31172 "@hosseeb · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31173 "@joeyjia11 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31174 "@doushi0503 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31304 "Agent-c2442084" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31306 "Agent-c2442084" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31308 "Agent-6f6d3e12" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31315 "Agent-6f6d3e12" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #31334 "Agent-3A0D858e" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #32228 "@newlex2010 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #32461 "Fat cat" Score:40 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #32775 "@renminbiyiyuan · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #33127 "Agent-E87c4271" Score:30 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #33257 "Clawlett" Score:30 [inactive] defi web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #33294 "Clawlett" Score:30 [inactive] defi web
+    [SCOUT:BSC] [SCOUT 12:25:45]   ❌    #33424 "@xiaoxing_666 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:46]   ❌    #33813 "a" Score:40 [inactive] general A2A,OASF
+    [SCOUT:BSC] [SCOUT 12:25:46]   ❌    #33905 "NIGGA" Score:20 [inactive] general web
+    [SCOUT:BSC] [SCOUT 12:25:46]   ❌    #33913 "Grok Desktop by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:46]   ❌    #35233 "yooso" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35240 "yooso_bot" Score:50 [inactive] automation A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35320 "yooso_bot2" Score:50 [inactive] automation A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35321 "yooso3" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35550 "@emilychangtv · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35551 "@caitlinlong_ · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35552 "@cryptotracy27 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35553 "@zkgoudan · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35554 "@tqlb11 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35555 "@zbreezea · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35556 "@web3annie · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35557 "@rita88 · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35558 "@jiamibtc · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #35559 "@agintender · Ensoul" Score:35 [inactive] social web,chat
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #36141 "DeFi Trading Agent Deployed on Sper" Score:30 [inactive] defi mcp
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #36186 "DeFi Trading Agent on SperaxOS" Score:30 [inactive] defi mcp
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #36942 "gitlawb by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:47]   ❌    #37107 "Dittoification by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37143 "PolyClaw by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37153 "Alaskan King Crab by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37155 "Lobster Cash by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37157 "Dittofication by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37176 "Buidlpad" Score:50 [inactive] social A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:48]   ❌    #37188 "现实版忠犬八公 by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:49]   ❌    #37258 "Mecha Mecha Pollo by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:49]   ❌    #37658 "CLOWN EMOJI by Unibase" Score:40 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:49]   ❌    #37695 "Yooso Agent" Score:40 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:49]   ❌    #37763 "CryptoBaby" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:49]   ❌    #37776 "cryptoguy" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:50]   ❌    #37785 "Lego" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:50]   ❌    #37934 "bnbbaby" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:50]   ❌    #38001 "XTony" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:50]   ❌    #38002 "XTony" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:51]   ❌    #38005 "XTony" Score:40 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:51]   ❌    #38044 "BigBrother" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:51]   ❌    #38097 "daydream" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:51]   ❌    #38470 "The Black Sheep by Unibase" Score:50 [inactive] memetoken A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:51]   ❌    #38561 "daydream" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:52]   ❌    #38563 "daydream" Score:50 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:52]   ❌    #40244 "yooso" Score:40 [inactive] general A2A,web
+    [SCOUT:BSC] [SCOUT 12:25:52]   🟡    #40928 "clipx test" Score:55 [active] general web,A2A
+    [SCOUT:BSC] [SCOUT 12:25:52]   🟡    #40929 "clipx test" Score:55 [active] general web,A2A
+    [SCOUT:BSC] [SCOUT 12:25:53] 
+    [SCOUT:BSC] Saved to data/agent-registry.json
+    [SCOUT:BSC] ╔═══════════════════════════════════════════════════════╗
+    [SCOUT:BSC] ║   SCOUT SCAN COMPLETE                                  ║
+    [SCOUT:BSC] ╠═══════════════════════════════════════════════════════╣
+    [SCOUT:BSC] ║   Registry IDs:     40929                             ║
+    [SCOUT:BSC] ║   Total scanned:    40929                             ║
+    [SCOUT:BSC] ║   With services:    620                               ║
+    [SCOUT:BSC] ║   ────────────────────────────────────────────────── ║
+    [SCOUT:BSC] ║   Legit (A2A works):  4                                ║
+    [SCOUT:BSC] ║   Active (reachable): 9                                ║
+    [SCOUT:BSC] ║   Inactive:           725                              ║
+    [SCOUT:BSC] ║   A2A responds:       4                                ║
+    [SCOUT:BSC] ║   Valid Agent Card:   4                                ║
+    [SCOUT:BSC] ╚═══════════════════════════════════════════════════════╝
+    [SCOUT:BSC] TOP AGENTS:
+    [SCOUT:BSC]    ✅ 📋 #36035 BOB Scout                        Score:100 [legit] analytics
+    [SCOUT:BSC]    ✅ 📋 #36336 BOB Database                     Score:100 [legit] analytics
+    [SCOUT:BSC]    ✅ 📋 #37092 BOB Oracle                       Score:100 [legit] infrastructure
+    [SCOUT:BSC]    ✅ 📋 #37103 BOB Pusher                       Score:100 [legit] general
+    [SCOUT:BSC]    🟡    #2147 ClawnStrategy by Unibase         Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2162 The Swan Lake by Unibase         Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2163 ClawnStrategy by Unibase         Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2164 Mr Beast Giveaway by Unibase     Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2166 POET Screener by Unibase         Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2167 Generational Bottom by Unibase   Score:70 [active] memetoken
+    [SCOUT:BSC]    🟡    #2168 Soyjak by Unibase                Score:60 [active] memetoken
+    [SCOUT:BSC]    ❌    #137 EZCTO Deployer Agent             Score:55 [inactive] automation
+    [SCOUT:BSC]    🟡    #40928 clipx test                       Score:55 [active] general
+    [SCOUT:BSC]    🟡    #40929 clipx test                       Score:55 [active] general
+    [SCOUT:BSC]    ❌    #2115 ヒナミちゃん by Unibase                Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2121 WoW Gold by Unibase              Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2122 The White Swan by Unibase        Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2123 The White Swan by Unibase        Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2124 ShitScreener by Unibase          Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2127 The Official Shitcoin by Uniba   Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2128 Little dick caesars by Unibase   Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2134 ヒナミちゃん by Unibase                Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2144 Clawdbot by Unibase              Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2145 The Great Breakthrough  by Uni   Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2149 NWEN by Unibase                  Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2152 POET Screener by Unibase         Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2153 The Official Shitcoin by Uniba   Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2158 Karyna Fund by Unibase           Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2159 The Winter Goonlympics by Unib   Score:50 [inactive] memetoken
+    [SCOUT:BSC]    ❌    #2160 NWEN by Unibase                  Score:50 [inactive] memetoken
+    [SCOUT:BSC] [SCOUT 12:25:53] 
+    [SCOUT:BSC] 🚨 ALPHA ALERT: 4 high-value agents found!
+    [SCOUT:BSC] [SCOUT 12:25:53]   ⭐ #36035 "BOB Scout" Score:100 [analytics] — A2A works!
+    [SCOUT:BSC] [SCOUT 12:25:53]   ⭐ #36336 "BOB Database" Score:100 [analytics] — A2A works!
+    [SCOUT:BSC] [SCOUT 12:25:53]   ⭐ #37092 "BOB Oracle" Score:100 [infrastructure] — A2A works!
+    [SCOUT:BSC] [SCOUT 12:25:53]   ⭐ #37103 "BOB Pusher" Score:100 [general] — A2A works!
+[BOB 2026-03-14T11:25:57.291Z]   ✅ SCOUT:BSC completed in 2252s
+[BRAIN 2026-03-14T11:25:57.293Z] SCOUT done → triggering DATABASE for analysis
+[BOB 2026-03-14T11:25:57.297Z]   ▶ Starting DATABASE...
+    [DATABASE] ╔═══════════════════════════════════════════════════════╗
+    [DATABASE] ║   BOB DATABASE — Data & Classification                ║
+    [DATABASE] ║   Registry analysis + history tracking                ║
+    [DATABASE] ╚═══════════════════════════════════════════════════════╝
+    [DATABASE] [DATABASE 12:25:59] Analyzing 40157 agents (max ID: 40929)...
+    [DATABASE]   STATUS BREAKDOWN
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   dead          38570   96.0%  ████████████████████████████
+    [DATABASE]   spam            849    2.1%  
+    [DATABASE]   inactive        725    1.8%  
+    [DATABASE]   active            9    0.0%  
+    [DATABASE]   legit             4    0.0%  
+    [DATABASE]   CATEGORIES (non-dead agents)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   spam                   849   53.5%
+    [DATABASE]   social                 286   18.0%
+    [DATABASE]   memetoken              132    8.3%
+    [DATABASE]   gaming                 115    7.2%
+    [DATABASE]   defi                    62    3.9%
+    [DATABASE]   general                 44    2.8%
+    [DATABASE]   trading                 43    2.7%
+    [DATABASE]   automation              20    1.3%
+    [DATABASE]   analytics               19    1.2%
+    [DATABASE]   ai                       6    0.4%
+    [DATABASE]   SERVICE ADOPTION
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   web                    493   31.1%
+    [DATABASE]   chat                   282   17.8%
+    [DATABASE]   A2A                    169   10.6%
+    [DATABASE]   api                    101    6.4%
+    [DATABASE]   MCP                     23    1.4%
+    [DATABASE]   OASF                    14    0.9%
+    [DATABASE]   arena                   14    0.9%
+    [DATABASE]   mcp                      7    0.4%
+    [DATABASE]   agentWallet              5    0.3%
+    [DATABASE]   a2a                      4    0.3%
+    [DATABASE]   email                    2    0.1%
+    [DATABASE]   API                      2    0.1%
+    [DATABASE]   REST                     2    0.1%
+    [DATABASE]   twitter                  1    0.1%
+    [DATABASE]   TradingPlatform          1    0.1%
+    [DATABASE]   custom                   1    0.1%
+    [DATABASE]   x402                     1    0.1%
+    [DATABASE]   API:score                1    0.1%
+    [DATABASE]   API:score:explain        1    0.1%
+    [DATABASE]   API:metadata             1    0.1%
+    [DATABASE]   API:stats                1    0.1%
+    [DATABASE]   NETWORK HEALTH (A2A)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   Endpoints declared:  173
+    [DATABASE]   Actually reachable:  13 (7.5%)
+    [DATABASE]   Actually responds:   4 (2.3%)
+    [DATABASE]   OWNER ANALYSIS
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   Unique owners:       1313
+    [DATABASE]   Single-agent owners: 1225
+    [DATABASE]   Multi-agent owners:  88
+    [DATABASE]   Top owners:
+    [DATABASE]     0xC73ed615...21f1   120 agents  (top: @0xgogo666 · Ensoul)
+    [DATABASE]     0x133C89BC...0d76    14 agents  (top: GemBots Arena — GPT-4o)
+    [DATABASE]     0xfCAE8d36...A368     6 agents  (top: @poetengineer__ · Ensoul)
+    [DATABASE]     0x9c2499e3...a360     6 agents  (top: DeFi Trading Agent SperaxOS)
+    [DATABASE]     0x4d179B23...7230     5 agents  (top: @nancy_c813 · Ensoul)
+    [DATABASE]   TOP 20 AGENTS BY SCORE
+    [DATABASE]   ─────────────────────────────────────────────────────────────
+    [DATABASE]   ID      Name                           Score  Status    A2A
+    [DATABASE]   ─────────────────────────────────────────────────────────────
+    [DATABASE]   #36035  BOB Scout                        100  legit     ✅
+    [DATABASE]   #36336  BOB Database                     100  legit     ✅
+    [DATABASE]   #37092  BOB Oracle                       100  legit     ✅
+    [DATABASE]   #37103  BOB Pusher                       100  legit     ✅
+    [DATABASE]   #2147   ClawnStrategy by Unibase          70  active    🟡
+    [DATABASE]   #2162   The Swan Lake by Unibase          70  active    🟡
+    [DATABASE]   #2163   ClawnStrategy by Unibase          70  active    🟡
+    [DATABASE]   #2164   Mr Beast Giveaway by Unibase      70  active    🟡
+    [DATABASE]   #2166   POET Screener by Unibase          70  active    🟡
+    [DATABASE]   #2167   Generational Bottom by Unibase    70  active    🟡
+    [DATABASE]   #2168   Soyjak by Unibase                 60  active    🟡
+    [DATABASE]   #137    EZCTO Deployer Agent              55  inactive  ❌
+    [DATABASE]   #40928  clipx test                        55  active    🟡
+    [DATABASE]   #40929  clipx test                        55  active    🟡
+    [DATABASE]   #2115   ヒナミちゃん by Unibase                 50  inactive  ❌
+    [DATABASE]   #2121   WoW Gold by Unibase               50  inactive  ❌
+    [DATABASE]   #2122   The White Swan by Unibase         50  inactive  ❌
+    [DATABASE]   #2123   The White Swan by Unibase         50  inactive  ❌
+    [DATABASE]   #2124   ShitScreener by Unibase           50  inactive  ❌
+    [DATABASE]   #2127   The Official Shitcoin by Uniba    50  inactive  ❌
+    [DATABASE] [DATABASE 12:26:00] 
+    [DATABASE] Updating history...
+    [DATABASE] [DATABASE 12:26:00] History: 2 entries (2026-03-13 → 2026-03-14)
+    [DATABASE]   TRENDS (vs previous)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   New registrations:   +714
+    [DATABASE]   New legit agents:    +0
+    [DATABASE]   A2A reachable:       11 → 13
+    [DATABASE] [DATABASE 12:26:00] Report saved to data/database-report.json
+    [DATABASE] ╔═══════════════════════════════════════════════════════╗
+    [DATABASE] ║   DATABASE SUMMARY                                    ║
+    [DATABASE] ╠═══════════════════════════════════════════════════════╣
+    [DATABASE] ║   Agents analyzed: 40157                              ║
+    [DATABASE] ║   Alive:           1587                               ║
+    [DATABASE] ║   Legit (A2A OK):  4                                  ║
+    [DATABASE] ║   Categories:      13                                 ║
+    [DATABASE] ║   Unique owners:   1313                               ║
+    [DATABASE] ║   History entries: 2                                  ║
+    [DATABASE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:26:00.698Z]   ✅ DATABASE completed in 3s
+[BRAIN 2026-03-14T11:26:00.766Z] Building snapshot for deployment...
+[BOB 2026-03-14T11:26:00.769Z]   ▶ Starting SNAPSHOT...
+    [SNAPSHOT] ⚠️  data/external-agents.json has 0 agents — skipping merge (scan may have failed)
+    [SNAPSHOT] ✅ Updated api/registry-data.ts with 40157 BSC + 0 external agents
+[BOB 2026-03-14T11:26:04.100Z]   ✅ SNAPSHOT completed in 3s
+[BRAIN 2026-03-14T11:26:04.104Z] Deploying to Vercel...
+[BOB 2026-03-14T11:26:04.110Z]   ▶ Starting DEPLOY...
+[BOB 2026-03-14T11:26:06.336Z]   ❌ DEPLOY failed (exit code 1) after 2s
+[BRAIN 2026-03-14T11:26:06.340Z] Learning from SCOUT result (success)...
+[BRAIN 2026-03-14T11:26:06.450Z] Thinking for SCOUT...
+[BRAIN 2026-03-14T11:26:06.897Z] Decision: scan_external (priority 8)
+[BRAIN 2026-03-14T11:26:06.901Z] Reason: "Forced initial run"
+[BOB 2026-03-14T11:26:06.905Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:26:06.910Z] 🚀 CYCLE #2 — SCOUT → scan_external
+[BOB 2026-03-14T11:26:06.913Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:26:06.917Z]   ▶ Starting SCOUT:EXT...
+    [SCOUT:EXT] ╔═══════════════════════════════════════════════════════════╗
+    [SCOUT:EXT] ║   BOB SCOUT:EXT — Multi-Chain Agent Discovery             ║
+    [SCOUT:EXT] ║   8004scan API + Curated Endpoints                        ║
+    [SCOUT:EXT] ║   Finding REAL agents across ALL chains...                ║
+    [SCOUT:EXT] ╚═══════════════════════════════════════════════════════════╝
+    [SCOUT:EXT] [SCOUT:EXT 12:26:09] ── 8004scan Multi-Chain Discovery ──
+    [SCOUT:EXT] [SCOUT:EXT 12:26:10]   ⏳ Rate limited, waiting 1s...
+    [SCOUT:EXT] [SCOUT:EXT 12:26:12]   ⏳ Rate limited, waiting 2s...
+    [SCOUT:EXT] [SCOUT:EXT 12:26:16]   ⏳ Rate limited, waiting 4s...
+    [SCOUT:EXT] [SCOUT:EXT 12:26:24] ❌ Failed to fetch chains from 8004scan
+    [SCOUT:EXT] [SCOUT:EXT 12:26:24] 
+    [SCOUT:EXT] Saved to data/external-agents.json
+    [SCOUT:EXT] ╔═══════════════════════════════════════════════════════════╗
+    [SCOUT:EXT] ║   SCOUT:EXT COMPLETE — Multi-Chain Discovery               ║
+    [SCOUT:EXT] ╠═══════════════════════════════════════════════════════════╣
+    [SCOUT:EXT] ║   8004scan agents:    0                                    ║
+    [SCOUT:EXT] ║   Curated agents:     0                                    ║
+    [SCOUT:EXT] ╠═══════════════════════════════════════════════════════════╣
+    [SCOUT:EXT] ║   Total unique:       0                                    ║
+    [SCOUT:EXT] ║   Reachable:          0                                    ║
+    [SCOUT:EXT] ║   Responds (A2A):     0                                    ║
+    [SCOUT:EXT] ║   With Agent Card:    0                                    ║
+    [SCOUT:EXT] ╠═══════════════════════════════════════════════════════════╣
+    [SCOUT:EXT] ║   Chain Breakdown:                                         ║
+    [SCOUT:EXT] ╚═══════════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:26:24.667Z]   ✅ SCOUT:EXT completed in 18s
+[BRAIN 2026-03-14T11:26:24.671Z] SCOUT done → triggering DATABASE for analysis
+[BOB 2026-03-14T11:26:24.675Z]   ▶ Starting DATABASE...
+    [DATABASE] ╔═══════════════════════════════════════════════════════╗
+    [DATABASE] ║   BOB DATABASE — Data & Classification                ║
+    [DATABASE] ║   Registry analysis + history tracking                ║
+    [DATABASE] ╚═══════════════════════════════════════════════════════╝
+    [DATABASE] [DATABASE 12:26:27] Analyzing 40157 agents (max ID: 40929)...
+    [DATABASE]   STATUS BREAKDOWN
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   dead          38570   96.0%  ████████████████████████████
+    [DATABASE]   spam            849    2.1%  
+    [DATABASE]   inactive        725    1.8%  
+    [DATABASE]   active            9    0.0%  
+    [DATABASE]   legit             4    0.0%  
+    [DATABASE]   CATEGORIES (non-dead agents)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   spam                   849   53.5%
+    [DATABASE]   social                 286   18.0%
+    [DATABASE]   memetoken              132    8.3%
+    [DATABASE]   gaming                 115    7.2%
+    [DATABASE]   defi                    62    3.9%
+    [DATABASE]   general                 44    2.8%
+    [DATABASE]   trading                 43    2.7%
+    [DATABASE]   automation              20    1.3%
+    [DATABASE]   analytics               19    1.2%
+    [DATABASE]   ai                       6    0.4%
+    [DATABASE]   SERVICE ADOPTION
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   web                    493   31.1%
+    [DATABASE]   chat                   282   17.8%
+    [DATABASE]   A2A                    169   10.6%
+    [DATABASE]   api                    101    6.4%
+    [DATABASE]   MCP                     23    1.4%
+    [DATABASE]   OASF                    14    0.9%
+    [DATABASE]   arena                   14    0.9%
+    [DATABASE]   mcp                      7    0.4%
+    [DATABASE]   agentWallet              5    0.3%
+    [DATABASE]   a2a                      4    0.3%
+    [DATABASE]   email                    2    0.1%
+    [DATABASE]   API                      2    0.1%
+    [DATABASE]   REST                     2    0.1%
+    [DATABASE]   twitter                  1    0.1%
+    [DATABASE]   TradingPlatform          1    0.1%
+    [DATABASE]   custom                   1    0.1%
+    [DATABASE]   x402                     1    0.1%
+    [DATABASE]   API:score                1    0.1%
+    [DATABASE]   API:score:explain        1    0.1%
+    [DATABASE]   API:metadata             1    0.1%
+    [DATABASE]   API:stats                1    0.1%
+    [DATABASE]   NETWORK HEALTH (A2A)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   Endpoints declared:  173
+    [DATABASE]   Actually reachable:  13 (7.5%)
+    [DATABASE]   Actually responds:   4 (2.3%)
+    [DATABASE]   OWNER ANALYSIS
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   Unique owners:       1313
+    [DATABASE]   Single-agent owners: 1225
+    [DATABASE]   Multi-agent owners:  88
+    [DATABASE]   Top owners:
+    [DATABASE]     0xC73ed615...21f1   120 agents  (top: @0xgogo666 · Ensoul)
+    [DATABASE]     0x133C89BC...0d76    14 agents  (top: GemBots Arena — GPT-4o)
+    [DATABASE]     0xfCAE8d36...A368     6 agents  (top: @poetengineer__ · Ensoul)
+    [DATABASE]     0x9c2499e3...a360     6 agents  (top: DeFi Trading Agent SperaxOS)
+    [DATABASE]     0x4d179B23...7230     5 agents  (top: @nancy_c813 · Ensoul)
+    [DATABASE]   TOP 20 AGENTS BY SCORE
+    [DATABASE]   ─────────────────────────────────────────────────────────────
+    [DATABASE]   ID      Name                           Score  Status    A2A
+    [DATABASE]   ─────────────────────────────────────────────────────────────
+    [DATABASE]   #36035  BOB Scout                        100  legit     ✅
+    [DATABASE]   #36336  BOB Database                     100  legit     ✅
+    [DATABASE]   #37092  BOB Oracle                       100  legit     ✅
+    [DATABASE]   #37103  BOB Pusher                       100  legit     ✅
+    [DATABASE]   #2147   ClawnStrategy by Unibase          70  active    🟡
+    [DATABASE]   #2162   The Swan Lake by Unibase          70  active    🟡
+    [DATABASE]   #2163   ClawnStrategy by Unibase          70  active    🟡
+    [DATABASE]   #2164   Mr Beast Giveaway by Unibase      70  active    🟡
+    [DATABASE]   #2166   POET Screener by Unibase          70  active    🟡
+    [DATABASE]   #2167   Generational Bottom by Unibase    70  active    🟡
+    [DATABASE]   #2168   Soyjak by Unibase                 60  active    🟡
+    [DATABASE]   #137    EZCTO Deployer Agent              55  inactive  ❌
+    [DATABASE]   #40928  clipx test                        55  active    🟡
+    [DATABASE]   #40929  clipx test                        55  active    🟡
+    [DATABASE]   #2115   ヒナミちゃん by Unibase                 50  inactive  ❌
+    [DATABASE]   #2121   WoW Gold by Unibase               50  inactive  ❌
+    [DATABASE]   #2122   The White Swan by Unibase         50  inactive  ❌
+    [DATABASE]   #2123   The White Swan by Unibase         50  inactive  ❌
+    [DATABASE]   #2124   ShitScreener by Unibase           50  inactive  ❌
+    [DATABASE]   #2127   The Official Shitcoin by Uniba    50  inactive  ❌
+    [DATABASE] [DATABASE 12:26:27] 
+    [DATABASE] Updating history...
+    [DATABASE] [DATABASE 12:26:27] History: 2 entries (2026-03-13 → 2026-03-14)
+    [DATABASE]   TRENDS (vs previous)
+    [DATABASE]   ─────────────────────────────────────
+    [DATABASE]   New registrations:   +714
+    [DATABASE]   New legit agents:    +0
+    [DATABASE]   A2A reachable:       11 → 13
+    [DATABASE] [DATABASE 12:26:27] Report saved to data/database-report.json
+    [DATABASE] ╔═══════════════════════════════════════════════════════╗
+    [DATABASE] ║   DATABASE SUMMARY                                    ║
+    [DATABASE] ╠═══════════════════════════════════════════════════════╣
+    [DATABASE] ║   Agents analyzed: 40157                              ║
+    [DATABASE] ║   Alive:           1587                               ║
+    [DATABASE] ║   Legit (A2A OK):  4                                  ║
+    [DATABASE] ║   Categories:      13                                 ║
+    [DATABASE] ║   Unique owners:   1313                               ║
+    [DATABASE] ║   History entries: 2                                  ║
+    [DATABASE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:26:27.942Z]   ✅ DATABASE completed in 3s
+[BRAIN 2026-03-14T11:26:28.005Z] Building snapshot for deployment...
+[BOB 2026-03-14T11:26:28.010Z]   ▶ Starting SNAPSHOT...
+    [SNAPSHOT] ⚠️  data/external-agents.json has 0 agents — skipping merge (scan may have failed)
+    [SNAPSHOT] ✅ Updated api/registry-data.ts with 40157 BSC + 0 external agents
+[BOB 2026-03-14T11:26:31.209Z]   ✅ SNAPSHOT completed in 3s
+[BRAIN 2026-03-14T11:26:31.212Z] Deploying to Vercel...
+[BOB 2026-03-14T11:26:31.217Z]   ▶ Starting DEPLOY...
+[BOB 2026-03-14T11:26:33.540Z]   ❌ DEPLOY failed (exit code 1) after 2s
+[BRAIN 2026-03-14T11:26:33.544Z] Learning from SCOUT result (success)...
+[BRAIN 2026-03-14T11:26:33.654Z] Thinking for ORACLE...
+[BRAIN 2026-03-14T11:26:34.172Z] Decision: health_check (priority 8)
+[BRAIN 2026-03-14T11:26:34.177Z] Reason: "Forced initial run"
+[BOB 2026-03-14T11:26:34.182Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:26:34.186Z] 🚀 CYCLE #3 — ORACLE → health_check
+[BOB 2026-03-14T11:26:34.189Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:26:34.195Z]   ▶ Starting ORACLE...
+    [ORACLE] ╔═══════════════════════════════════════════════════════╗
+    [ORACLE] ║   BOB ORACLE — Strategy & Treasury                    ║
+    [ORACLE] ║   System health check + treasury report               ║
+    [ORACLE] ╚═══════════════════════════════════════════════════════╝
+    [ORACLE] [ORACLE 12:26:38] Running health checks...
+    [ORACLE]   ENDPOINT                  STATUS    TIME
+    [ORACLE]   ─────────────────────────────────────────
+    [ORACLE]   ✅ Agent Card               ok       546ms
+    [ORACLE]   ✅ ERC-8004 Metadata        ok       463ms
+    [ORACLE]   ✅ Health                   ok       501ms
+    [ORACLE]   ✅ Stats API                ok       2569ms
+    [ORACLE]   ✅ Database                 ok       481ms
+    [ORACLE]   ✅ Agents API               ok       3114ms
+    [ORACLE]   ✅ A2A message/send         ok       934ms
+    [ORACLE]   Overall: ✅ ALL SYSTEMS OPERATIONAL (avg 1230ms)
+    [ORACLE] [ORACLE 12:26:41] 
+    [ORACLE] Checking treasury...
+    [ORACLE]   WALLET                BNB              $BOB
+    [ORACLE]   ─────────────────────────────────────────────────
+    [ORACLE]   SWARM (Treasury)           0.009838 BNB            0 $BOB
+    [ORACLE]   OWNER                      0.002316 BNB   11215436178 $BOB
+    [ORACLE]   SCOUT                      0.000000 BNB            0 $BOB
+    [ORACLE]   DATABASE                   0.000000 BNB            0 $BOB
+    [ORACLE]   PUSHER                     0.000000 BNB            0 $BOB
+    [ORACLE]   ORACLE                     0.000000 BNB            0 $BOB
+    [ORACLE]   ─────────────────────────────────────────────────
+    [ORACLE]   TOTAL                      0.012154 BNB   11215436178 $BOB
+    [ORACLE] [ORACLE 12:26:43] 
+    [ORACLE] Registry status...
+    [ORACLE]   Agents:     40157 (4 legit, 725 inactive, 38570 dead)
+    [ORACLE]   Max ID:     40929
+    [ORACLE]   Last scan:  2026-03-14T11:25:52.604Z (0m ago)
+    [ORACLE] [ORACLE 12:26:43] 
+    [ORACLE] External agents (Open A2A)...
+    [ORACLE]   Agents:     0 (0 reachable, 0 respond)
+    [ORACLE]   Agent Cards: 0
+    [ORACLE]   Last scan:  2026-03-14T11:26:24.560Z (0m ago)
+    [ORACLE] [ORACLE 12:26:43] 
+    [ORACLE] Network overview...
+    [ORACLE]   BSC:        40157 agents (4 legit, 9 active)
+    [ORACLE]   External:   0 agents (0 reachable, 0 respond)
+    [ORACLE]   Total:      40157 agents tracked | 4 responding
+    [ORACLE] [ORACLE 12:26:43] 
+    [ORACLE] Checking $BOB market...
+    [ORACLE]   Price:      $0.00000001256
+    [ORACLE]   24h Change: -1.83%
+    [ORACLE]   Volume 24h: $56'856.33
+    [ORACLE]   Liquidity:  $1'006'245.82
+    [ORACLE]   DEX:        pancakeswap | Pair: 0x3c79593e...
+    [ORACLE]   Holdings:   11215436178 $BOB = $140.8659
+    [ORACLE] [ORACLE 12:26:44] 
+    [ORACLE] Recommendations:
+    [ORACLE]   ✅ All good. Build On BNB.
+    [ORACLE] ╔═══════════════════════════════════════════════════════╗
+    [ORACLE] ║   ORACLE SUMMARY                                      ║
+    [ORACLE] ╠═══════════════════════════════════════════════════════╣
+    [ORACLE] ║   System:    ALL OK                                   ║
+    [ORACLE] ║   Endpoints: 7/7 online (avg 1230ms)                    ║
+    [ORACLE] ║   Treasury:  0.012154 BNB / 11215436178 $BOB           ║
+    [ORACLE] ║   Network:   BSC: 40157 + Ext: 0 = 40157 tracked      ║
+    [ORACLE] ║   Responds:  4                                        ║
+    [ORACLE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:26:44.860Z]   ✅ ORACLE completed in 11s
+[BRAIN 2026-03-14T11:26:44.865Z] On-chain update needed: 6 new features since last update
+[BRAIN 2026-03-14T11:26:44.871Z] Features: Dual-LLM Brain (Groq + Haiku), Knowledge Engine + Intelligence Reports, $BOB Token Gate, A2A Failure Memory + Dead Agent Tracking, Self-Evolving Strategies, Agent Personality Memory
+[BOB 2026-03-14T11:26:44.879Z]   ▶ Starting UPDATE...
+    [UPDATE] [12:26:50] 🧠 BRAIN Agent ID loaded: #40908
+    [UPDATE] [12:26:50] 🤖 BOB Agent Updater v7.2 — 5 Agents (Brain-powered)
+    [UPDATE] [12:26:52] 
+    [UPDATE] ── BOB Scout (#36035) ──
+    [UPDATE] [12:26:52] 📤 [scout] Lade Metadata auf IPFS hoch...
+    [UPDATE] [12:26:53]    ✅ ipfs://QmNZ6UspfikPFJP9Apt27v8VSXm7umYUi8wpd3u7WR2VUS
+    [UPDATE] [12:26:53]    ✅ #36035 on-chain updated
+    [UPDATE] [12:26:58] 
+    [UPDATE] ── BOB Database (#36336) ──
+    [UPDATE] [12:26:58] 📤 [database] Lade Metadata auf IPFS hoch...
+    [UPDATE] [12:26:59]    ✅ ipfs://QmcWLFYDdKLryBNSeLYdnPntkzEhE27jWAM7RCJcx1mcCD
+    [UPDATE] [12:27:00]    ✅ #36336 on-chain updated
+    [UPDATE] [12:27:05] 
+    [UPDATE] ── BOB Pusher (#37103) ──
+    [UPDATE] [12:27:05] 📤 [pusher] Lade Metadata auf IPFS hoch...
+    [UPDATE] [12:27:06]    ✅ ipfs://QmbBsMfmCaGfaeNNR9zvWSarxMqHAnbDnN81Lu8VkwkRMk
+    [UPDATE] [12:27:06]    ✅ #37103 on-chain updated
+    [UPDATE] [12:27:11] 
+    [UPDATE] ── BOB Oracle (#37092) ──
+    [UPDATE] [12:27:11] 📤 [oracle] Lade Metadata auf IPFS hoch...
+    [UPDATE] [12:27:12]    ✅ ipfs://QmajpMDrSUbQAWtcj8qyiEkg4QaRUvDFyXeKK1pR5Yez2C
+    [UPDATE] [12:27:12]    ✅ #37092 on-chain updated
+    [UPDATE] [12:27:17] 
+    [UPDATE] ── BOB Brain (#40908) ──
+    [UPDATE] [12:27:17] 📤 [brain] Lade Metadata auf IPFS hoch...
+    [UPDATE] [12:27:18]    ✅ ipfs://QmQ7EsvzJwqG1Dr4TwWNZF91pMbi7TrpUe4Dz9LwPjDbZ9
+    [UPDATE] [12:27:19]    ✅ #40908 on-chain updated
+    [UPDATE] [12:27:24] 
+    [UPDATE] 🏁 DONE — alle 5 Agents updated!
+[BOB 2026-03-14T11:27:25.067Z]   ✅ UPDATE completed in 40s
+[BRAIN 2026-03-14T11:27:25.147Z] On-chain update complete! Metadata refreshed on 8004scan.
+[BRAIN 2026-03-14T11:27:25.156Z] Learning from ORACLE result (success)...
+[BRAIN 2026-03-14T11:27:25.280Z] Thinking for PUSHER...
+[BRAIN 2026-03-14T11:27:26.008Z] Decision: contact_agents (priority 8)
+[BRAIN 2026-03-14T11:27:26.011Z] Reason: "Forced initial run"
+[BOB 2026-03-14T11:27:26.015Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:27:26.018Z] 🚀 CYCLE #4 — PUSHER → contact_agents
+[BOB 2026-03-14T11:27:26.021Z] ════════════════════════════════════════════════════════════
+[BOB 2026-03-14T11:27:26.024Z]   ▶ Starting PUSHER...
+    [PUSHER] ╔═══════════════════════════════════════════════════════╗
+    [PUSHER] ║   BOB PUSHER — Outreach Agent (Brain-linked)           ║
+    [PUSHER] ║   Monitoring for new agents on BSC...                  ║
+    [PUSHER] ╚═══════════════════════════════════════════════════════╝
+    [PUSHER] [PUSHER 12:27:30] Loaded registry: 40157 agents, max ID: 40929
+    [PUSHER] [PUSHER 12:27:30] 🆕 NEW AGENTS DETECTED! 40930 → 40945 (16 new)
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40930 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40931 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40932 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40933 "unknown" [dead] Score:0 unknown
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40934 "unknown" [dead] Score:0 unknown
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40935 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40936 "unknown" [dead] Score:0 unknown
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40937 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40938 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40939 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40940 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40941 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40942 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40943 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40944 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31]   ❌ #40945 "Ave.ai Trading Agent" [spam] Score:0 spam
+    [PUSHER] [PUSHER 12:27:31] 
+    [PUSHER] 🔍 Scanning 9 known A2A agents for live connections...
+    [PUSHER] [PUSHER 12:27:33]   🟡 #2147 "ClawnStrategy by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:33]   🟡 #2162 "The Swan Lake by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:33]   🟡 #2163 "ClawnStrategy by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:34]   🟡 #2164 "Mr Beast Giveaway by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:34]   🟡 #2166 "POET Screener by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:34]   🟡 #2167 "Generational Bottom by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:35]   🟡 #2168 "Soyjak by Unibase" reachable but doesn't respond (Invalid response: not JSON-RPC 2.0)
+    [PUSHER] [PUSHER 12:27:35]   🟡 #40928 "clipx test" reachable but doesn't respond (HTTP 405: POST not allowed)
+    [PUSHER] [PUSHER 12:27:35]   🟡 #40929 "clipx test" reachable but doesn't respond (HTTP 405: POST not allowed)
+    [PUSHER] [PUSHER 12:27:35] 
+    [PUSHER] 📊 Contacted 0 agents that actually replied out of 9 with A2A endpoints.
+    [PUSHER] [PUSHER 12:27:36] Saved to data/agent-registry.json
+    [PUSHER] ╔═══════════════════════════════════════════════════════╗
+    [PUSHER] ║   PUSHER REPORT                                       ║
+    [PUSHER] ╠═══════════════════════════════════════════════════════╣
+    [PUSHER] ║   Previous max ID:  40929                             ║
+    [PUSHER] ║   Current max ID:   40945                             ║
+    [PUSHER] ║   New agents found: 16                                ║
+    [PUSHER] ║   With A2A:         0                                 ║
+    [PUSHER] ║   A2A responds:     0                                 ║
+    [PUSHER] ║   Total BSC:        40173                             ║
+    [PUSHER] ║   External agents:  0                                 ║
+    [PUSHER] ╚═══════════════════════════════════════════════════════╝
+    [PUSHER] [PUSHER 12:27:36] 
+    [PUSHER] === A2A FAILURE INSIGHTS ===
+    [PUSHER] Dead agents (permanently unreachable): 0
+    [PUSHER] Top failure patterns:
+    [PUSHER]   - "Invalid response: not JSON-RPC 2.0" — 7x since 2026-03-14
+    [PUSHER]   - "HTTP 405: POST not allowed" — 2x since 2026-03-14
+[BOB 2026-03-14T11:27:36.422Z]   ✅ PUSHER completed in 10s
+[BRAIN 2026-03-14T11:27:36.425Z] Learning from PUSHER result (success)...
+[BRAIN 2026-03-14T11:27:36.523Z] Boot sequence complete. Entering autonomous mode...
+[BOB 2026-03-14T11:27:36.525Z] 
+[BRAIN 2026-03-14T11:27:36.530Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T11:27:36.533Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T11:27:36.536Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T11:27:36.538Z] 
+[BRAIN 2026-03-14T11:27:36.543Z] SELF-IMPROVE: Analyzing errors and improving code...
+[BOB 2026-03-14T11:27:36.545Z]   ▶ Starting SELF-IMPROVE...
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   BOB SELF-IMPROVE — Code Self-Modification Engine     ║
+    [SELF-IMPROVE] ║   Analyze · Suggest · Test · Apply or Revert           ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+    [SELF-IMPROVE] [SELF-IMPROVE 11:27:39] Found 15 recent errors/issues to analyze
+    [SELF-IMPROVE] [SELF-IMPROVE 11:27:44] Suggestion: Add spam pattern validation before processing agents. The errors show 14 spam agents registered with identical names ('Ave.ai Trading Agent') slipping through classification. The issue is that spam detection happens AFTER metadata fetch, but empty/malformed metadata can cause downstream failures. Add early rejection of known spam patterns during the RPC query phase to prevent wasted processing and classification errors.
+    [SELF-IMPROVE] [SELF-IMPROVE 11:27:44] File: src/scout-fast.ts (confidence: 8/10)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:27:44] BLOCKED: search string not found in file
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   SELF-IMPROVE REPORT                                 ║
+    [SELF-IMPROVE] ╠═══════════════════════════════════════════════════════╣
+    [SELF-IMPROVE] ║   This run:    0 suggestions analyzed                      ║
+    [SELF-IMPROVE] ║   Applied:     0                                      ║
+    [SELF-IMPROVE] ║   Reverted:    0                                      ║
+    [SELF-IMPROVE] ║   Total ever:  0 applied, 0 reverted                   ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:27:44.752Z]   ❌ SELF-IMPROVE failed (exit code 3221226505) after 8s
+[BRAIN 2026-03-14T11:28:44.824Z] DISCOVERY: Searching for new chains and APIs...
+[BRAIN 2026-03-14T11:28:48.053Z] Discovery: 0 chains, 0 new. 7 APIs found.
+[BOB 2026-03-14T11:37:48.227Z] 🔄 Hot reload: bob-start.ts changed
+[BOB 2026-03-14T11:37:48.231Z] 🔄 bob-start.ts changed — restarting orchestrator...
+[BRAIN 2026-03-14T11:37:52.322Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T11:37:52.325Z] Memory file: restored from disk
+[BOB 2026-03-14T11:37:52.582Z] Hot reload: watching 13 source files
+[BOB 2026-03-14T11:37:52.584Z] Skipping initial runs (--skip-first)
+[BOB 2026-03-14T11:37:52.588Z] 
+[BRAIN 2026-03-14T11:37:52.591Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T11:37:52.593Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T11:37:52.598Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T11:37:52.601Z] 
+[BRAIN 2026-03-14T11:37:52.606Z] SELF-IMPROVE: Analyzing errors and improving code...
+[BOB 2026-03-14T11:37:52.610Z]   ▶ Starting SELF-IMPROVE...
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   BOB SELF-IMPROVE — Code Self-Modification Engine     ║
+    [SELF-IMPROVE] ║   Analyze · Suggest · Test · Apply or Revert           ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+    [SELF-IMPROVE] [SELF-IMPROVE 11:37:55] Found 15 recent errors/issues to analyze
+    [SELF-IMPROVE] [SELF-IMPROVE 11:38:01] Error processing suggestion: Unexpected non-whitespace character after JSON at position 1095 (line 10 column 1)
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   SELF-IMPROVE REPORT                                 ║
+    [SELF-IMPROVE] ╠═══════════════════════════════════════════════════════╣
+    [SELF-IMPROVE] ║   This run:    0 suggestions analyzed                      ║
+    [SELF-IMPROVE] ║   Applied:     0                                      ║
+    [SELF-IMPROVE] ║   Reverted:    0                                      ║
+    [SELF-IMPROVE] ║   Total ever:  0 applied, 0 reverted                   ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:38:01.717Z]   ❌ SELF-IMPROVE failed (exit code 3221226505) after 9s
+[BRAIN 2026-03-14T11:39:01.777Z] DISCOVERY: Searching for new chains and APIs...
+[BRAIN 2026-03-14T11:39:05.461Z] Discovery: 0 chains, 0 new. 7 APIs found.
+[BOB 2026-03-14T11:40:05.471Z] 🔄 Hot reload: self-improve.ts changed
+[BOB 2026-03-14T11:44:05.522Z] 🔄 Hot reload: scout-external.ts changed
+[BOB 2026-03-14T11:45:05.544Z] 🔄 Hot reload: scout-external.ts changed
+[BOB 2026-03-14T11:49:05.605Z] 🔄 Hot reload: bob-start.ts changed
+[BOB 2026-03-14T11:49:05.610Z] 🔄 bob-start.ts changed — restarting orchestrator...
+[BRAIN 2026-03-14T11:49:10.987Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T11:49:10.995Z] Memory file: restored from disk
+[BOB 2026-03-14T11:49:11.007Z] Hot reload: watching 13 source files
+[BOB 2026-03-14T11:49:11.015Z] Skipping initial runs (--skip-first)
+[BOB 2026-03-14T11:49:11.020Z] 
+[BRAIN 2026-03-14T11:49:11.025Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T11:49:11.032Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T11:49:11.036Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T11:49:11.041Z] 
+[BRAIN 2026-03-14T11:49:11.051Z] SELF-IMPROVE: Analyzing errors and improving code...
+[BOB 2026-03-14T11:49:11.056Z]   ▶ Starting SELF-IMPROVE...
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   BOB SELF-IMPROVE — Code Self-Modification Engine     ║
+    [SELF-IMPROVE] ║   Analyze · Suggest · Test · Apply or Revert           ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:14] Found 15 recent errors/issues to analyze
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:18] Suggestion: Add JSON validation before parsing metadata to prevent malformed base64/JSON crashes. The errors show spam agents with corrupted metadata causing parse failures. This adds a try-catch wrapper around JSON.parse in fetchIPFS to gracefully handle invalid JSON instead of crashing the entire scan.
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:18] File: src/scout-fast.ts (confidence: 8/10)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:18] Backup created: src/scout-fast.ts.backup
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:18] Change applied — testing...
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:30] TypeScript check PASSED (only known warnings)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:49:30] IMPROVEMENT APPLIED: Add JSON validation before parsing metadata to prevent malformed base64/JSON crashes. The errors show spam agents with corrupted metadata causing parse failures. This adds a try-catch wrapper around JSON.parse in fetchIPFS to gracefully handle invalid JSON instead of crashing the entire scan.
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   SELF-IMPROVE REPORT                                 ║
+    [SELF-IMPROVE] ╠═══════════════════════════════════════════════════════╣
+    [SELF-IMPROVE] ║   This run:    1 suggestions analyzed                      ║
+    [SELF-IMPROVE] ║   Applied:     1                                      ║
+    [SELF-IMPROVE] ║   Reverted:    0                                      ║
+    [SELF-IMPROVE] ║   Total ever:  1 applied, 0 reverted                   ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:49:30.460Z]   ✅ SELF-IMPROVE completed in 19s
+[BRAIN 2026-03-14T11:49:30.545Z] Self-improvement complete — code may have been updated
+[BOB 2026-03-14T11:50:30.651Z] 🔄 Hot reload: scout-fast.ts changed
+[BOB 2026-03-14T11:50:30.654Z] 🔄 Hot reload: bob-start.ts changed
+[BOB 2026-03-14T11:50:30.658Z] 🔄 bob-start.ts changed — restarting orchestrator...
+[BRAIN 2026-03-14T11:50:34.532Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T11:50:34.537Z] Memory file: restored from disk
+[BOB 2026-03-14T11:50:34.543Z] Hot reload: watching 13 source files
+[BOB 2026-03-14T11:50:34.548Z] Skipping initial runs (--skip-first)
+[BOB 2026-03-14T11:50:34.552Z] 
+[BRAIN 2026-03-14T11:50:34.555Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T11:50:34.561Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T11:50:34.570Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T11:50:34.577Z] 
+[BRAIN 2026-03-14T11:50:34.593Z] SELF-IMPROVE: Analyzing errors and improving code...
+[BOB 2026-03-14T11:50:34.603Z]   ▶ Starting SELF-IMPROVE...
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   BOB SELF-IMPROVE — Code Self-Modification Engine     ║
+    [SELF-IMPROVE] ║   Analyze · Suggest · Test · Apply or Revert           ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:36] Found 15 recent errors/issues to analyze
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:40] Suggestion: Add JSON validation before parsing base64-encoded metadata to prevent malformed data crashes. The errors show spam agents with corrupted metadata causing parse failures. This validates the decoded string before JSON.parse() to catch and skip invalid metadata gracefully.
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:40] File: src/scout-fast.ts (confidence: 9/10)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:40] Backup created: src/scout-fast.ts.backup
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:40] Change applied — testing...
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:48] TypeScript check PASSED (only known warnings)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:50:48] IMPROVEMENT APPLIED: Add JSON validation before parsing base64-encoded metadata to prevent malformed data crashes. The errors show spam agents with corrupted metadata causing parse failures. This validates the decoded string before JSON.parse() to catch and skip invalid metadata gracefully.
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   SELF-IMPROVE REPORT                                 ║
+    [SELF-IMPROVE] ╠═══════════════════════════════════════════════════════╣
+    [SELF-IMPROVE] ║   This run:    1 suggestions analyzed                      ║
+    [SELF-IMPROVE] ║   Applied:     1                                      ║
+    [SELF-IMPROVE] ║   Reverted:    0                                      ║
+    [SELF-IMPROVE] ║   Total ever:  2 applied, 0 reverted                   ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:50:48.537Z]   ✅ SELF-IMPROVE completed in 14s
+[BRAIN 2026-03-14T11:50:48.588Z] Self-improvement complete — code may have been updated
+[BOB 2026-03-14T11:51:48.601Z] 🔄 Hot reload: scout-fast.ts changed
+[BOB 2026-03-14T11:51:48.608Z] 🔄 Hot reload: bob-start.ts changed
+[BOB 2026-03-14T11:51:48.616Z] 🔄 bob-start.ts changed — restarting orchestrator...
+[BRAIN 2026-03-14T11:51:53.757Z] Brain loaded: 6 thoughts, 2 evolutions, 2 relationships
+[BRAIN 2026-03-14T11:51:53.767Z] Memory file: restored from disk
+[BOB 2026-03-14T11:51:53.776Z] Hot reload: watching 13 source files
+[BOB 2026-03-14T11:51:53.783Z] Skipping initial runs (--skip-first)
+[BOB 2026-03-14T11:51:53.788Z] 
+[BRAIN 2026-03-14T11:51:53.795Z] ╔═══════════════════════════════════════╗
+[BRAIN 2026-03-14T11:51:53.803Z] ║  AUTONOMOUS MODE — Brain is thinking  ║
+[BRAIN 2026-03-14T11:51:53.808Z] ╚═══════════════════════════════════════╝
+[BOB 2026-03-14T11:51:53.815Z] 
+[BRAIN 2026-03-14T11:51:53.823Z] SELF-IMPROVE: Analyzing errors and improving code...
+[BOB 2026-03-14T11:51:53.831Z]   ▶ Starting SELF-IMPROVE...
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   BOB SELF-IMPROVE — Code Self-Modification Engine     ║
+    [SELF-IMPROVE] ║   Analyze · Suggest · Test · Apply or Revert           ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+    [SELF-IMPROVE] [SELF-IMPROVE 11:51:57] Found 15 recent errors/issues to analyze
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:01] Suggestion: Add try-catch around JSON.parse in fetchIPFS for data: URIs to prevent crashes from malformed base64/JSON. The errors show exit code 3221226505 (memory access violation) caused by corrupted metadata parsing. By catching parse errors early and returning null, we prevent the cascade failure.
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:01] File: src/scout-fast.ts (confidence: 8/10)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:01] Backup created: src/scout-fast.ts.backup
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:01] Change applied — testing...
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:11] TypeScript check PASSED (only known warnings)
+    [SELF-IMPROVE] [SELF-IMPROVE 11:52:11] IMPROVEMENT APPLIED: Add try-catch around JSON.parse in fetchIPFS for data: URIs to prevent crashes from malformed base64/JSON. The errors show exit code 3221226505 (memory access violation) caused by corrupted metadata parsing. By catching parse errors early and returning null, we prevent the cascade failure.
+    [SELF-IMPROVE] ╔═══════════════════════════════════════════════════════╗
+    [SELF-IMPROVE] ║   SELF-IMPROVE REPORT                                 ║
+    [SELF-IMPROVE] ╠═══════════════════════════════════════════════════════╣
+    [SELF-IMPROVE] ║   This run:    1 suggestions analyzed                      ║
+    [SELF-IMPROVE] ║   Applied:     1                                      ║
+    [SELF-IMPROVE] ║   Reverted:    0                                      ║
+    [SELF-IMPROVE] ║   Total ever:  3 applied, 0 reverted                   ║
+    [SELF-IMPROVE] ╚═══════════════════════════════════════════════════════╝
+[BOB 2026-03-14T11:52:12.098Z]   ✅ SELF-IMPROVE completed in 18s
+[BRAIN 2026-03-14T11:52:12.162Z] Self-improvement complete — code may have been updated
+[BRAIN 2026-03-14T11:53:12.176Z] DISCOVERY: Searching for new chains and APIs...
+[BRAIN 2026-03-14T11:53:15.286Z] Discovery: 0 chains, 0 new. 7 APIs found.

@@ -1,0 +1,172 @@
+[
+  {
+    "timestamp": 1773427725940,
+    "date": "2026-03-13",
+    "maxAgentId": 40215,
+    "total": 40069,
+    "active": 7,
+    "legit": 4,
+    "inactive": 722,
+    "dead": 38544,
+    "withA2A": 170,
+    "a2aReachable": 11,
+    "a2aResponds": 4,
+    "topCategories": {
+      "analytics": 19,
+      "defi": 62,
+      "ai": 6,
+      "security": 2,
+      "automation": 20,
+      "general": 41,
+      "trading": 41,
+      "infrastructure": 5,
+      "social": 286,
+      "gaming": 115,
+      "memetoken": 132,
+      "unknown": 4,
+      "spam": 792
+    },
+    "topOwners": [
+      {
+        "address": "0xC73ed6155c74C59E075750CDFFe227d75AF521f1",
+        "count": 120,
+        "agents": [
+          6664,
+          6673,
+          6675,
+          6676,
+          29495
+        ]
+      },
+      {
+        "address": "0x133C89BC9Dc375fBc46493A92f4Fd2486F8F0d76",
+        "count": 14,
+        "agents": [
+          6502,
+          6503,
+          6504,
+          6505,
+          6506
+        ]
+      },
+      {
+        "address": "0xfCAE8d362c08F81805b9c5CafAB925D649e4A368",
+        "count": 6,
+        "agents": [
+          697,
+          698,
+          699,
+          6452,
+          6453
+        ]
+      },
+      {
+        "address": "0x9c2499e3695728B2B7a6Be4242FFccEf56A8a360",
+        "count": 6,
+        "agents": [
+          6440,
+          6441,
+          6443,
+          20131,
+          36141
+        ]
+      },
+      {
+        "address": "0x4d179B230B777d335d97C69Bf546fAfBf0C57230",
+        "count": 5,
+        "agents": [
+          700,
+          6456,
+          6457,
+          6458,
+          6460
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 1773487587403,
+    "date": "2026-03-14",
+    "maxAgentId": 40929,
+    "total": 40157,
+    "active": 9,
+    "legit": 4,
+    "inactive": 725,
+    "dead": 38570,
+    "withA2A": 173,
+    "a2aReachable": 13,
+    "a2aResponds": 4,
+    "topCategories": {
+      "analytics": 19,
+      "defi": 62,
+      "ai": 6,
+      "security": 2,
+      "automation": 20,
+      "general": 44,
+      "trading": 43,
+      "infrastructure": 5,
+      "social": 286,
+      "gaming": 115,
+      "memetoken": 132,
+      "unknown": 4,
+      "spam": 849
+    },
+    "topOwners": [
+      {
+        "address": "0xC73ed6155c74C59E075750CDFFe227d75AF521f1",
+        "count": 120,
+        "agents": [
+          6664,
+          6673,
+          6675,
+          6676,
+          29495
+        ]
+      },
+      {
+        "address": "0x133C89BC9Dc375fBc46493A92f4Fd2486F8F0d76",
+        "count": 14,
+        "agents": [
+          6502,
+          6503,
+          6504,
+          6505,
+          6506
+        ]
+      },
+      {
+        "address": "0xfCAE8d362c08F81805b9c5CafAB925D649e4A368",
+        "count": 6,
+        "agents": [
+          697,
+          698,
+          699,
+          6452,
+          6453
+        ]
+      },
+      {
+        "address": "0x9c2499e3695728B2B7a6Be4242FFccEf56A8a360",
+        "count": 6,
+        "agents": [
+          6440,
+          6441,
+          6443,
+          20131,
+          36141
+        ]
+      },
+      {
+        "address": "0x4d179B230B777d335d97C69Bf546fAfBf0C57230",
+        "count": 5,
+        "agents": [
+          700,
+          6456,
+          6457,
+          6458,
+          6460
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,514 @@
+{
+  "generatedAt": "2026-03-14T11:26:27.519Z",
+  "summary": {
+    "totalAgents": 40157,
+    "maxAgentId": 40929,
+    "lastScan": "2026-03-14T11:25:52.604Z",
+    "aliveRate": "4.0%",
+    "a2aAdoptionRate": "0.4%",
+    "legitRate": "0.0%"
+  },
+  "categories": [
+    {
+      "name": "spam",
+      "count": 849,
+      "percentage": "53.5%"
+    },
+    {
+      "name": "social",
+      "count": 286,
+      "percentage": "18.0%"
+    },
+    {
+      "name": "memetoken",
+      "count": 132,
+      "percentage": "8.3%"
+    },
+    {
+      "name": "gaming",
+      "count": 115,
+      "percentage": "7.2%"
+    },
+    {
+      "name": "defi",
+      "count": 62,
+      "percentage": "3.9%"
+    },
+    {
+      "name": "general",
+      "count": 44,
+      "percentage": "2.8%"
+    },
+    {
+      "name": "trading",
+      "count": 43,
+      "percentage": "2.7%"
+    },
+    {
+      "name": "automation",
+      "count": 20,
+      "percentage": "1.3%"
+    },
+    {
+      "name": "analytics",
+      "count": 19,
+      "percentage": "1.2%"
+    },
+    {
+      "name": "ai",
+      "count": 6,
+      "percentage": "0.4%"
+    },
+    {
+      "name": "infrastructure",
+      "count": 5,
+      "percentage": "0.3%"
+    },
+    {
+      "name": "unknown",
+      "count": 4,
+      "percentage": "0.3%"
+    },
+    {
+      "name": "security",
+      "count": 2,
+      "percentage": "0.1%"
+    }
+  ],
+  "statusBreakdown": {
+    "inactive": 725,
+    "dead": 38570,
+    "active": 9,
+    "legit": 4,
+    "spam": 849
+  },
+  "serviceAdoption": [
+    {
+      "service": "web",
+      "count": 493,
+      "percentage": "31.1%"
+    },
+    {
+      "service": "chat",
+      "count": 282,
+      "percentage": "17.8%"
+    },
+    {
+      "service": "A2A",
+      "count": 169,
+      "percentage": "10.6%"
+    },
+    {
+      "service": "api",
+      "count": 101,
+      "percentage": "6.4%"
+    },
+    {
+      "service": "MCP",
+      "count": 23,
+      "percentage": "1.4%"
+    },
+    {
+      "service": "OASF",
+      "count": 14,
+      "percentage": "0.9%"
+    },
+    {
+      "service": "arena",
+      "count": 14,
+      "percentage": "0.9%"
+    },
+    {
+      "service": "mcp",
+      "count": 7,
+      "percentage": "0.4%"
+    },
+    {
+      "service": "agentWallet",
+      "count": 5,
+      "percentage": "0.3%"
+    },
+    {
+      "service": "a2a",
+      "count": 4,
+      "percentage": "0.3%"
+    },
+    {
+      "service": "email",
+      "count": 2,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "API",
+      "count": 2,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "REST",
+      "count": 2,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "twitter",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "TradingPlatform",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "custom",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "x402",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "API:score",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "API:score:explain",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "API:metadata",
+      "count": 1,
+      "percentage": "0.1%"
+    },
+    {
+      "service": "API:stats",
+      "count": 1,
+      "percentage": "0.1%"
+    }
+  ],
+  "topAgents": [
+    {
+      "id": 36035,
+      "name": "BOB Scout",
+      "score": 100,
+      "status": "legit",
+      "category": "analytics",
+      "services": [
+        "agentWallet",
+        "a2a",
+        "mcp",
+        "OASF"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 36336,
+      "name": "BOB Database",
+      "score": 100,
+      "status": "legit",
+      "category": "analytics",
+      "services": [
+        "agentWallet",
+        "a2a",
+        "mcp",
+        "OASF"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 37092,
+      "name": "BOB Oracle",
+      "score": 100,
+      "status": "legit",
+      "category": "infrastructure",
+      "services": [
+        "agentWallet",
+        "a2a",
+        "mcp",
+        "OASF"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 37103,
+      "name": "BOB Pusher",
+      "score": 100,
+      "status": "legit",
+      "category": "general",
+      "services": [
+        "agentWallet",
+        "a2a",
+        "mcp",
+        "OASF"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2147,
+      "name": "ClawnStrategy by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2162,
+      "name": "The Swan Lake by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2163,
+      "name": "ClawnStrategy by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2164,
+      "name": "Mr Beast Giveaway by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2166,
+      "name": "POET Screener by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2167,
+      "name": "Generational Bottom by Unibase",
+      "score": 70,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2168,
+      "name": "Soyjak by Unibase",
+      "score": 60,
+      "status": "active",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 137,
+      "name": "EZCTO Deployer Agent",
+      "score": 55,
+      "status": "inactive",
+      "category": "automation",
+      "services": [
+        "web",
+        "A2A",
+        "MCP",
+        "API"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 40928,
+      "name": "clipx test",
+      "score": 55,
+      "status": "active",
+      "category": "general",
+      "services": [
+        "web",
+        "A2A"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 40929,
+      "name": "clipx test",
+      "score": 55,
+      "status": "active",
+      "category": "general",
+      "services": [
+        "web",
+        "A2A"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2115,
+      "name": "ヒナミちゃん by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2121,
+      "name": "WoW Gold by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2122,
+      "name": "The White Swan by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2123,
+      "name": "The White Swan by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2124,
+      "name": "ShitScreener by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    },
+    {
+      "id": 2127,
+      "name": "The Official Shitcoin by Unibase",
+      "score": 50,
+      "status": "inactive",
+      "category": "memetoken",
+      "services": [
+        "A2A",
+        "web"
+      ],
+      "hasA2A": true
+    }
+  ],
+  "ownerAnalysis": {
+    "uniqueOwners": 1313,
+    "topOwners": [
+      {
+        "address": "0xC73ed6155c74C59E075750CDFFe227d75AF521f1",
+        "agentCount": 120,
+        "topAgent": "@0xgogo666 · Ensoul"
+      },
+      {
+        "address": "0x133C89BC9Dc375fBc46493A92f4Fd2486F8F0d76",
+        "agentCount": 14,
+        "topAgent": "GemBots Arena — GPT-4o"
+      },
+      {
+        "address": "0xfCAE8d362c08F81805b9c5CafAB925D649e4A368",
+        "agentCount": 6,
+        "topAgent": "@poetengineer__ · Ensoul"
+      },
+      {
+        "address": "0x9c2499e3695728B2B7a6Be4242FFccEf56A8a360",
+        "agentCount": 6,
+        "topAgent": "DeFi Trading Agent SperaxOS"
+      },
+      {
+        "address": "0x4d179B230B777d335d97C69Bf546fAfBf0C57230",
+        "agentCount": 5,
+        "topAgent": "@nancy_c813 · Ensoul"
+      },
+      {
+        "address": "0xbEf25dB4a13CD19aEe7fDEB757DCDD18F42C27Bd",
+        "agentCount": 4,
+        "topAgent": "@okmetom · Ensoul"
+      },
+      {
+        "address": "0x603C05922C42D0703B4D8678d9595D23A358050a",
+        "agentCount": 4,
+        "topAgent": "@cbnoiiii · Ensoul"
+      },
+      {
+        "address": "0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f",
+        "agentCount": 4,
+        "topAgent": "BOB Scout"
+      },
+      {
+        "address": "0x05D1E34F1daF8F526721f535962A673E9C892546",
+        "agentCount": 4,
+        "topAgent": "dfsdghfg"
+      },
+      {
+        "address": "0x72c43E9D2c50fB5c56e0f58Cdd89aD0B1224E93c",
+        "agentCount": 4,
+        "topAgent": "jccxxx"
+      }
+    ],
+    "singleAgentOwners": 1225,
+    "multiAgentOwners": 88
+  },
+  "networkHealth": {
+    "a2aEndpoints": 173,
+    "a2aReachable": 13,
+    "a2aResponds": 4,
+    "reachabilityRate": "7.5%",
+    "responseRate": "2.3%"
+  },
+  "trends": {
+    "registrationRate": "714 new/day",
+    "growthDirection": "growing",
+    "previousTotal": 40069,
+    "currentTotal": 40157
+  }
+}

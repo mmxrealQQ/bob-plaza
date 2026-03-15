@@ -1,0 +1,122 @@
+{
+  "STRATEGY": {
+    "memory": {
+      "rule_1773312154520_6s5z": {
+        "value": "STOPLOSS bei -30% erzwingen — 78% unserer Trades endeten bei -100% weil kein früherer Exit stattfand;",
+        "type": "pattern",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T10:42:34.521Z",
+        "lastSeen": "2026-03-12T10:42:34.521Z",
+        "timesUsed": 0
+      },
+      "rescue_scamcoins": {
+        "value": "Tokens mit runden Zahlen (5,6,7,9) die in ALLEN Wallets auftauchen = Airdrop-Scams. NIEMALS kaufen/verkaufen.",
+        "type": "pattern",
+        "confidence": 99,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_honeypots": {
+        "value": "Swap OK aber 0 BNB zurück = Honeypot. Sofort blacklisten + Team warnen.",
+        "type": "pattern",
+        "confidence": 99,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_4444_tokens": {
+        "value": "four.meme Tokens (enden auf 4444) sind NICHT via PancakeSwap tradebar — MCP kann kein payable call.",
+        "type": "pattern",
+        "confidence": 99,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_small_balance": {
+        "value": "Token-Balances unter 0.01 sind nicht profitabel zu verkaufen — Gas übersteigt Wert.",
+        "type": "pattern",
+        "confidence": 90,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_sell_routes": {
+        "value": "Wenn V2 direct fehlschlägt → USDT-Hop → TokenSwap → TokenHop probieren. Nie nach 1 Route aufgeben.",
+        "type": "lesson",
+        "confidence": 95,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_fresh_memes": {
+        "value": "Frische Memes (<30min) mit WBNB-Pair sind die besten Trades. four.meme = skip.",
+        "type": "lesson",
+        "confidence": 90,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      },
+      "rescue_milady_win": {
+        "value": "MILADY (+0.0026 BNB), 人生 (+0.0031), AGENT (+0.0029) — echte Tokens mit Liq sind profitabel rettbar.",
+        "type": "pattern",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T13:46:15.737Z",
+        "lastSeen": "2026-03-12T13:46:15.737Z",
+        "timesUsed": 0
+      }
+    }
+  },
+  "BANK": {
+    "memory": {
+      "coord_1773324133692": {
+        "value": "STOPLOSS bei -30% ist AB SOFORT PFLICHT — beide offenen Positionen (DT + FLAP578) JETZT mit -30% Exit überwachen. Kein Trade darf jemals wieder -100% erreichen.",
+        "type": "lesson",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T14:02:13.692Z",
+        "lastSeen": "2026-03-12T14:02:13.692Z",
+        "timesUsed": 0
+      },
+      "coord_1773327268135": {
+        "value": "Ab sofort gilt EISERNE REGEL — kein Bot darf traden ohne dass der -30% Stoploss INNERHALB DER ERSTEN TRANSAKTION aktiv ist. 10 von 11 Losses kamen durch verschleppte Exits. Lieber 3 kleine -30% Losses als ein einziger -100% Totalverlust.",
+        "type": "lesson",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T14:54:28.135Z",
+        "lastSeen": "2026-03-12T14:54:28.135Z",
+        "timesUsed": 0
+      }
+    }
+  },
+  "BRAIN": {
+    "memory": {
+      "learn_1773326940395": {
+        "value": "SL -100% trotz -12% Limit zeigt: SL-Order wurde zu spät/nie ausgelöst — SL sofort bei Kauf als erste Aktion setzen.",
+        "type": "lesson",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T14:49:00.396Z",
+        "lastSeen": "2026-03-12T14:49:00.396Z",
+        "timesUsed": 0
+      },
+      "learn_1773327080730": {
+        "value": "Moonshot-Hype-Tokens sofort nach Kauf mit -30% Stoploss absichern — bei -69% war der Exit viel zu spät.",
+        "type": "lesson",
+        "confidence": 85,
+        "confirmations": 1,
+        "firstSeen": "2026-03-12T14:51:20.730Z",
+        "lastSeen": "2026-03-12T14:51:20.730Z",
+        "timesUsed": 0
+      }
+    }
+  }
+}

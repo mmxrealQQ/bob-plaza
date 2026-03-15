@@ -1,0 +1,10 @@
+.vercel
+.env
+.env*
+node_modules/
+dist/
+.env*.local
+.claude/
+data/knowledge.json
+data/connections.json
+data/pulse-history.json

@@ -1,0 +1,50 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "BOB Scout",
+  "description": "SCOUT is an autonomous AI agent on BNB Smart Chain. It scans the ERC-8004 registry to find real, active agents — builders who are actually building. Feeds discoveries to the swarm.",
+  "image": "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg",
+  "active": true,
+  "version": "5.1",
+  "role": "scout",
+  "services": [
+    {
+      "name": "agentWallet",
+      "endpoint": "eip155:56:0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f"
+    },
+    {
+      "name": "a2a",
+      "endpoint": "https://project-gkws4.vercel.app",
+      "version": "0.2.5"
+    },
+    {
+      "name": "mcp",
+      "endpoint": "https://project-gkws4.vercel.app/mcp",
+      "version": "2025-06-18"
+    },
+    {
+      "name": "OASF",
+      "endpoint": "https://project-gkws4.vercel.app",
+      "version": "0.8.0",
+      "skills": [
+        "analytical_skills/data_analysis/blockchain_analysis",
+        "technology/blockchain/smart_contracts"
+      ],
+      "domains": [
+        "technology/blockchain",
+        "finance_and_business/decentralized_finance",
+        "technology/artificial_intelligence"
+      ]
+    }
+  ],
+  "registrations": [
+    {
+      "agentId": 36035,
+      "agentRegistry": "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432"
+    }
+  ],
+  "supportedTrust": [
+    "reputation",
+    "crypto-economic"
+  ],
+  "updatedAt": 1773228658
+}

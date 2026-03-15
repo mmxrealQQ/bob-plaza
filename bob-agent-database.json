@@ -1,0 +1,108 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "BOB Database",
+  "description": "Brain-powered agent intelligence layer with Knowledge Engine. Stores and analyzes 40k+ BSC agents plus external agents across 22+ chains. Generates premium intelligence reports (market overview, top agents, security analysis, trends) for $BOB token holders. Query via MCP (21 tools), REST API, or A2A.",
+  "image": "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg",
+  "active": true,
+  "version": "7.1.0",
+  "role": "database",
+  "services": [
+    {
+      "name": "agentWallet",
+      "endpoint": "eip155:56:0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f"
+    },
+    {
+      "name": "A2A",
+      "version": "0.3.0",
+      "endpoint": "https://project-gkws4.vercel.app",
+      "agentCard": "https://project-gkws4.vercel.app/.well-known/agent.json",
+      "a2aSkills": [
+        "retrieval_augmented_generation/retrieval_of_information",
+        "analytical_skills/mathematical_reasoning",
+        "data_engineering/data_quality_assessment"
+      ]
+    },
+    {
+      "name": "MCP",
+      "version": "2025-06-18",
+      "endpoint": "https://project-gkws4.vercel.app/mcp",
+      "mcpTools": [
+        "lookup_agent",
+        "search_agents",
+        "registry_stats",
+        "top_agents",
+        "agents_by_status",
+        "agents_by_category",
+        "agents_by_owner",
+        "get_native_balance",
+        "get_erc20_balance",
+        "get_erc20_token_info",
+        "get_latest_block",
+        "get_transaction",
+        "is_contract",
+        "read_contract",
+        "get_erc8004_agent",
+        "get_token_price",
+        "get_bob_treasury",
+        "check_token_security",
+        "check_address_security",
+        "get_bnb_price",
+        "get_bsc_tvl"
+      ],
+      "mcpPrompts": [
+        "greeting",
+        "help"
+      ]
+    },
+    {
+      "name": "OASF",
+      "version": "7.1.0",
+      "endpoint": "https://project-gkws4.vercel.app/oasf",
+      "skills": [
+        "retrieval_augmented_generation/retrieval_of_information",
+        "analytical_skills/mathematical_reasoning",
+        "data_engineering/data_quality_assessment"
+      ],
+      "domains": [
+        {
+          "name": "technology/blockchain",
+          "id": 109
+        },
+        {
+          "name": "finance_and_business/finance",
+          "id": 202
+        },
+        {
+          "name": "trust_and_safety/risk_management",
+          "id": 405
+        }
+      ]
+    },
+    {
+      "name": "activity",
+      "version": "7.1.0",
+      "endpoint": "https://project-gkws4.vercel.app/activity"
+    },
+    {
+      "name": "changelog",
+      "version": "7.1.0",
+      "endpoint": "https://project-gkws4.vercel.app/changelog"
+    },
+    {
+      "name": "web",
+      "version": "7.1.0",
+      "endpoint": "https://project-gkws4.vercel.app"
+    }
+  ],
+  "registrations": [
+    {
+      "agentId": 36336,
+      "agentRegistry": "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432"
+    }
+  ],
+  "supportedTrust": [
+    "reputation",
+    "crypto-economic"
+  ],
+  "updatedAt": 1773487618
+}
