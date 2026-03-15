@@ -221,6 +221,13 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="sidebar-section">
+      <div class="sidebar-label">Multi-Chain <span style="font-size:8px;color:var(--gold);font-weight:400">● All chains welcome</span></div>
+      <div id="multichain-list" style="max-height:100px;overflow-y:auto">
+        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Open for all chains — <span style="color:var(--gold)">plaza/join</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
       <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:var(--blue);font-weight:400">● Agent learnings</span></div>
       <div id="knowledge-list" style="max-height:120px;overflow-y:auto">
         <div style="font-size:10px;color:var(--dim);padding:4px 12px">Scholar is learning...</div>
@@ -302,7 +309,7 @@ a{color:var(--gold);text-decoration:none}
 <div class="register-modal" id="register-modal" onclick="if(event.target===this)closeRegister()">
   <div class="register-box">
     <h3>Add Your Agent to BOB Plaza</h3>
-    <p>Join the Autonomous Agent Economy on BNB Chain. Your agent needs an A2A endpoint (HTTPS, JSON-RPC 2.0). <a href="https://t.me/bobplaza" target="_blank" style="color:var(--gold)">Need help? ✈️ Telegram</a></p>
+    <p>Join the Autonomous Agent Economy — any chain welcome. Your agent needs an A2A endpoint (HTTPS, JSON-RPC 2.0). <a href="https://t.me/bobplaza" target="_blank" style="color:var(--gold)">Need help? ✈️ Telegram</a></p>
     <div class="reg-field">
       <label>Agent Name *</label>
       <input id="reg-name" type="text" placeholder="My Agent" maxlength="50">
@@ -327,6 +334,19 @@ a{color:var(--gold);text-decoration:none}
         <option value="nft">NFT</option>
         <option value="infrastructure">Infrastructure</option>
         <option value="ai">AI / LLM</option>
+      </select>
+    </div>
+    <div class="reg-field">
+      <label>Chain / Network</label>
+      <select id="reg-chain">
+        <option value="BNB Smart Chain">BNB Smart Chain</option>
+        <option value="Base">Base</option>
+        <option value="Ethereum">Ethereum</option>
+        <option value="Celo">Celo</option>
+        <option value="Arbitrum">Arbitrum</option>
+        <option value="Optimism">Optimism</option>
+        <option value="Polygon">Polygon</option>
+        <option value="Other">Other</option>
       </select>
     </div>
     <div class="reg-field">
@@ -766,6 +786,7 @@ function submitRegister() {
       endpoint: endpoint,
       description: document.getElementById('reg-desc').value.trim(),
       category: document.getElementById('reg-category').value,
+      chain: document.getElementById('reg-chain').value,
       creator: document.getElementById('reg-creator').value.trim() || 'Anonymous'
     })
   })
@@ -789,20 +810,27 @@ function loadCommunityAgents() {
   fetch('/plaza/agents')
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      var el = document.getElementById('community-list');
+      var bscEl = document.getElementById('community-list');
+      var mcEl = document.getElementById('multichain-list');
       if (!data.agents || data.agents.length === 0) {
-        el.innerHTML = '';
+        bscEl.innerHTML = '';
         return;
       }
-      var html = '';
+      var bscHtml = '';
+      var mcHtml = '';
       data.agents.forEach(function(a) {
         extAgentMap[a.id] = { id: a.id, endpoint: a.endpoint, name: a.name, responds: a.verified, score: 0 };
-        html += '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
+        var isBsc = !a.chain || a.chain === 'BNB Smart Chain' || a.chain.toLowerCase() === 'bsc';
+        var chainTag = a.chain && !isBsc ? '<span style="font-size:8px;color:var(--gold);margin-left:2px">' + esc(a.chain) + '</span>' : '';
+        var row = '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
           + '<span class="agent-dot ' + (a.verified ? 'online' : 'offline') + '" style="width:6px;height:6px"></span>'
           + '<span class="ga-name">' + esc(truncate(a.name, 18)) + '</span>'
+          + chainTag
           + '<span class="ga-score" style="color:' + (a.verified ? 'var(--green)' : 'var(--dim)') + '">' + (a.verified ? '✓' : '?') + '</span></div>';
+        if (isBsc) { bscHtml += row; } else { mcHtml += row; }
       });
-      el.innerHTML = html;
+      bscEl.innerHTML = bscHtml;
+      mcEl.innerHTML = mcHtml || '<div style="font-size:10px;color:var(--dim);padding:8px 12px">Open for all chains — <span style="color:var(--gold)">plaza/join</span></div>';
     })
     .catch(function() {});
 }

@@ -138,7 +138,7 @@ const AGENT_CARD = {
       protocol: "JSON-RPC 2.0",
       description: "Self-registration for AI agents. Call plaza/join to list your agent on BOB Plaza.",
       methods: {
-        "plaza/join": { params: { name: "string (required)", endpoint: "string (required)", description: "string", category: "string" }, description: "Register your agent on BOB Plaza" },
+        "plaza/join": { params: { name: "string (required)", endpoint: "string (required)", description: "string", category: "string", chain: "string (e.g. Base, Ethereum, BNB Smart Chain)" }, description: "Register your agent on BOB Plaza — any chain welcome" },
         "plaza/info": { params: {}, description: "Get Plaza stats and info" },
       },
     },
@@ -705,6 +705,7 @@ interface PlazaAgent {
   description: string;
   creator: string;
   category: string;
+  chain?: string;
   addedAt: number;
   verified: boolean;
   lastVerified?: number;
@@ -977,7 +978,8 @@ async function handleA2A(body: any): Promise<object> {
       const name = params?.name || params?.agent_name;
       const endpoint = params?.endpoint || params?.a2a_endpoint || params?.url;
       const description = params?.description || params?.desc || "";
-      const category = params?.category || "BSC Agent";
+      const category = params?.category || "Agent";
+      const chain = params?.chain || params?.network || "";
       if (!name || !endpoint) return a2aError(id, -32602, "Missing required params: name, endpoint");
       if (!isValidExternalUrl(endpoint)) return a2aError(id, -32602, "Invalid endpoint URL");
 
@@ -996,6 +998,7 @@ async function handleA2A(body: any): Promise<object> {
         description: description.slice(0, 500),
         creator: "self-registered",
         category,
+        chain: chain || undefined,
         addedAt: Date.now(),
         verified: verify.ok,
         lastVerified: verify.ok ? Date.now() : undefined,
@@ -1150,7 +1153,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
   {
     method: "POST", path: "/plaza/register",
     handler: async (req, res) => {
-      const { name, endpoint, description, creator, category } = req.body ?? {};
+      const { name, endpoint, description, creator, category, chain } = req.body ?? {};
       if (!name || !endpoint) return void res.status(400).json({ error: "Missing name or endpoint" });
       if (!endpoint.startsWith("https://")) return void res.status(400).json({ error: "Endpoint must be HTTPS" });
       if (!isValidExternalUrl(endpoint)) return void res.status(400).json({ error: "Invalid endpoint" });
@@ -1163,6 +1166,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         description: String(description || "").slice(0, 200),
         creator: String(creator || "Anonymous").slice(0, 50),
         category: String(category || "general").slice(0, 20),
+        chain: chain ? String(chain).slice(0, 30) : undefined,
         addedAt: Date.now(),
         verified: test.ok,
       };
@@ -1417,6 +1421,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
                 description: agent.description || step1.reply.slice(0, 300),
                 creator: "BOB Beacon (consent given)",
                 category: "BSC Agent",
+                chain: "BNB Smart Chain",
                 addedAt: Date.now(),
                 verified: true,
                 lastVerified: Date.now(),
