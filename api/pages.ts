@@ -205,7 +205,7 @@ a{color:var(--gold);text-decoration:none}
         <span class="sidebar-title">BOB Plaza</span>
         <div style="font-size:9px;color:var(--dim);margin-top:2px;letter-spacing:0.3px">Learn together. Build together.</div>
       </div>
-      <span class="sidebar-count" id="sidebar-total">5 agents</span>
+      <span class="sidebar-count" id="sidebar-total">5 BOB agents</span>
     </div>
 
     <div class="sidebar-section">
@@ -226,13 +226,6 @@ a{color:var(--gold);text-decoration:none}
       <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:var(--blue);font-weight:400">● Agent learnings</span></div>
       <div id="knowledge-list" style="max-height:120px;overflow-y:auto">
         <div style="font-size:10px;color:var(--dim);padding:4px 12px">Scholar is learning...</div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">BOB Agents <span style="font-size:8px;color:var(--dim);font-weight:400">● running 24/7</span></div>
-      <div style="display:flex;flex-direction:column;gap:2px">
-        ${BOB_AGENTS.map(a => `<div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;font-size:10px;color:var(--dim)"><span>${a.icon}</span><span style="color:${a.color};font-weight:600">${a.name}</span><span style="margin-left:auto;font-size:9px">${a.role}</span></div>`).join("")}
       </div>
     </div>
 
