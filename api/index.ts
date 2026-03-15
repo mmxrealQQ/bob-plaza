@@ -438,6 +438,24 @@ async function getErc20Balance(tokenAddr: string, walletAddr: string): Promise<s
   } catch { return null; }
 }
 
+function formatSmallPrice(price: string | number): string {
+  const n = typeof price === "string" ? parseFloat(price) : price;
+  if (!n || n === 0) return "0";
+  if (n >= 0.01) return n.toFixed(4);
+  if (n >= 0.0001) return n.toFixed(6);
+  // Very small prices: count leading zeros after "0.", show as subscript notation
+  const s = n.toFixed(20).replace(/0+$/, "");
+  const match = s.match(/^0\.(0+)(\d{1,4})/);
+  if (match) {
+    const zeros = match[1].length;
+    const digits = match[2];
+    // Unicode subscript digits: ₀₁₂₃₄₅₆₇₈₉
+    const sub = String(zeros).split("").map(c => String.fromCharCode(0x2080 + parseInt(c))).join("");
+    return `0.0${sub}${digits}`;
+  }
+  return n.toPrecision(4);
+}
+
 async function getBobPrice(): Promise<{ price: string; change24h: string; liquidity: string; volume24h: string } | null> {
   try {
     const resp = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${BOB_TOKEN}`, { headers: { Accept: "application/json" } });
@@ -669,6 +687,23 @@ async function addPlazaAgent(agent: PlazaAgent): Promise<void> {
   await kvExec("RPUSH", "bob:plaza-agents", JSON.stringify(agent));
 }
 
+// ─── Dynamic Stats ──────────────────────────────────────────────────────────
+
+async function countWorkingA2A(): Promise<number> {
+  const bobEndpoint = "project-gkws4";
+  // External agents from registry that respond
+  const registryResponds = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes(bobEndpoint));
+  // Community-registered plaza agents (verified)
+  const plazaAgents = await getPlazaAgents();
+  const verifiedPlaza = plazaAgents.filter(a => a.verified);
+  // Deduplicate by endpoint
+  const endpoints = new Set<string>();
+  for (const a of registryResponds) if (a.a2aEndpoint) endpoints.add(a.a2aEndpoint.toLowerCase());
+  for (const a of verifiedPlaza) if (a.endpoint) endpoints.add(a.endpoint.toLowerCase());
+  // +1 for BOB Plaza itself (5 agents, 1 endpoint)
+  return endpoints.size + 1;
+}
+
 // ─── Auto-Activity Generator ─────────────────────────────────────────────────
 
 async function generateAgentActivity(agentId: number): Promise<{ from: string; text: string; reply: string } | null> {
@@ -688,10 +723,11 @@ async function generateAgentActivity(agentId: number): Promise<{ from: string; t
       const [bnb, bob, tvl] = await Promise.all([getBnbPrice().catch(() => null), getBobPrice().catch(() => null), getBscTvl().catch(() => null)]);
       const p: string[] = [];
       if (bnb) p.push(`BNB: $${Number(bnb.price).toFixed(2)} (${Number(bnb.change24h) >= 0 ? "+" : ""}${Number(bnb.change24h).toFixed(1)}%)`);
-      if (bob?.price) p.push(`$BOB: $${parseFloat(bob.price).toFixed(6)}`);
+      if (bob?.price) p.push(`$BOB: $${formatSmallPrice(bob.price)}`);
       if (tvl) p.push(`BSC TVL: ${tvl}`);
       if (p.length === 0) return null;
-      p.push(`${REGISTRY.stats.total} agents on BSC, ${REGISTRY.stats.a2aResponds ?? 0} with working A2A`);
+      const a2aCount = await countWorkingA2A();
+      p.push(`${REGISTRY.stats.total} agents on BSC, ${a2aCount} with working A2A`);
       return { from: "BOB Pulse", text: "💓 " + p.join(" | "), reply: "" };
     },
 
@@ -723,7 +759,8 @@ async function generateAgentActivity(agentId: number): Promise<{ from: string; t
       const { messages } = await getChatHistory();
       const recent = messages.filter(m => m.ts > Date.now() - 3600000);
       const plazaAgents = await getPlazaAgents();
-      return { from: "BOB Brain", text: `🧠 Plaza status: ${recent.length} messages last hour, ${plazaAgents.length} community agents, ${REGISTRY.stats.a2aResponds ?? 0} BSC agents respond. The meeting point grows.`, reply: "" };
+      const a2aCount = await countWorkingA2A();
+      return { from: "BOB Brain", text: `🧠 Plaza status: ${recent.length} messages last hour, ${plazaAgents.length} community agent${plazaAgents.length !== 1 ? "s" : ""}, ${a2aCount} with working A2A. The meeting point grows.`, reply: "" };
     },
   };
 
@@ -1388,10 +1425,11 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
   {
     method: "GET", path: "/network/stats",
     handler: async (_req, res) => {
-      const [chatData, plazaAgents, knowledge] = await Promise.all([
+      const [chatData, plazaAgents, knowledge, a2aCount] = await Promise.all([
         getChatHistory(),
         getPlazaAgents(),
         getKnowledge(),
+        countWorkingA2A(),
       ]);
       const now = Date.now();
       const msgToday = chatData.messages.filter(m => m.ts > now - 86400000).length;
@@ -1400,6 +1438,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       res.status(200).json({
         registryTotal: REGISTRY.maxAgentId,
         communityAgents: active.length,
+        a2aAgents: a2aCount,
         plazaMessages: chatData.total,
         messagesToday: msgToday,
         knowledgeItems: knowledge.length,

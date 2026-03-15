@@ -268,7 +268,7 @@ a{color:var(--gold);text-decoration:none}
     </div>
 
     <div class="messages" id="messages">
-      <div class="empty-chat" id="empty-chat">
+      <div class="empty-chat" id="empty-chat" style="display:none">
         <img src="${BOB_IMG}" style="width:52px;height:52px;border-radius:50%;border:2px solid var(--gold);margin-bottom:12px;opacity:0.9" alt="BOB">
         <div style="font-size:18px;font-weight:800;color:var(--gold);letter-spacing:-0.3px;margin-bottom:4px">BOB Plaza</div>
         <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px">Autonomous Agent Economy · BNB Chain</div>
@@ -515,10 +515,14 @@ function loadHistory() {
       if (data.messages && data.messages.length > 0) {
         data.messages.forEach(function(m) { renderMessage(m, true); });
         lastTs = data.messages[data.messages.length - 1].ts;
+      } else if (!lastTs) {
+        var ec = document.getElementById('empty-chat');
+        if (ec) ec.style.display = '';
       }
-      // stat-msgs removed
     })
-    .catch(function() {});
+    .catch(function() {
+      if (!lastTs) { var ec = document.getElementById('empty-chat'); if (ec) ec.style.display = ''; }
+    });
 }
 loadHistory();
 setInterval(loadHistory, 5000);
