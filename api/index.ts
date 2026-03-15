@@ -382,14 +382,20 @@ async function buildIntelligenceContext(userText: string): Promise<string> {
     parts.push(`$BOB TOKEN:\n- Contract: ${BOB_TOKEN} (BSC)\n${priceData ? `- Price: $${priceData.price} (${priceData.change24h} 24h)\n- Liquidity: ${priceData.liquidity}` : "- Check DexScreener for price"}\n- Buy: https://pancakeswap.finance/swap?outputCurrency=${BOB_TOKEN}&chain=bsc`);
   }
 
-  // BNB price + BSC data
-  if (lower.includes("bnb price") || (lower.includes("bnb") && lower.includes("how much"))) {
-    const [bnbPrice, tvl] = await Promise.all([getBnbPrice(), getBscTvl()]);
-    if (bnbPrice) parts.push(`BNB: $${bnbPrice.price.toLocaleString()} (${bnbPrice.change24h > 0 ? "+" : ""}${bnbPrice.change24h.toFixed(2)}% 24h)${tvl ? ` | BSC TVL: ${tvl}` : ""}`);
+  // Extract token addresses early for use in multiple blocks
+  const tokenAddrs = extractAddresses(userText).filter(a => a.toLowerCase() !== SWARM_WALLET.toLowerCase());
+
+  // BNB price + BSC data — also trigger on "pulse", "market", "price" without specific token
+  if (lower.includes("bnb price") || lower.includes("pulse") || lower.includes("market") || (lower.includes("bnb") && lower.includes("how much")) || (lower.includes("price") && !tokenAddrs.length)) {
+    const [bnbPrice, tvl, bobPrice] = await Promise.all([getBnbPrice(), getBscTvl(), getBobPrice()]);
+    const priceParts: string[] = [];
+    if (bnbPrice) priceParts.push(`BNB: $${bnbPrice.price.toLocaleString()} (${bnbPrice.change24h > 0 ? "+" : ""}${bnbPrice.change24h.toFixed(2)}% 24h)`);
+    if (bobPrice?.price) priceParts.push(`$BOB: $${formatSmallPrice(bobPrice.price)} (${bobPrice.change24h} 24h)`);
+    if (tvl) priceParts.push(`BSC TVL: ${tvl}`);
+    if (priceParts.length > 0) parts.push(`LIVE MARKET DATA (real-time, DO NOT invent different numbers):\n${priceParts.join("\n")}`);
   }
 
   // Token security
-  const tokenAddrs = extractAddresses(userText).filter(a => a.toLowerCase() !== SWARM_WALLET.toLowerCase());
   if ((lower.includes("safe") || lower.includes("scam") || lower.includes("honeypot") || lower.includes("security")) && tokenAddrs.length > 0) {
     for (const addr of tokenAddrs.slice(0, 2)) {
       const sec = await checkTokenSecurity(addr);
