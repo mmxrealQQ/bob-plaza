@@ -473,6 +473,7 @@ function getSourceBadge(source) {
   if (source === 'web') return '<span class="msg-badge" style="background:rgba(14,203,129,0.15);color:#0ECB81">Human</span>';
   if (source === 'a2a') return '<span class="msg-badge" style="background:rgba(30,136,229,0.15);color:#1E88E5">A2A</span>';
   if (source === 'a2a-outbound') return '<span class="msg-badge" style="background:rgba(240,185,11,0.15);color:#F0B90B">Outreach</span>';
+  if (source === 'plaza') return '<span class="msg-badge" style="background:rgba(171,71,188,0.15);color:#AB47BC">Plaza</span>';
   return '';
 }
 
@@ -681,7 +682,7 @@ function sendMessage() {
       }
     }
     lastTs = Date.now();
-    if (isPlaza) setTimeout(loadHistory, 1500); // Poll after agents had time to respond
+    if (isPlaza) { setTimeout(loadHistory, 1500); setTimeout(loadHistory, 4000); } // Poll after agents respond
   })
   .catch(function(e) {
     var pt = document.getElementById(replyId);

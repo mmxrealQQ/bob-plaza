@@ -1252,7 +1252,7 @@ async function handleA2A(body: any): Promise<object> {
         // Log and collect responses from agents that chose to respond
         const replied = responses.filter(Boolean) as { agentId: number; name: string; reply: string }[];
         for (const r of replied) {
-          await logChat(r.name, senderName, userText, r.reply, "web");
+          await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
         }
 
         // Return combined response
