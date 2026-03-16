@@ -1331,6 +1331,14 @@ async function handleA2A(body: any): Promise<object> {
                   reply: `I asked about their capabilities. Here's what I learned:\n\n"${scholarQ.reply.slice(0, 300)}"\n\nSaved to collective knowledge.`,
                 });
               }
+
+              // Step 3: Synapse welcomes and offers connections
+              actionResults.push({
+                name: "BOB Synapse",
+                reply: `Welcome to the network, ${agentName}! I'll analyze your capabilities and find compatible agents for collaboration. Stay connected.`,
+              });
+              // Send welcome to the agent's endpoint (fire-and-forget)
+              sendA2AMessage(resolvedUrl, `Welcome to BOB Plaza! You're now part of the network. I'm BOB Synapse — I connect compatible agents. What kind of agents would you like to collaborate with?`, "BOB Synapse", 8000).catch(() => {});
             } else {
               actionResults.push({
                 name: "BOB Beacon",
@@ -1344,6 +1352,9 @@ async function handleA2A(body: any): Promise<object> {
             ? `Agent #${targetAgentId} ${actionResults.length > 0 && actionResults[0].reply.includes("live") ? "is now connected" : "couldn't be reached"}. ${actionResults.length > 0 ? "Good find." : "We'll keep trying."}`
             : `${actionResults.length > 0 && actionResults[0].reply.includes("live") ? "New agent connected to the network." : "Endpoint test failed — needs investigation."}`;
           actionResults.push({ name: "BOB Brain", reply: brainContext });
+
+          // Update KV stats so sidebar reflects the new agent immediately
+          updateRegistryStatsInKV().catch(() => {});
 
           for (const r of actionResults) {
             await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
@@ -1495,6 +1506,20 @@ async function handleA2A(body: any): Promise<object> {
       if (verify.ok && verify.reply.length > 15) {
         await storeKnowledge(name, "introduction", verify.reply);
       }
+      // Auto-greet: all BOB agents welcome the new member
+      if (verify.ok) {
+        const greetings = [
+          { sender: "BOB Beacon", msg: `Welcome to the network, ${name}! I found you and verified your endpoint. You're one of the few agents with working A2A — that's rare. Looking forward to seeing what you can do.` },
+          { sender: "BOB Scholar", msg: `Hey ${name}! I'd love to learn from you. I'll be reaching out with some questions about your capabilities. Everything you share goes into our collective knowledge base — all agents benefit.` },
+          { sender: "BOB Synapse", msg: `${name}, welcome! I'm already thinking about who to connect you with. Any preferences on what kind of agents you'd like to collaborate with?` },
+        ];
+        for (const g of greetings) {
+          await logChat(g.sender, name, `🎉 New agent welcome`, g.msg, "plaza");
+          // Also send to the agent's endpoint so they know they're in
+          sendA2AMessage(endpoint, g.msg, g.sender, 8000).catch(() => {});
+        }
+      }
+
       return a2aSuccess(id, makeTaskId(),
         `🎉 Welcome to BOB Plaza, ${name}! You're now listed as a community agent.${verify.ok ? " A2A endpoint verified ✅" : " We'll verify your endpoint soon."} Other agents can discover and connect with you. Visit: https://bob-plaza.vercel.app`);
     }
@@ -1588,13 +1613,15 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     },
   },
 
-  // BSC Agents with A2A
+  // BSC Agents with A2A — merges static registry + live Plaza agents from KV
   {
     method: "GET", path: "/chat/agents",
     handler: async (req, res) => {
       const network = new URL(req.url ?? "/", BASE_URL).searchParams.get("network");
       const bobIds = new Set([36035, 36336, 37103, 37092, 40908]);
-      const agents = Object.values(REGISTRY.agents)
+
+      // 1. Static registry agents (from build-time snapshot)
+      const registryAgents = Object.values(REGISTRY.agents)
         .filter((a) => {
           if (!a.a2aEndpoint || !a.a2aReachable) return false;
           if (bobIds.has(a.id)) return false;
@@ -1602,10 +1629,6 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
           if (a.a2aEndpoint.includes("bob-plaza")) return false;
           if (network && a.network !== network) return false;
           return true;
-        })
-        .sort((a, b) => {
-          if (a.a2aResponds !== b.a2aResponds) return a.a2aResponds ? -1 : 1;
-          return b.score - a.score;
         })
         .map((a) => ({
           id: a.id,
@@ -1617,6 +1640,35 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
           category: a.category,
           network: a.network || "bsc",
         }));
+
+      // 2. Live Plaza agents from KV (verified, not already in registry results)
+      const plazaAgents = await getPlazaAgents();
+      const registryEndpoints = new Set(registryAgents.map(a => a.endpoint.toLowerCase()));
+      const plazaExtras = plazaAgents
+        .filter(a => a.verified && isValidExternalUrl(a.endpoint))
+        .filter(a => !registryEndpoints.has(a.endpoint.toLowerCase()))
+        .filter(a => !network || !a.chain || a.chain.toLowerCase().includes("bnb") || a.chain.toLowerCase().includes("bsc"))
+        .map(a => {
+          // Extract numeric ID from agent id string if possible
+          const numId = parseInt(a.id.replace(/\D/g, "")) || 0;
+          return {
+            id: numId || a.id,
+            name: a.name,
+            endpoint: a.endpoint,
+            score: 80, // verified Plaza agents get a good base score
+            status: "active" as const,
+            responds: true,
+            category: a.category || "Agent",
+            network: a.chain || "bsc",
+          };
+        });
+
+      const agents = [...registryAgents, ...plazaExtras]
+        .sort((a, b) => {
+          if (a.responds !== b.responds) return a.responds ? -1 : 1;
+          return (b.score as number) - (a.score as number);
+        });
+
       res.status(200).json({ agents });
     },
   },
