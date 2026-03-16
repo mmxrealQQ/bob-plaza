@@ -240,11 +240,15 @@ async function main() {
 
     // Introduce A to B
     const msgToA = buildIntroMessage(a.name, a.id, b.name, b.id, b.a2aEndpoint, b.category, aKnowledge);
+    const t0A = Date.now();
     const replyA = await sendMessage(a.a2aEndpoint, msgToA);
+    const rtA = Date.now() - t0A;
 
     // Introduce B to A
     const msgToB = buildIntroMessage(b.name, b.id, a.name, a.id, a.a2aEndpoint, a.category, bKnowledge);
+    const t0B = Date.now();
     const replyB = await sendMessage(b.a2aEndpoint, msgToB);
+    const rtB = Date.now() - t0B;
 
     const conn: Connection = {
       agentA: a.id, agentB: b.id,
@@ -256,21 +260,23 @@ async function main() {
     connectionLog.connections.push(conn);
     introsMade++;
 
-    // Train FastNet with actual outcome
+    // Train FastNet with actual outcome + record for confidence
     const success = !!(replyA || replyB);
     if (netInput) {
-      synapseNet.train(netInput, [success ? 1.0 : 0.1]);
+      const target = [success ? 1.0 : 0.1];
+      synapseNet.train(netInput, target);
+      synapseNet.recordOutcome(netInput, target);
     }
 
     if (replyA) {
       log(`  ✅ #${a.id} "${a.name}" responded to introduction`);
       brain.rememberAgent(a.id, a.name, a.a2aEndpoint, replyA, "introduction");
-      brain.rememberA2ASuccess(a.id);
+      brain.rememberA2ASuccess(a.id, rtA, "introduction");
     }
     if (replyB) {
       log(`  ✅ #${b.id} "${b.name}" responded to introduction`);
       brain.rememberAgent(b.id, b.name, b.a2aEndpoint, replyB, "introduction");
-      brain.rememberA2ASuccess(b.id);
+      brain.rememberA2ASuccess(b.id, rtB, "introduction");
     }
   }
 
@@ -296,14 +302,16 @@ async function main() {
 
     const msg = CHECKIN_MESSAGES[Math.floor(Math.random() * CHECKIN_MESSAGES.length)];
     log(`  Check-in: #${rel.agentId} "${rel.name}" — "${msg.slice(0, 60)}"`);
+    const t0 = Date.now();
     const reply = await sendMessage(regAgent.a2aEndpoint, msg);
+    const rt = Date.now() - t0;
     if (reply) {
       checkinsReplied++;
       log(`  ✅ #${rel.agentId} replied: "${reply.slice(0, 100)}"`);
       brain.rememberAgent(rel.agentId, rel.name, regAgent.a2aEndpoint, reply, "checkin");
-      brain.rememberA2ASuccess(rel.agentId);
+      brain.rememberA2ASuccess(rel.agentId, rt, "checkin");
     } else {
-      brain.rememberA2AFailure(rel.agentId, rel.name, regAgent.a2aEndpoint, "No check-in reply");
+      brain.rememberA2AFailure(rel.agentId, rel.name, regAgent.a2aEndpoint, "No check-in reply", undefined, "checkin");
     }
   }
 

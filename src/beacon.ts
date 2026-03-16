@@ -353,20 +353,24 @@ async function main() {
 
         log(`  → Inviting #${id} "${name}" to the Plaza...`);
         invitesSent++;
+        const t0 = Date.now();
         const reply = await sendInvitation(a2aEndpoint, name, id);
+        const responseTimeMs = Date.now() - t0;
         if (reply) {
           invitesReplied++;
           log(`  ✅ #${id} replied: "${reply.slice(0, 150)}"`);
           brain.rememberAgent(id, name, a2aEndpoint, reply, "plaza_invitation");
-          brain.rememberA2ASuccess(id);
+          brain.rememberA2ASuccess(id, responseTimeMs, "invitation");
           await logToPlaza(`[BEACON] New agent joined! #${id} "${name}" said: "${reply.slice(0, 100)}"`);
-          // Train FastNet: good outcome
+          // Train FastNet: good outcome + record actual outcome for confidence
           beaconNet.train(netInput, [1.0, 1.0]);
+          beaconNet.recordOutcome(netInput, [1.0, 1.0]);
         } else {
           log(`  ⚠️  #${id} no reply to invitation`);
-          brain.rememberA2AFailure(id, name, a2aEndpoint, "No reply to invitation");
+          brain.rememberA2AFailure(id, name, a2aEndpoint, "No reply to invitation", undefined, "invitation");
           // Train FastNet: responded to A2A but didn't reply to invite
           beaconNet.train(netInput, [0.3, 0.0]);
+          beaconNet.recordOutcome(netInput, [0.3, 0.0]);
         }
       }
     } catch { continue; }
@@ -458,14 +462,18 @@ async function main() {
 
           // Auto-invite cluster finds
           if (!brain.isAgentDead(cid)) {
+            const ct0 = Date.now();
             const reply = await sendInvitation(cEndpoint, cName, cid);
+            const crt = Date.now() - ct0;
             if (reply) {
               invitesReplied++;
               brain.rememberAgent(cid, cName, cEndpoint, reply, "cluster_discovery");
-              brain.rememberA2ASuccess(cid);
+              brain.rememberA2ASuccess(cid, crt, "invitation");
               await logToPlaza(`[BEACON] Cluster find! #${cid} "${cName}" near known agents: "${reply.slice(0, 80)}"`);
               // Train FastNet
-              beaconNet.train([normalize(score, 0, 100), 1, cHasCard ? 1 : 0, 1, encodeCategory(category), 0], [1.0, 1.0]);
+              const clusterInput = [normalize(score, 0, 100), 1, cHasCard ? 1 : 0, 1, encodeCategory(category), 0];
+              beaconNet.train(clusterInput, [1.0, 1.0]);
+              beaconNet.recordOutcome(clusterInput, [1.0, 1.0]);
             }
           }
         }
@@ -532,13 +540,17 @@ async function main() {
           if (agent.a2aResponds) {
             revived++;
             log(`  ✅ #${agent.id} "${agent.name}" REVIVED! score:${score} — inviting...`);
+            const rt0 = Date.now();
             const reply = await sendInvitation(agent.a2aEndpoint, agent.name, agent.id);
+            const rrt = Date.now() - rt0;
             if (reply) {
               invitesReplied++;
               brain.rememberAgent(agent.id, agent.name, agent.a2aEndpoint, reply, "revival");
-              brain.rememberA2ASuccess(agent.id);
+              brain.rememberA2ASuccess(agent.id, rrt, "invitation");
               await logToPlaza(`[BEACON] Dead agent revived! #${agent.id} "${agent.name}": "${reply.slice(0, 80)}"`);
-              beaconNet.train([normalize(score, 0, 100), 1, agent.hasAgentCard ? 1 : 0, 1, encodeCategory(category), 0], [1.0, 1.0]);
+              const reviveInput = [normalize(score, 0, 100), 1, agent.hasAgentCard ? 1 : 0, 1, encodeCategory(category), 0];
+              beaconNet.train(reviveInput, [1.0, 1.0]);
+              beaconNet.recordOutcome(reviveInput, [1.0, 1.0]);
             }
           } else {
             log(`  🔄 #${agent.id} "${agent.name}" metadata updated but no A2A yet`);
@@ -575,16 +587,18 @@ async function main() {
       if (test.responds && !wasResponding) {
         revived++;
         log(`  🔄 #${agent.id} "${agent.name}" is BACK ONLINE — inviting...`);
+        const st0 = Date.now();
         const reply = await sendInvitation(agent.a2aEndpoint, agent.name, agent.id);
+        const srt = Date.now() - st0;
         if (reply) {
           brain.rememberAgent(agent.id, agent.name, agent.a2aEndpoint, reply, "reactivation");
-          brain.rememberA2ASuccess(agent.id);
+          brain.rememberA2ASuccess(agent.id, srt, "invitation");
           await logToPlaza(`[BEACON] Agent back online! #${agent.id} "${agent.name}": "${reply.slice(0, 80)}"`);
         }
       } else if (test.responds) {
-        brain.rememberA2ASuccess(agent.id);
+        brain.rememberA2ASuccess(agent.id, undefined, "refresh");
       } else if (!test.reachable) {
-        brain.rememberA2AFailure(agent.id, agent.name, agent.a2aEndpoint, "Unreachable on refresh");
+        brain.rememberA2AFailure(agent.id, agent.name, agent.a2aEndpoint, "Unreachable on refresh", undefined, "refresh");
       }
     }
     if (revived > 0) log(`  🔄 ${revived} agents revived`);

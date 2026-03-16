@@ -148,10 +148,12 @@ async function main() {
   const healthResults: { id: number; name: string; alive: boolean }[] = [];
 
   for (const agent of sampleAgents) {
+    const t0 = Date.now();
     const alive = await pingA2A(agent.a2aEndpoint);
+    const rt = Date.now() - t0;
     healthResults.push({ id: agent.id, name: agent.name, alive });
-    if (alive) { healthy++; brain.rememberA2ASuccess(agent.id); }
-    else { degraded++; brain.rememberA2AFailure(agent.id, agent.name, agent.a2aEndpoint, "Pulse check failed"); }
+    if (alive) { healthy++; brain.rememberA2ASuccess(agent.id, rt, "ping"); }
+    else { degraded++; brain.rememberA2AFailure(agent.id, agent.name, agent.a2aEndpoint, "Pulse check failed", undefined, "ping"); }
     log(`  ${alive ? "✅" : "❌"} #${agent.id} "${agent.name.slice(0, 30)}"`);
   }
 
@@ -178,10 +180,12 @@ async function main() {
   log(`🧠 FastNet: predicted health=${predictedHealth.toFixed(0)}% anomaly=${(anomalyScore*100).toFixed(0)}%`);
 
   // Train with actual health rate
-  pulseNet.train(pulseInput, [
+  const pulseTarget = [
     normalize(healthRate, 0, 100),
     Math.abs(healthRate - prevHealth) > 20 ? 1.0 : 0.0, // anomaly if big change
-  ]);
+  ];
+  pulseNet.train(pulseInput, pulseTarget);
+  pulseNet.recordOutcome(pulseInput, pulseTarget);
 
   if (anomalyScore > 0.7 && pulseNet.trainCount > 20) {
     log(`⚠️  FastNet ANOMALY DETECTED: score ${(anomalyScore*100).toFixed(0)}% — investigating...`);

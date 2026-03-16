@@ -44,6 +44,9 @@ export interface FastNetState {
   lastLoss: number;
   createdAt: number;
   lastTrainedAt: number;
+  // v8: Validation buffer for accuracy-based confidence
+  validationBuffer?: Array<{ input: number[]; predicted: number[]; actual: number[] }>;
+  validationAccuracy?: number;
 }
 
 export class FastNet {
@@ -62,6 +65,9 @@ export class FastNet {
   public lastLoss = 0;
   private createdAt: number;
   private lastTrainedAt = 0;
+  // v8: Validation buffer for accuracy-based confidence
+  private validationBuffer: Array<{ input: number[]; predicted: number[]; actual: number[] }> = [];
+  private validationAccuracy = 0.5; // start at 50% = no confidence
 
   constructor(config: FastNetConfig) {
     this.layers = config.layers;
@@ -224,9 +230,28 @@ export class FastNet {
 
   predict(input: number[]): { output: number[]; confidence: number } {
     const output = this.forward(input);
-    // Confidence = how far from 0.5 the outputs are (on average)
-    const confidence = output.reduce((sum, v) => sum + Math.abs(v - 0.5) * 2, 0) / output.length;
-    return { output, confidence };
+    // v8: Confidence based on actual validation accuracy, not output extremeness
+    // Falls back to 0.5 (no confidence) until we have enough validation data
+    return { output, confidence: this.validationAccuracy };
+  }
+
+  // ─── Record Outcome — validates predictions against reality ───────────────
+
+  recordOutcome(input: number[], actual: number[]): void {
+    const predicted = this.forward(input);
+    this.validationBuffer.push({ input, predicted, actual });
+    // Keep last 50 validation samples
+    if (this.validationBuffer.length > 50) this.validationBuffer = this.validationBuffer.slice(-50);
+
+    // Recalculate accuracy from validation buffer
+    let totalError = 0;
+    for (const sample of this.validationBuffer) {
+      for (let i = 0; i < sample.predicted.length; i++) {
+        totalError += Math.abs((sample.predicted[i] ?? 0) - (sample.actual[i] ?? 0));
+      }
+    }
+    const avgError = totalError / (this.validationBuffer.length * (actual.length || 1));
+    this.validationAccuracy = Math.max(0, Math.min(1, 1 - avgError));
   }
 
   // ─── Batch Train ───────────────────────────────────────────────────────────
@@ -258,6 +283,8 @@ export class FastNet {
       lastLoss: this.lastLoss,
       createdAt: this.createdAt,
       lastTrainedAt: this.lastTrainedAt,
+      validationBuffer: this.validationBuffer,
+      validationAccuracy: this.validationAccuracy,
     };
   }
 
@@ -271,6 +298,8 @@ export class FastNet {
     this.lastLoss = state.lastLoss;
     this.createdAt = state.createdAt;
     this.lastTrainedAt = state.lastTrainedAt;
+    this.validationBuffer = state.validationBuffer ?? [];
+    this.validationAccuracy = state.validationAccuracy ?? 0.5;
   }
 
   save(filePath: string): void {

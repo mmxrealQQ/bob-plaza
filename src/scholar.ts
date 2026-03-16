@@ -387,11 +387,15 @@ async function main() {
         continue;
       }
 
+      const t0 = Date.now();
       const answer = await askAgent(agent.a2aEndpoint, question);
+      const responseTimeMs = Date.now() - t0;
       const useful = answer && isUsefulAnswer(answer);
 
-      // Train FastNet with actual outcome
-      scholarNet.train(netInput, [useful ? 1.0 : 0.0]);
+      // Train FastNet with actual outcome + record for confidence calibration
+      const target = [useful ? 1.0 : 0.0];
+      scholarNet.train(netInput, target);
+      scholarNet.recordOutcome(netInput, target);
 
       if (!useful) {
         log(`  ✗ "${question.slice(0, 60)}" — no useful answer`);
@@ -428,7 +432,7 @@ async function main() {
 
     if (learnedFromAgent > 0) {
       agentsLearned++;
-      brain.rememberA2ASuccess(agent.id);
+      brain.rememberA2ASuccess(agent.id, undefined, "scholar_question");
     }
   }
 

@@ -1,5 +1,5 @@
 /**
- * BOB BRAIN v7.1 — Dual-LLM Intelligence Layer
+ * BOB BRAIN v8 — Dual-LLM Intelligence Layer
  *
  * The brain that makes BOB's agents THINK, LEARN, and EVOLVE.
  * Uses Groq LLM for fast decisions, Anthropic Haiku for deep analysis.
@@ -59,9 +59,25 @@ interface AgentRelationship {
   a2aFailures?: A2AFailure[];
   a2aFailCount?: number;
   a2aSuccessCount?: number;
-  a2aDead?: boolean;        // permanently unreachable — stop trying
+  a2aDead?: boolean;
   a2aDeadReason?: string;
   lastFailure?: string;
+  // v8: Graduated health — learn from interaction patterns
+  avgResponseTimeMs?: number;
+  successRate?: number;             // 0-1 rolling average
+  healthScore?: number;             // 0-100 computed
+  formatStats?: Record<string, { sent: number; replied: number }>;  // best message format per agent
+}
+
+// v8: Decision outcome tracking — close the feedback loop
+interface DecisionOutcome {
+  ts: number;
+  agent: AgentName;
+  decision: string;
+  reason: string;
+  success: boolean;
+  duration: number;
+  keyMetric?: number;   // agents found, knowledge gained, etc.
 }
 
 // ─── v7.1: Knowledge Types ─────────────────────────────────────────────────
@@ -155,6 +171,14 @@ interface BrainMemory {
   lastOnChainUpdate?: number;
   featuresSinceUpdate?: string[];
   a2aFailurePatterns?: Record<string, { count: number; lastReason: string; firstSeen: number }>;
+  // v8: Closed feedback loop — decisions + outcomes
+  decisionLog?: DecisionOutcome[];
+  lastEvolution?: {
+    ts: number;
+    changes: Array<{ target: string; field: string; oldValue: any; newValue: any }>;
+    successRateBefore: number;
+    avgDurationBefore: number;
+  };
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -273,6 +297,44 @@ export class Brain {
     }
   }
 
+  // v8: Load relevant knowledge from Scholar's knowledge base
+  private getRelevantKnowledge(agent: AgentName): string {
+    const KNOWLEDGE_FILE = "data/knowledge.json";
+    if (!existsSync(KNOWLEDGE_FILE)) return "";
+    try {
+      const kb = JSON.parse(readFileSync(KNOWLEDGE_FILE, "utf-8"));
+      const entries = kb.entries as Array<{ question?: string; answer?: string; topic?: string; agentId?: number; agentName?: string }>;
+      if (!entries?.length) return "";
+
+      // Filter by relevance to the agent's domain
+      const relevanceMap: Record<AgentName, string[]> = {
+        BEACON:  ["discover", "register", "new agent", "endpoint", "a2a", "erc-8004", "invitation"],
+        SCHOLAR: ["knowledge", "learn", "capability", "expertise", "build", "bnb"],
+        SYNAPSE: ["connect", "collaborat", "partner", "synerg", "introduc", "relationship"],
+        PULSE:   ["health", "status", "uptime", "monitor", "metric", "tvl", "price"],
+      };
+
+      const keywords = relevanceMap[agent] || [];
+      const relevant = entries
+        .filter(e => {
+          const text = `${e.question || ""} ${e.answer || ""} ${e.topic || ""}`.toLowerCase();
+          return keywords.some(kw => text.includes(kw));
+        })
+        .slice(-5);
+
+      if (relevant.length === 0) {
+        // Fallback: return latest 3 entries
+        return entries.slice(-3)
+          .map(e => `- ${e.agentName || "Agent"}: "${(e.answer || "").slice(0, 100)}"`)
+          .join("\n");
+      }
+
+      return relevant
+        .map(e => `- ${e.agentName || "Agent"}: "${(e.answer || "").slice(0, 100)}"`)
+        .join("\n");
+    } catch { return ""; }
+  }
+
   private async llmThink(agent: AgentName, ctx: ThinkContext): Promise<ThinkResult> {
     const strategy = this.memory.strategies[agent.toLowerCase() as keyof Strategies];
     const recentPerf = this.memory.performance
@@ -290,14 +352,28 @@ export class Brain {
       PULSE: "Monitors network health by pinging agents, fetches BNB price & BSC TVL, tracks growth metrics, saves 90-day history.",
     };
 
+    // v8: Build decision history for this agent
+    const decisionHistory = (this.memory.decisionLog || [])
+      .filter(d => d.agent === agent)
+      .slice(-5)
+      .map(d => `- "${d.decision}" → ${d.success ? "✅ SUCCESS" : "❌ FAILED"}, ${(d.duration / 1000).toFixed(0)}s${d.keyMetric ? `, metric: ${d.keyMetric}` : ""}`)
+      .join("\n") || "No decision history yet";
+
+    // v8: Load Scholar knowledge relevant to this agent
+    const knowledgeContext = this.getRelevantKnowledge(agent);
+
     const prompt = `You are the BRAIN of BOB — an autonomous AI agent intelligence network on BNB Chain.
 BOB has 4 agents: BEACON (discovery), SCHOLAR (knowledge), SYNAPSE (connections), PULSE (health).
-Your mission: Grow BOB Plaza into the largest AI agent collaboration network on BNB Chain. Discover agents, learn from them, connect them, monitor health.
+Your mission: Grow BOB Plaza into the largest AI agent collaboration network on BNB Chain.
 
 Current agent: ${agent}
 Role: ${agentRoles[agent]}
 
 Current strategy: ${JSON.stringify(strategy)}
+
+DECISION HISTORY (what was tried before + what happened):
+${decisionHistory}
+IMPORTANT: Learn from this. Don't repeat failed approaches. Double down on what works.
 
 Recent performance (last 5 runs):
 ${recentPerf.length > 0 ? recentPerf.map(p => `- ${new Date(p.ts).toISOString().slice(11,16)} ${p.action}: ${p.success ? "✅" : "❌"} ${p.duration}ms${p.newAgents ? ` +${p.newAgents} agents` : ""}`).join("\n") : "No previous runs yet"}
@@ -308,6 +384,7 @@ Context:
 - BNB price: $${ctx.bnbPrice ?? "unknown"}
 - BSC TVL: $${ctx.bscTvl ? (ctx.bscTvl / 1e9).toFixed(1) + "B" : "unknown"}
 ${ctx.customContext ? `- ${ctx.customContext}` : ""}
+${knowledgeContext ? `\nKnowledge from Scholar:\n${knowledgeContext}` : ""}
 
 Messages from other agents:
 ${pendingMessages.length > 0 ? pendingMessages.join("\n") : "None"}
@@ -317,7 +394,7 @@ ${recentInsights.length > 0 ? recentInsights.slice(-3).join("\n") : "None yet"}
 
 Brain stats: ${this.memory.totalThoughts} thoughts, ${this.memory.totalEvolutions} evolutions, ${Object.keys(this.memory.relationships).length} relationships
 
-Decide what ${agent} should do RIGHT NOW. Consider timing, recent results, and messages.
+Decide what ${agent} should do RIGHT NOW. Consider: past decision outcomes, timing, messages.
 
 Respond ONLY with JSON (no markdown, no explanation outside JSON):
 {
@@ -396,7 +473,6 @@ Respond ONLY with JSON (no markdown, no explanation outside JSON):
     const newAgentsMatch = result.output.match(/Found (\d+) new/i) || result.output.match(/\+(\d+) agents/i);
     if (newAgentsMatch) {
       entry.newAgents = parseInt(newAgentsMatch[1]);
-      // Update beacon yield history
       if (agent === "BEACON") {
         this.memory.strategies.beacon.yieldHistory.push(entry.newAgents);
         if (this.memory.strategies.beacon.yieldHistory.length > 20)
@@ -407,7 +483,6 @@ Respond ONLY with JSON (no markdown, no explanation outside JSON):
     const responsesMatch = result.output.match(/(\d+) respond/i) || result.output.match(/responses?: (\d+)/i);
     if (responsesMatch) {
       entry.responsesGot = parseInt(responsesMatch[1]);
-      // Update synapse response rate
       if (agent === "SYNAPSE" && entry.responsesGot !== undefined) {
         const sentMatch = result.output.match(/sent (\d+)/i) || result.output.match(/introductions?: (\d+)/i);
         if (sentMatch) {
@@ -422,9 +497,21 @@ Respond ONLY with JSON (no markdown, no explanation outside JSON):
 
     this.memory.performance.push(entry);
 
-    // Auto-discover interesting things from output
-    this.extractDiscoveries(agent, result.output);
+    // v8: Store decision outcome — close the feedback loop
+    if (!this.memory.decisionLog) this.memory.decisionLog = [];
+    const strat = this.memory.strategies[agent.toLowerCase() as keyof Strategies] as any;
+    this.memory.decisionLog.push({
+      ts: Date.now(),
+      agent,
+      decision: strat?.lastDecision || action,
+      reason: "",
+      success: result.success,
+      duration: result.duration,
+      keyMetric: entry.newAgents ?? entry.responsesGot,
+    });
+    if (this.memory.decisionLog.length > 50) this.memory.decisionLog = this.memory.decisionLog.slice(-50);
 
+    this.extractDiscoveries(agent, result.output);
     this.save();
   }
 
@@ -562,6 +649,9 @@ Respond ONLY with JSON:
       }
       const parsed = JSON.parse(jsonStr);
 
+      // v8: Track what evolve() changes so we can evaluate later
+      const changes: Array<{ target: string; field: string; oldValue: any; newValue: any }> = [];
+
       // Apply improvements carefully
       let applied = 0;
       for (const imp of parsed.improvements || []) {
@@ -571,21 +661,35 @@ Respond ONLY with JSON:
         const strat = this.memory.strategies[target as keyof Strategies] as any;
         if (!strat || !(imp.field in strat)) continue;
 
-        // Safety: only allow numeric and string changes, with bounds
+        // Safety: only allow numeric and string changes
         const old = strat[imp.field];
         if (typeof old === "number" && typeof imp.newValue === "number") {
-          // Bound changes to ±50% of original
-          const min = old * 0.5;
-          const max = old * 1.5;
-          strat[imp.field] = Math.max(min, Math.min(max, imp.newValue));
+          // v8: Iteration-aware bounds — allow wider changes as we gather more data
+          const evolutionCount = this.memory.totalEvolutions;
+          const maxChangePct = Math.min(0.5 + evolutionCount * 0.05, 2.0); // 50% → up to 200% over time
+          const min = old * (1 - maxChangePct);
+          const max = old * (1 + maxChangePct);
+          const bounded = Math.max(min, Math.min(max, imp.newValue));
+          strat[imp.field] = bounded;
+          changes.push({ target, field: imp.field, oldValue: old, newValue: bounded });
           applied++;
         } else if (typeof old === "string" && typeof imp.newValue === "string") {
           strat[imp.field] = imp.newValue;
+          changes.push({ target, field: imp.field, oldValue: old, newValue: imp.newValue });
           applied++;
         }
       }
 
       this.memory.totalEvolutions++;
+
+      // v8: Store evolution snapshot for tracking outcomes
+      this.memory.lastEvolution = {
+        ts: Date.now(),
+        changes,
+        successRateBefore: successRate,
+        avgDurationBefore: avgDuration,
+      };
+
       const assessment = parsed.overallAssessment || "Evolution complete";
       const insight = `[EVOLUTION #${this.memory.totalEvolutions}] ${assessment}. Applied ${applied} improvements. Next focus: ${parsed.nextFocus || "continue"}`;
       this.memory.insights.push(insight);
@@ -956,7 +1060,7 @@ BOB recommends checking back when LLM services are restored for full analysis.`;
 
   // ── A2A Failure Memory (v7.2) ────────────────────────────────────────
 
-  rememberA2AFailure(agentId: number, name: string, endpoint: string, reason: string, httpStatus?: number): void {
+  rememberA2AFailure(agentId: number, name: string, endpoint: string, reason: string, httpStatus?: number, messageFormat?: string): void {
     const key = String(agentId);
     const existing = this.memory.relationships[key];
     const failure: A2AFailure = { ts: Date.now(), reason, httpStatus };
@@ -970,15 +1074,22 @@ BOB recommends checking back when LLM services are restored for full analysis.`;
       existing.lastFailure = reason;
       existing.lastContact = Date.now();
 
-      // Mark as dead after 5 consecutive failures with no successes in between
-      const recentFails = existing.a2aFailCount || 0;
-      const recentSuccess = existing.a2aSuccessCount || 0;
-      if (recentFails >= 5 && recentSuccess === 0) {
+      // v8: Graduated health score instead of binary dead/alive
+      const total = (existing.a2aSuccessCount || 0) + (existing.a2aFailCount || 0);
+      existing.successRate = total > 0 ? (existing.a2aSuccessCount || 0) / total : 0;
+      existing.healthScore = Math.round((existing.successRate ?? 0) * 100);
+      // Track format stats for failures too
+      if (messageFormat) {
+        if (!existing.formatStats) existing.formatStats = {};
+        if (!existing.formatStats[messageFormat]) existing.formatStats[messageFormat] = { sent: 0, replied: 0 };
+        existing.formatStats[messageFormat].sent++;
+      }
+      // Mark dead at healthScore < 5 (very persistent failures) or permanent HTTP errors
+      if (existing.healthScore < 5 && total >= 5) {
         existing.a2aDead = true;
-        existing.a2aDeadReason = `${recentFails} consecutive failures: ${reason}`;
+        existing.a2aDeadReason = `Health ${existing.healthScore}% after ${total} attempts: ${reason}`;
         console.log(`[BRAIN] Agent #${agentId} "${name}" marked as DEAD: ${existing.a2aDeadReason}`);
       }
-      // Also mark dead for permanent errors (402 payment, 401 auth)
       if (httpStatus === 402 || httpStatus === 401) {
         existing.a2aDead = true;
         existing.a2aDeadReason = `HTTP ${httpStatus}: ${reason}`;
@@ -1011,14 +1122,29 @@ BOB recommends checking back when LLM services are restored for full analysis.`;
     this.save();
   }
 
-  rememberA2ASuccess(agentId: number): void {
+  rememberA2ASuccess(agentId: number, responseTimeMs?: number, messageFormat?: string): void {
     const key = String(agentId);
     const existing = this.memory.relationships[key];
     if (existing) {
       existing.a2aSuccessCount = (existing.a2aSuccessCount || 0) + 1;
-      existing.a2aFailCount = 0; // reset consecutive failures
-      existing.a2aDead = false;  // revive if it was marked dead
+      existing.a2aFailCount = 0;
+      existing.a2aDead = false;
       existing.a2aDeadReason = undefined;
+      // v8: Track response time + success rate + format stats
+      if (responseTimeMs) {
+        existing.avgResponseTimeMs = existing.avgResponseTimeMs
+          ? existing.avgResponseTimeMs * 0.8 + responseTimeMs * 0.2  // exponential moving avg
+          : responseTimeMs;
+      }
+      const total = (existing.a2aSuccessCount || 0) + (existing.a2aFailCount || 0);
+      existing.successRate = total > 0 ? (existing.a2aSuccessCount || 0) / total : 1;
+      existing.healthScore = Math.round((existing.successRate ?? 1) * 100);
+      if (messageFormat) {
+        if (!existing.formatStats) existing.formatStats = {};
+        if (!existing.formatStats[messageFormat]) existing.formatStats[messageFormat] = { sent: 0, replied: 0 };
+        existing.formatStats[messageFormat].sent++;
+        existing.formatStats[messageFormat].replied++;
+      }
       this.save();
     }
   }
