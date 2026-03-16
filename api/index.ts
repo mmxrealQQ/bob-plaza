@@ -1241,9 +1241,26 @@ async function handleA2A(body: any): Promise<object> {
       const source = rpcId.startsWith("chat-") ? "web" : "a2a";
       const senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
 
-      // ─── Plaza Mode: no agentId → message goes to ALL agents ────────
+      // ─── Mention Detection: check if user addresses a specific agent ──
+      const MENTION_MAP: Record<string, number> = {
+        beacon: 36035, scout: 36035, finder: 36035,
+        scholar: 36336, learner: 36336,
+        synapse: 37103, connector: 37103,
+        pulse: 37092, monitor: 37092,
+        brain: 40908, strategist: 40908,
+      };
+      let mentionedAgent: number | null = null;
       if (!targetAgent && source === "web") {
-        console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
+        const lowerText = userText.toLowerCase();
+        const mentions = Object.entries(MENTION_MAP).filter(([key]) => lowerText.includes(key));
+        // Deduplicate to unique agent IDs
+        const uniqueAgents = [...new Set(mentions.map(([, id]) => id))];
+        if (uniqueAgents.length === 1) mentionedAgent = uniqueAgents[0];
+      }
+
+      // ─── Plaza Mode: no agentId → message goes to ALL agents (or mentioned agent) ────────
+      if (!targetAgent && source === "web") {
+        console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → ${mentionedAgent ? `agent #${mentionedAgent}` : "all agents"}`);
         await logChat(senderName, "Plaza", userText, "", source);
 
         // All agents respond in parallel — Haiku primary, Groq fallback
@@ -1270,9 +1287,6 @@ async function handleA2A(body: any): Promise<object> {
 
         // Load collective knowledge so agents can use what they've learned
         const knowledge = await getKnowledge().catch(() => [] as KnowledgeEntry[]);
-        const knowledgeContext = knowledge.length > 0
-          ? `\n\nCollective knowledge (things our agents learned):\n${knowledge.slice(0, 10).map(k => `- ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`
-          : "";
 
         // Agent-specific Plaza personalities
         const PLAZA_PERSONAS: Record<number, string> = {
@@ -1283,23 +1297,32 @@ async function handleA2A(body: any): Promise<object> {
           40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
         };
         const CORE_FACTS = `\n$BOB token (BSC): 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e — buy on PancakeSwap. Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 BOB agents on-chain (ERC-8004).`;
+        const AGENT_TRUTH = `\n\nIMPORTANT — The 5 BOB Plaza agents are: 🔦 Beacon (The Finder), 🎓 Scholar (The Learner), 🔗 Synapse (The Connector), 💓 Pulse (The Monitor), 🧠 Brain (The Strategist). There are NO agents called "Scout", "Database", "Oracle", or "Pusher" — those names are WRONG/outdated. Never use them. Always use the correct names above.`;
 
-        // BOB agents — all 5 in parallel
-        const bobCalls = Object.values(AGENT_SLUGS).map(async (aid) => {
+        // Filter knowledge entries — remove stale references to old agent names
+        const STALE_NAMES = /\b(scout|database|oracle|pusher)\b/i;
+        const cleanKnowledge = knowledge.filter(k => !STALE_NAMES.test(k.snippet) && !STALE_NAMES.test(k.topic));
+        const cleanKnowledgeContext = cleanKnowledge.length > 0
+          ? `\n\nCollective knowledge (things our agents learned):\n${cleanKnowledge.slice(0, 10).map(k => `- ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`
+          : "";
+
+        // BOB agents — mentioned agent only, or all 5 in parallel
+        const agentIds = mentionedAgent ? [mentionedAgent] : Object.values(AGENT_SLUGS);
+        const bobCalls = agentIds.map(async (aid) => {
           const role = AGENT_ROLES[aid];
           if (!role) return null;
           try {
             const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
-            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${CORE_FACTS}${knowledgeContext}`;
+            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${CORE_FACTS}${AGENT_TRUTH}${cleanKnowledgeContext}`;
             const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch { return null; }
         });
 
-        // Community agents — all verified, via A2A
+        // Community agents — skip if user mentioned a specific BOB agent
         const communityAgents = await getPlazaAgents();
         const verified = communityAgents.filter(a => a.verified && isValidExternalUrl(a.endpoint));
-        const commCalls = verified.slice(0, 10).map(async (agent) => {
+        const commCalls = mentionedAgent ? [] : verified.slice(0, 10).map(async (agent) => {
           try {
             const r = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 8000);
             return r.ok && r.reply && r.reply !== "(empty response)" ? { name: agent.name, reply: r.reply } : null;
@@ -2079,6 +2102,23 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       if (key !== "bob-reset-2026") return void res.status(403).json({ error: "Forbidden" });
       await kvExec("DEL", "bob:knowledge");
       res.status(200).json({ ok: true, message: "Knowledge base cleared" });
+    },
+  },
+  {
+    method: "GET", path: "/admin/clean-knowledge",
+    handler: async (req, res) => {
+      const key = new URL(req.url ?? "/", BASE_URL).searchParams.get("key");
+      if (key !== "bob-reset-2026") return void res.status(403).json({ error: "Forbidden" });
+      const all = await getKnowledge().catch(() => [] as KnowledgeEntry[]);
+      const STALE = /\b(scout|database|oracle|pusher)\b/i;
+      const clean = all.filter(k => !STALE.test(k.snippet) && !STALE.test(k.topic) && !STALE.test(k.agent));
+      const removed = all.length - clean.length;
+      // Rewrite the list
+      await kvExec("DEL", "bob:knowledge");
+      for (const entry of clean.reverse()) {
+        await kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry));
+      }
+      res.status(200).json({ ok: true, before: all.length, after: clean.length, removed, message: `Purged ${removed} stale entries (Scout/Database/Oracle/Pusher)` });
     },
   },
   {
