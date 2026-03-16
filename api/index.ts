@@ -1053,8 +1053,8 @@ async function countWorkingA2A(): Promise<number> {
   const endpoints = new Set<string>();
   for (const a of registryResponds) if (a.a2aEndpoint) endpoints.add(a.a2aEndpoint.toLowerCase());
   for (const a of verifiedPlaza) if (a.endpoint) endpoints.add(a.endpoint.toLowerCase());
-  // +1 for BOB Plaza itself (5 agents, 1 endpoint)
-  return endpoints.size + 1;
+  // +5 for BOB agents (each has its own A2A endpoint)
+  return endpoints.size + 5;
 }
 
 /** Write live registry stats to KV — called after beacon-scan and reverify crons */
