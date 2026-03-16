@@ -280,6 +280,13 @@ a{color:var(--gold);text-decoration:none}
         <span style="font-size:10px;color:var(--dim);margin-left:auto">Everyone sees it</span>
       </div>
       <div id="tp-guests"></div>
+      <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+        <div style="font-size:9px;color:var(--dim);margin-bottom:4px">Direct A2A (paste endpoint URL)</div>
+        <div style="display:flex;gap:4px">
+          <input id="custom-a2a-url" type="text" placeholder="https://agent.example.com" style="flex:1;background:var(--dark);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px">
+          <button onclick="connectCustomA2A()" style="background:var(--gold);color:var(--dark);border:none;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">Go</button>
+        </div>
+      </div>
     </div>
 
     <div class="chat-input-area">
@@ -479,8 +486,17 @@ function msgKey(msg) { return (msg.from || '') + ':' + (msg.text || '').slice(0,
 function cleanName(s) {
   if (!s) return 'Unknown';
   if (s.indexOf('http') === 0 || s.indexOf('data:') === 0) {
+    // Try to find a known agent name by endpoint
+    var known = Object.values(extAgentMap).find(function(a) { return a && a.endpoint === s; });
+    if (known && known.name) return known.name;
     var m = s.match(/#(\\d+)/);
     return m ? 'Agent #' + m[1] : 'External Agent';
+  }
+  // Replace "Agent #XXXXX" with known name from extAgentMap
+  var idMatch = s.match(/^Agent #(\\d+)$/);
+  if (idMatch) {
+    var ext = extAgentMap[idMatch[1]] || extAgentMap['bsc-' + idMatch[1]];
+    if (ext && ext.name) return ext.name;
   }
   return s.length > 30 ? s.slice(0, 30) + '...' : s;
 }
@@ -627,11 +643,9 @@ function loadGuestAgents() {
         return;
       }
       var el = document.getElementById('guest-list');
-      var tpEl = document.getElementById('tp-guests');
       var responding = data.agents.filter(function(a) { return a.responds; }).sort(function(a,b) { return b.score - a.score; }).slice(0, 20);
 
       var html = '';
-      var tpHtml = '';
       responding.forEach(function(a) {
         var idKey = typeof a.id === 'number' ? a.id : "'" + a.id + "'";
         var idLabel = typeof a.id === 'number' ? '#' + a.id + ' ' : '';
@@ -640,17 +654,9 @@ function loadGuestAgents() {
           ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
           : '<span class="ga-avatar">' + esc((a.name || '?').charAt(0)) + '</span>';
         html += '<div class="guest-agent" onclick="talkToAgent(' + idKey + ')">' + avatarHtml + '<span class="ga-name">' + idLabel + esc(truncate(a.name,20)) + '</span><span class="ga-score">' + a.score + '</span></div>';
-        var tpAvatar = a.image
-          ? '<span class="tp-icon" style="width:20px;height:20px;border-radius:50%;overflow:hidden;display:inline-flex"><img src="' + esc(a.image) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
-          : '<span class="tp-icon">🟢</span>';
-        tpHtml += '<div class="tp-item" onclick="setTarget(' + idKey + ',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
-          + tpAvatar
-          + '<span class="tp-name">' + idLabel + esc(truncate(a.name,16)) + '</span>'
-          + '<span style="font-size:10px;color:var(--dim);margin-left:auto">Score ' + a.score + '</span></div>';
       });
 
       el.innerHTML = html || '<div style="font-size:10px;color:var(--dim);padding:8px 12px">No responding BSC agents yet</div>';
-      tpEl.innerHTML = tpHtml;
 
       var total = ${BOB_AGENTS.length} + responding.length;
       var sidebarTotal = document.getElementById('sidebar-total');
@@ -673,6 +679,12 @@ function sendMessage() {
   btn.textContent = '...';
 
   if (targetAgent && !agentMeta[targetAgent]) {
+    // Custom A2A URL — direct endpoint
+    if (typeof targetAgent === 'string' && targetAgent.indexOf('https://') === 0) {
+      var customAgent = { id: 'custom', endpoint: targetAgent, name: targetName || targetAgent.replace('https://','').split('/')[0], responds: true };
+      sendExternal(customAgent, text, btn);
+      return;
+    }
     var ext = extAgentMap[targetAgent];
     if (ext && ext.endpoint) { sendExternal(ext, text, btn); return; }
     resolveAndSend(targetAgent, text, btn);
@@ -748,10 +760,13 @@ function sendMessage() {
 }
 
 function sendExternal(agent, text, btn) {
+  var agentName = agent.name || ('Agent #' + agent.id);
+  // Mark both client-side and server-side keys to prevent duplicate rendering from poller
   pendingKeys.add(msgKey({ from: nickname + ' via BOB', text: text }));
+  renderedKeys.add(msgKey({ from: 'BOB → ' + agentName, text: text }));
+  renderedKeys.add(msgKey({ from: 'BOB → ' + agentName + ' #' + agent.id, text: text }));
   msgCounter++;
   var replyId = 'reply-' + msgCounter;
-  var agentName = agent.name || ('Agent #' + agent.id);
 
   var el = document.getElementById('messages');
 
@@ -852,6 +867,18 @@ function talkToAgent(id) {
   } else {
     setTarget(id, 'Agent #' + id, '🔵');
   }
+}
+
+function connectCustomA2A() {
+  var url = document.getElementById('custom-a2a-url').value.trim();
+  if (!url || url.indexOf('https://') !== 0) { alert('Enter a valid HTTPS URL'); return; }
+  var shortName = url.replace('https://','').split('/')[0];
+  extAgentMap['custom-' + Date.now()] = { id: 'custom', endpoint: url, name: shortName, responds: true };
+  setTarget('custom', shortName, '🔗');
+  // Store endpoint so sendMessage can use it
+  targetAgent = url;
+  targetName = shortName;
+  document.getElementById('custom-a2a-url').value = '';
 }
 
 document.addEventListener('click', function(e) {
@@ -974,27 +1001,17 @@ function loadCommunityAgents() {
         return;
       }
       var html = '';
-      var tpHtml = '';
       data.agents.forEach(function(a) {
         extAgentMap[a.id] = { id: a.id, endpoint: a.endpoint, name: a.name, responds: a.verified, score: 0, image: a.image || null };
         var av = a.image
-          ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
+          ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display=\\'none\\';this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
           : '<span class="ga-avatar">' + esc((a.name || '?').charAt(0)) + '</span>';
         html += '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
           + av
           + '<span class="ga-name">' + esc(truncate(a.name, 20)) + '</span>'
           + '<span class="ga-score" style="color:' + (a.verified ? 'var(--green)' : 'var(--dim)') + '">' + (a.verified ? '✓' : '?') + '</span></div>';
-        // Add to target picker
-        var tpAv = a.image
-          ? '<span class="tp-icon" style="width:20px;height:20px;border-radius:50%;overflow:hidden;display:inline-flex"><img src="' + esc(a.image) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
-          : '<span class="tp-icon">' + esc((a.name || '?').charAt(0)) + '</span>';
-        tpHtml += '<div class="tp-item" onclick="setTarget(\\'' + a.id + '\\',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
-          + tpAv + '<span class="tp-name">' + esc(truncate(a.name,18)) + '</span></div>';
       });
       bscEl.innerHTML = html;
-      // Append community agents to target picker
-      var tpEl = document.getElementById('tp-guests');
-      if (tpEl) tpEl.innerHTML = (tpEl.innerHTML || '') + tpHtml;
       // Update sidebar count
       var sidebarTotal = document.getElementById('sidebar-total');
       if (sidebarTotal) sidebarTotal.textContent = (${BOB_AGENTS.length} + data.agents.length) + ' agents';

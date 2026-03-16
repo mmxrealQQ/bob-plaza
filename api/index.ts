@@ -1806,7 +1806,13 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       if (!isValidExternalUrl(endpoint)) return void res.status(400).json({ error: "Invalid endpoint", reply: "That's not a valid external A2A endpoint." });
 
       const agent = agentId ? lookupAgent(agentId) : null;
-      const agentName = agent ? `${agent.name} #${agentId}` : (endpoint.length > 60 ? endpoint.slice(0, 57) + "..." : endpoint);
+      // Also check community agents for the name
+      let agentName = agent ? agent.name : null;
+      if (!agentName) {
+        const community = await getPlazaAgents();
+        const found = community.find(a => a.endpoint === endpoint || a.id === String(agentId));
+        agentName = found?.name || (endpoint.length > 60 ? endpoint.slice(0, 57) + "..." : endpoint);
+      }
 
       const result = await sendA2AMessage(endpoint, String(message));
       await logChat(`BOB → ${agentName}`, agentName, String(message), result.reply, "a2a-outbound");
