@@ -1004,11 +1004,11 @@ async function storeKnowledge(agentName: string, topic: string, snippet: string)
   if (!snippet || snippet.length < 20) return;
   const entry: KnowledgeEntry = { ts: Date.now(), agent: agentName, topic, snippet: snippet.slice(0, 300) };
   await kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry));
-  await kvExec("LTRIM", "bob:knowledge", 0, 99);
+  await kvExec("LTRIM", "bob:knowledge", 0, 999);
 }
 
 async function getKnowledge(): Promise<KnowledgeEntry[]> {
-  const raw = await kvExec("LRANGE", "bob:knowledge", 0, 99);
+  const raw = await kvExec("LRANGE", "bob:knowledge", 0, 999);
   if (!raw || !Array.isArray(raw)) return [];
   return raw.map((s: string) => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
 }
