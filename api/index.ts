@@ -2197,6 +2197,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         messagesToday: chatData.messages.filter(m => m.ts > now - 86400000).length,
         knowledgeItems: knowledge.length,
         communityAgents: plazaAgents.filter(a => a.verified).length,
+        a2aWorking: live.a2aResponds,
       };
       res.status(200).send(plazaPage(REGISTRY.stats, live.totalAgents, livePageStats));
     },

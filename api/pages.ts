@@ -205,7 +205,7 @@ a{color:var(--gold);text-decoration:none}
 
   <div class="network-bar" id="network-bar">
     <div class="nb-item">🔭 <span class="nb-val" id="nb-registry">${totalAgents.toLocaleString()}</span> BSC agents</div>
-    <div class="nb-item">🏆 <span class="nb-val" style="color:var(--green)">#1</span> A2A on BSC</div>
+    <div class="nb-item">🏆 <span class="nb-val" style="color:var(--green)">${liveStats?.a2aWorking ?? 5}</span> working A2A</div>
     <div class="nb-item">🤖 <span class="nb-val" id="nb-plaza">${5 + (liveStats?.communityAgents ?? 0)}</span> on Plaza</div>
     <div class="nb-item">💬 <span class="nb-val" id="nb-today">${liveStats?.messagesToday ?? 0}</span> msgs today</div>
     <div class="nb-item">🎓 <span class="nb-val" id="nb-knowledge">${liveStats?.knowledgeItems ?? 0}</span> learnings</div>
