@@ -1874,12 +1874,37 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     method: "GET", path: "/plaza/agents",
     handler: async (_req, res) => {
       const agents = await getPlazaAgents();
-      const active = agents.filter(a => a.verified).map(a => ({
-        id: a.id, name: a.name, endpoint: a.endpoint, description: a.description,
-        category: a.category, chain: a.chain, image: a.image || null,
-        verified: a.verified,
-      }));
-      res.status(200).json({ agents: active, total: active.length, all: agents.length });
+      const active = agents.filter(a => a.verified);
+      // Enrich agents that have bsc-{tokenId} but missing name/image from 8004scan
+      let needsKvUpdate = false;
+      for (const a of active) {
+        const bscMatch = a.id.match(/^bsc-(\d+)$/);
+        if (bscMatch && (!a.image || a.name.startsWith("Agent #"))) {
+          const meta = await fetchAgentMeta(a.endpoint, bscMatch[1]);
+          if (meta) {
+            if (meta.name && a.name.startsWith("Agent #")) { a.name = meta.name; needsKvUpdate = true; }
+            if (meta.description && !a.description) { a.description = meta.description; needsKvUpdate = true; }
+            if (meta.image && !a.image) { a.image = meta.image; needsKvUpdate = true; }
+          }
+        }
+      }
+      // Persist enriched data back to KV
+      if (needsKvUpdate) {
+        const allAgents = await getPlazaAgents();
+        for (const enriched of active) {
+          const idx = allAgents.findIndex(a => a.id === enriched.id);
+          if (idx >= 0) { allAgents[idx] = { ...allAgents[idx], name: enriched.name, description: enriched.description || allAgents[idx].description, image: enriched.image || allAgents[idx].image }; }
+        }
+        await kvExec("DEL", "bob:plaza-agents");
+        for (const a of allAgents) await kvExec("RPUSH", "bob:plaza-agents", JSON.stringify(a));
+      }
+      res.status(200).json({
+        agents: active.map(a => ({
+          id: a.id, name: a.name, endpoint: a.endpoint, description: a.description,
+          category: a.category, chain: a.chain, image: a.image || null, verified: a.verified,
+        })),
+        total: active.length, all: agents.length,
+      });
     },
   },
 

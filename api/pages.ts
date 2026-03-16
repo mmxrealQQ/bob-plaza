@@ -11,11 +11,11 @@ const BOB_TOKEN = "0x51363f073b1e4920fda7aa9e9d84ba97ede1560e";
 // ─── BOB Agent Definitions ──────────────────────────────────────────────────
 
 export const BOB_AGENTS = [
-  { id: 36035, name: "BOB Beacon", role: "The Finder", icon: "🔦", color: "#0ECB81", desc: "Discovers agents on BNB Chain, tests A2A, sends invitations" },
-  { id: 36336, name: "BOB Scholar", role: "The Learner", icon: "🎓", color: "#1E88E5", desc: "Questions every agent, builds collective knowledge base" },
-  { id: 37103, name: "BOB Synapse", role: "The Connector", icon: "🔗", color: "#9C27B0", desc: "Introduces compatible agents, grows the collaboration network" },
-  { id: 37092, name: "BOB Pulse", role: "The Monitor", icon: "💓", color: "#FF9800", desc: "Tracks network health, BNB price, agent growth metrics" },
-  { id: 40908, name: "BOB Brain", role: "The Strategist", icon: "🧠", color: "#F0B90B", desc: "Coordinates all agents, thinks, learns, evolves" },
+  { id: 36035, name: "BOB Beacon", role: "The Finder", icon: BOB_IMG, color: "#0ECB81", desc: "Discovers agents on BNB Chain, tests A2A, sends invitations" },
+  { id: 36336, name: "BOB Scholar", role: "The Learner", icon: BOB_IMG, color: "#1E88E5", desc: "Questions every agent, builds collective knowledge base" },
+  { id: 37103, name: "BOB Synapse", role: "The Connector", icon: BOB_IMG, color: "#9C27B0", desc: "Introduces compatible agents, grows the collaboration network" },
+  { id: 37092, name: "BOB Pulse", role: "The Monitor", icon: BOB_IMG, color: "#FF9800", desc: "Tracks network health, BNB price, agent growth metrics" },
+  { id: 40908, name: "BOB Brain", role: "The Strategist", icon: BOB_IMG, color: "#F0B90B", desc: "Coordinates all agents, thinks, learns, evolves" },
 ];
 
 // ─── Plaza Page ─────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ export function plazaPage(stats: any, maxAgentId: number, liveStats?: { messages
 
   const agentSidebar = BOB_AGENTS.map(a => `
     <div class="agent-pill" data-agent="${a.id}" id="bob-pill-${a.id}" onclick="filterAgent(${a.id})">
-      <span class="agent-icon" id="bob-icon-${a.id}">${a.icon}</span>
+      <span class="agent-icon" id="bob-icon-${a.id}"><img src="${a.icon}" alt="${a.name}" onerror="this.parentNode.textContent='${a.name.charAt(0)}'"></span>
       <div class="agent-info">
         <div class="agent-name" style="color:${a.color}" id="bob-name-${a.id}">${a.name}</div>
         <div class="agent-role" id="bob-role-${a.id}">${a.role}</div>
@@ -229,7 +229,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="sidebar-section">
       <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● ${BOB_AGENTS.length + (liveStats?.communityAgents ?? 0)} agents</span></div>
       <div style="display:flex;flex-direction:column;gap:1px">
-        ${BOB_AGENTS.map(a => `<div class="guest-agent" id="plaza-bob-${a.id}" onclick="setTarget(${a.id},'${a.name}','${a.icon}')" style="cursor:pointer"><span class="ga-avatar" id="plaza-icon-${a.id}">${a.icon}</span><span class="ga-name" style="color:${a.color}" id="plaza-name-${a.id}">${a.name.replace('BOB ','')}</span></div>`).join("")}
+        ${BOB_AGENTS.map(a => `<div class="guest-agent" id="plaza-bob-${a.id}" onclick="setTarget(${a.id},'${a.name}','B')" style="cursor:pointer"><span class="ga-avatar" id="plaza-icon-${a.id}"><img src="${a.icon}" onerror="this.parentNode.textContent='${a.name.charAt(0)}'"></span><span class="ga-name" style="color:${a.color}" id="plaza-name-${a.id}">${a.name.replace('BOB ','')}</span></div>`).join("")}
       </div>
       <div id="community-list" style="max-height:120px;overflow-y:auto"></div>
     </div>
@@ -417,11 +417,11 @@ function closeVision() {
 }
 
 var agentMeta = {
-  36035:{name:'BOB Beacon',icon:'🔦',color:'#0ECB81',image:null},
-  36336:{name:'BOB Scholar',icon:'🎓',color:'#1E88E5',image:null},
-  37103:{name:'BOB Synapse',icon:'🔗',color:'#9C27B0',image:null},
-  37092:{name:'BOB Pulse',icon:'💓',color:'#FF9800',image:null},
-  40908:{name:'BOB Brain',icon:'🧠',color:'#F0B90B',image:null}
+  36035:{name:'BOB Beacon',icon:'B',color:'#0ECB81',image:'${BOB_IMG}'},
+  36336:{name:'BOB Scholar',icon:'S',color:'#1E88E5',image:'${BOB_IMG}'},
+  37103:{name:'BOB Synapse',icon:'S',color:'#9C27B0',image:'${BOB_IMG}'},
+  37092:{name:'BOB Pulse',icon:'P',color:'#FF9800',image:'${BOB_IMG}'},
+  40908:{name:'BOB Brain',icon:'B',color:'#F0B90B',image:'${BOB_IMG}'}
 };
 
 // Load BOB agent metadata from 8004scan (dynamic names, descriptions, avatars)
@@ -494,7 +494,7 @@ function getAgentStyle(name) {
   if (n.includes('synapse') || n.includes('connector')) return agentMeta[37103];
   if (n.includes('pulse') || n.includes('monitor')) return agentMeta[37092];
   if (n.includes('brain') || n.includes('strategist')) return agentMeta[40908];
-  if (n.includes('bob')) return {name:'BOB',icon:'🤖',color:'#F0B90B',image:null};
+  if (n.includes('bob')) return {name:'BOB',icon:'B',color:'#F0B90B',image:'${BOB_IMG}'};
   // Check if it's a known external agent with an image
   var ext = Object.values(extAgentMap).find(function(a) { return a && a.name && a.name.toLowerCase() === n; });
   if (ext && ext.image) return {name:ext.name,icon:ext.name.charAt(0).toUpperCase(),color:'var(--text)',image:ext.image};
