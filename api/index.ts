@@ -1141,6 +1141,36 @@ async function generateAgentActivity(agentId: number): Promise<{ from: string; t
     },
   };
 
+  // 30% chance: inter-agent conversation instead of solo status post
+  // LLM decides what to ask — nothing hardcoded
+  if (Math.random() < 0.3) {
+    const agent = AGENT_ROLES[agentId];
+    if (!agent) return generators[agentId]?.() ?? null;
+
+    // Pick a random teammate (not self)
+    const teammates = Object.entries(AGENT_SLUGS).filter(([, id]) => id !== agentId);
+    const [targetSlug, targetId] = teammates[Math.floor(Math.random() * teammates.length)];
+    const targetName = AGENT_ROLES[targetId]?.name || "teammate";
+    const targetEndpoint = `${BASE_URL}/a2a/${targetSlug}`;
+
+    // Let the LLM generate the question — no hardcoded prompts
+    const question = await callLLM(
+      `You are about to talk to ${targetName} (${AGENT_ROLES[targetId]?.role}). Generate ONE short question to ask them that helps you do your job better as ${agent.name} (${agent.role}). Just the question, nothing else.`,
+      agentId
+    );
+    if (!question || question.length < 10) return generators[agentId]?.() ?? null;
+
+    // Send via A2A to teammate
+    const result = await sendA2AMessage(targetEndpoint, question, agent.name, 15000);
+    if (result.ok && result.reply.length > 20) {
+      await logChat(agent.name, targetName, `💬 ${question}`, result.reply, "inter-agent");
+      // Store as knowledge so all agents benefit
+      await storeKnowledge(`${agent.name} → ${targetName}`, question, result.reply);
+      return { from: agent.name, text: `💬 Asked ${targetName}: "${question.slice(0, 120)}"`, reply: result.reply.slice(0, 300) };
+    }
+    // Fallback to solo post if A2A fails
+  }
+
   return generators[agentId]?.() ?? null;
 }
 
