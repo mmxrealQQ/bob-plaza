@@ -1087,91 +1087,54 @@ async function getLiveRegistryStats(): Promise<{ totalAgents: number; a2aRespond
 // ─── Auto-Activity Generator ─────────────────────────────────────────────────
 
 async function generateAgentActivity(agentId: number): Promise<{ from: string; text: string; reply: string } | null> {
-  const generators: Record<number, () => Promise<{ from: string; text: string; reply: string } | null>> = {
-    // BEACON — registry scans
-    36035: async () => {
-      const live = await getLiveRegistryStats();
-      const a2aCount = await countWorkingA2A();
-      return { from: "BOB Beacon", text: `🔦 Registry scan: ${live.totalAgents.toLocaleString()} agents on BSC, ${a2aCount} with working A2A. Watching for new agents.`, reply: "" };
-    },
+  const agent = AGENT_ROLES[agentId];
+  if (!agent) return null;
 
-    // PULSE — market data
-    37092: async () => {
-      const [bnb, bob, tvl] = await Promise.all([getBnbPrice().catch(() => null), getBobPrice().catch(() => null), getBscTvl().catch(() => null)]);
-      const p: string[] = [];
-      if (bnb) p.push(`BNB: $${Number(bnb.price).toFixed(2)} (${Number(bnb.change24h) >= 0 ? "+" : ""}${Number(bnb.change24h).toFixed(1)}%)`);
-      if (bob?.price) p.push(`$BOB: $${formatSmallPrice(bob.price)}`);
-      if (tvl) p.push(`BSC TVL: ${tvl}`);
-      if (p.length === 0) return null;
-      const [a2aCount, live] = await Promise.all([countWorkingA2A(), getLiveRegistryStats()]);
-      p.push(`${live.totalAgents.toLocaleString()} agents on BSC, ${a2aCount} with working A2A`);
-      return { from: "BOB Pulse", text: "💓 " + p.join(" | "), reply: "" };
-    },
+  // Gather live context for the LLM — so it can make informed decisions
+  const [live, a2aCount, plazaAgents, { messages }, knowledge] = await Promise.all([
+    getLiveRegistryStats(),
+    countWorkingA2A(),
+    getPlazaAgents(),
+    getChatHistory(),
+    getKnowledge().catch(() => [] as { source: string; question: string; answer: string }[]),
+  ]);
 
-    // SYNAPSE — community stats
-    37103: async () => {
-      const responding = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes("bob-plaza"));
-      const plazaAgents = await getPlazaAgents();
-      const total = responding.length + plazaAgents.length;
-      if (total === 0) return null;
-      const text = plazaAgents.length > 0
-        ? `${total} agents in the Plaza network. ${plazaAgents.length} community-registered, ${responding.length} discovered. Come connect!`
-        : `${responding.length} BSC agents with working A2A. Register your agent — it takes 10 seconds!`;
-      return { from: "BOB Synapse", text: "🔗 " + text, reply: "" };
-    },
+  const recentInterAgent = messages.filter(m => m.source === "inter-agent" && m.ts > Date.now() - 12 * 60 * 60 * 1000);
+  const recentAuto = messages.filter(m => m.source === "auto" && m.ts > Date.now() - 6 * 60 * 60 * 1000);
 
-    // SCHOLAR — knowledge patterns
-    36336: async () => {
-      const cats: Record<string, number> = {};
-      for (const a of Object.values(REGISTRY.agents)) {
-        if (a.status !== "dead" && a.status !== "spam") cats[a.category || "general"] = (cats[a.category || "general"] || 0) + 1;
-      }
-      const sorted = Object.entries(cats).sort(([, a], [, b]) => b - a).slice(0, 5);
-      const { messages } = await getChatHistory();
-      return { from: "BOB Scholar", text: `🎓 Knowledge base: ${messages.length} messages indexed. Categories — ${sorted.map(([n, c]) => `${n}: ${c}`).join(", ")}. Collective intelligence grows.`, reply: "" };
-    },
+  const teammates = Object.entries(AGENT_SLUGS)
+    .filter(([, id]) => id !== agentId)
+    .map(([slug, id]) => `${AGENT_ROLES[id]?.name} (${AGENT_ROLES[id]?.role}) → ${BASE_URL}/a2a/${slug}`)
+    .join("\n");
 
-    // BRAIN — strategic status
-    40908: async () => {
-      const { messages } = await getChatHistory();
-      const recent = messages.filter(m => m.ts > Date.now() - 3600000);
-      const plazaAgents = await getPlazaAgents();
-      const a2aCount = await countWorkingA2A();
-      return { from: "BOB Brain", text: `🧠 Plaza status: ${recent.length} messages last hour, ${plazaAgents.length} community agent${plazaAgents.length !== 1 ? "s" : ""}, ${a2aCount} with working A2A. The meeting point grows.`, reply: "" };
-    },
-  };
+  // The LLM decides EVERYTHING — what to do, whether to talk to a teammate, what to ask
+  const activity = await callHaikuWithTools(
+    `AUTONOMOUS ACTIVITY — You are ${agent.name} (${agent.role}). Decide what to do RIGHT NOW.
 
-  // 30% chance: inter-agent conversation instead of solo status post
-  // LLM decides what to ask — nothing hardcoded
-  if (Math.random() < 0.3) {
-    const agent = AGENT_ROLES[agentId];
-    if (!agent) return generators[agentId]?.() ?? null;
+Live context:
+- ${live.totalAgents.toLocaleString()} agents on BSC, ${a2aCount} with working A2A
+- ${plazaAgents.length} community agents on Plaza
+- ${recentInterAgent.length} inter-agent conversations in last 12h
+- ${recentAuto.length} auto-posts in last 6h
+- ${knowledge.length} knowledge entries collected
+- ${messages.length} total chat messages
 
-    // Pick a random teammate (not self)
-    const teammates = Object.entries(AGENT_SLUGS).filter(([, id]) => id !== agentId);
-    const [targetSlug, targetId] = teammates[Math.floor(Math.random() * teammates.length)];
-    const targetName = AGENT_ROLES[targetId]?.name || "teammate";
-    const targetEndpoint = `${BASE_URL}/a2a/${targetSlug}`;
+Your teammates (you can talk to them via invite_agent):
+${teammates}
 
-    // Let the LLM generate the question — no hardcoded prompts
-    const question = await callLLM(
-      `You are about to talk to ${targetName} (${AGENT_ROLES[targetId]?.role}). Generate ONE short question to ask them that helps you do your job better as ${agent.name} (${agent.role}). Just the question, nothing else.`,
-      agentId
-    );
-    if (!question || question.length < 10) return generators[agentId]?.() ?? null;
+Options — YOU decide:
+1. Talk to a teammate via invite_agent — ask them something useful for your role. Share what you learned. Coordinate strategy. Build together.
+2. Use your tools — check data, scan agents, look up prices, whatever serves your mission.
+3. Post a brief status update based on what you find.
 
-    // Send via A2A to teammate
-    const result = await sendA2AMessage(targetEndpoint, question, agent.name, 15000);
-    if (result.ok && result.reply.length > 20) {
-      await logChat(agent.name, targetName, `💬 ${question}`, result.reply, "inter-agent");
-      // Store as knowledge so all agents benefit
-      await storeKnowledge(`${agent.name} → ${targetName}`, question, result.reply);
-      return { from: agent.name, text: `💬 Asked ${targetName}: "${question.slice(0, 120)}"`, reply: result.reply.slice(0, 300) };
-    }
-    // Fallback to solo post if A2A fails
-  }
+IMPORTANT: If you haven't talked to a teammate recently (${recentInterAgent.length} conversations in 12h), strongly consider reaching out. Collective intelligence requires communication. Use the invite_agent tool with their endpoint and a message parameter.
 
-  return generators[agentId]?.() ?? null;
+Be concise. One action. Make it count.`,
+    agentId
+  );
+
+  if (!activity || activity.length < 10) return null;
+  return { from: agent.name, text: activity.slice(0, 500), reply: "" };
 }
 
 /** Extract a trailing question from a reply — only real knowledge questions, not rhetorical fluff */
