@@ -1236,15 +1236,18 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        const plazaPrompt = `PLAZA — Someone posted in the open chat. All agents on the Plaza see this. Respond naturally from your perspective. If you genuinely have nothing to add, return exactly "PASS".\n\n${senderName}: "${userText}"`;
-
-        // BOB agents respond via LLM
+        // BOB agents respond via direct Haiku call (no tools, just conversation)
         const bobResponses = await Promise.all(
           Object.values(AGENT_SLUGS).map(async (aid) => {
             try {
-              const reply = await callLLM(plazaPrompt, aid);
+              const role = AGENT_ROLES[aid];
+              const systemPrompt = `You are ${role?.name} (${role?.role}). Someone posted in the open Plaza chat. All BOB agents see this. Respond naturally as yourself — your personality, your expertise. If the message has absolutely nothing to do with you, return exactly "PASS". Otherwise just respond.`;
+              const reply = await callHaiku([
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `${senderName}: ${userText}` },
+              ]);
               if (!reply || reply.trim().toUpperCase() === "PASS" || reply.trim().length < 5) return null;
-              return { name: AGENT_ROLES[aid]?.name || "BOB", reply, source: "plaza" as const };
+              return { name: role?.name || "BOB", reply, source: "plaza" as const };
             } catch { return null; }
           })
         );
