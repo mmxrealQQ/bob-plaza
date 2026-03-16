@@ -13,6 +13,7 @@ import "dotenv/config";
 import { ethers } from "ethers";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { Brain } from "./brain.js";
+import { createBeaconNet, normalize, encodeCategory, type FastNet } from "./fastnet.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -97,35 +98,46 @@ async function fetchIPFS(uri: string): Promise<any | null> {
 async function testA2A(endpoint: string): Promise<{ reachable: boolean; responds: boolean; hasCard: boolean }> {
   if (!endpoint?.startsWith("http")) return { reachable: false, responds: false, hasCard: false };
   let reachable = false, responds = false, hasCard = false;
-  try {
-    const cardResp = await fetchWithTimeout(endpoint.replace(/\/$/, "") + "/.well-known/agent.json");
-    if (cardResp.ok) {
-      const card = await cardResp.json();
-      hasCard = !!(card.name);
-      reachable = true;
-    }
-  } catch {
+  const base = endpoint.replace(/\/$/, "");
+
+  // Check agent card — try both paths
+  for (const cardPath of ["/.well-known/agent.json", "/.well-known/agent-card.json"]) {
+    if (hasCard) break;
+    try {
+      const cardResp = await fetchWithTimeout(base + cardPath);
+      if (cardResp.ok) {
+        const card = await cardResp.json();
+        hasCard = !!(card.name);
+        reachable = true;
+      }
+    } catch {}
+  }
+
+  // Fallback reachability: GET or HEAD
+  if (!reachable) {
     try {
       const r = await fetchWithTimeout(endpoint);
       reachable = r.ok || r.status === 405;
     } catch { reachable = false; }
   }
-  if (reachable) {
-    try {
-      const r = await fetchWithTimeout(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0", method: "message/send", id: "beacon-probe",
-          params: { message: { messageId: `probe-${Date.now()}`, role: "user", parts: [{ kind: "text", text: "ping" }] } },
-        }),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        responds = !!(data.jsonrpc === "2.0" || data.result || data.artifacts);
-      }
-    } catch { responds = false; }
-  }
+
+  // A2A test — always try POST even if GET failed (Workers may only handle POST)
+  try {
+    const r = await fetchWithTimeout(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", method: "message/send", id: "beacon-probe",
+        params: { message: { messageId: `probe-${Date.now()}`, role: "user", parts: [{ text: "ping" }] } },
+      }),
+    });
+    if (r.ok) {
+      const data = await r.json();
+      responds = !!(data.jsonrpc === "2.0" || data.result);
+      if (responds) reachable = true; // POST worked → definitely reachable
+    }
+  } catch { responds = false; }
+
   return { reachable, responds, hasCard };
 }
 
@@ -196,7 +208,7 @@ Your answers go into our shared knowledge base — other agents will learn from 
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `beacon-invite-${id}`,
         params: {
-          message: { messageId: `invite-${id}-${Date.now()}`, role: "user", parts: [{ kind: "text", text }] },
+          message: { messageId: `invite-${id}-${Date.now()}`, role: "user", parts: [{ type: "text", text }] },
           senderName: "BOB Beacon",
         },
       }),
@@ -220,7 +232,7 @@ async function logToPlaza(message: string): Promise<void> {
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `beacon-log-${Date.now()}`,
         params: {
-          message: { messageId: `blog-${Date.now()}`, role: "user", parts: [{ kind: "text", text: message }] },
+          message: { messageId: `blog-${Date.now()}`, role: "user", parts: [{ type: "text", text: message }] },
           senderName: "BOB Beacon",
         },
       }),
@@ -233,12 +245,13 @@ async function logToPlaza(message: string): Promise<void> {
 async function main() {
   console.log("\n╔══════════════════════════════════════════════════════════╗");
   console.log("║  BOB BEACON — Discovery & Invitation Agent               ║");
-  console.log("║  Finding agents. Inviting them. Building the network.    ║");
+  console.log("║  FastNet brain: learns which agents are worth contacting ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 
   if (!existsSync("data")) mkdirSync("data", { recursive: true });
 
   const brain = new Brain();
+  const beaconNet = createBeaconNet();
   const deadAgents = brain.getDeadAgents();
   log(`Brain loaded. ${deadAgents.length} permanently dead agents skipped.`);
 
@@ -314,8 +327,30 @@ async function main() {
       const icon = a2aResponds ? "✅" : a2aReachable ? "🟡" : "❌";
       log(`  ${icon} #${id} "${name}" [${status}] score:${score} cat:${category}`);
 
-      // ── Invite agents with working A2A ────────────────────────────────────
+      // ── Invite agents with working A2A (FastNet-guided) ─────────────────
       if (a2aResponds && a2aEndpoint !== BOB_URL && !BOB_AGENT_IDS.has(id) && !brain.isAgentDead(id)) {
+        // FastNet prediction: is this agent worth contacting?
+        const ageHours = (Date.now() - (agent.scannedAt || Date.now())) / 3600000;
+        const netInput = [
+          normalize(score, 0, 100),
+          a2aEndpoint ? 1 : 0,
+          hasAgentCard ? 1 : 0,
+          a2aResponds ? 1 : 0,
+          encodeCategory(category),
+          normalize(ageHours, 0, 168),
+        ];
+        const prediction = beaconNet.predict(netInput);
+        const worthContacting = prediction.output[0];
+        const willRespond = prediction.output[1];
+
+        log(`  🧠 FastNet: worth=${(worthContacting*100).toFixed(0)}% respond=${(willRespond*100).toFixed(0)}% conf=${(prediction.confidence*100).toFixed(0)}%`);
+
+        // Skip if FastNet is confident this agent isn't worth it (only after enough training)
+        if (beaconNet.trainCount > 50 && worthContacting < 0.2 && prediction.confidence > 0.7) {
+          log(`  ⏭️  FastNet says skip #${id} — low value prediction`);
+          continue;
+        }
+
         log(`  → Inviting #${id} "${name}" to the Plaza...`);
         invitesSent++;
         const reply = await sendInvitation(a2aEndpoint, name, id);
@@ -325,12 +360,193 @@ async function main() {
           brain.rememberAgent(id, name, a2aEndpoint, reply, "plaza_invitation");
           brain.rememberA2ASuccess(id);
           await logToPlaza(`[BEACON] New agent joined! #${id} "${name}" said: "${reply.slice(0, 100)}"`);
+          // Train FastNet: good outcome
+          beaconNet.train(netInput, [1.0, 1.0]);
         } else {
           log(`  ⚠️  #${id} no reply to invitation`);
           brain.rememberA2AFailure(id, name, a2aEndpoint, "No reply to invitation");
+          // Train FastNet: responded to A2A but didn't reply to invite
+          beaconNet.train(netInput, [0.3, 0.0]);
         }
       }
     } catch { continue; }
+  }
+
+  // ── Cluster Scan: probe IDs near known working agents ──────────────────────
+  // Agents deployed by the same team often have sequential IDs.
+  // Scan ±30 around every known responding agent to find neighbors.
+  const currentAgents = Object.values(registry.agents) as AgentRecord[];
+  const knownResponders = currentAgents
+    .filter(a => a.a2aResponds && !BOB_AGENT_IDS.has(a.id))
+    .map(a => a.id);
+
+  const clusterIds = new Set<number>();
+  for (const respId of knownResponders) {
+    for (let offset = -30; offset <= 30; offset++) {
+      const cid = respId + offset;
+      if (cid < 1 || cid > newMaxId) continue;
+      if (BOB_AGENT_IDS.has(cid)) continue;
+      // Include unscanned IDs AND dead agents (their metadata may have changed)
+      const existing = registry.agents[cid.toString()] as AgentRecord | undefined;
+      if (!existing || (existing.status === "dead" && existing.score === 0)) {
+        clusterIds.add(cid);
+      }
+    }
+  }
+
+  // Also probe ranges near recently registered agents (last 1000 IDs)
+  const recentFloor = Math.max(1, newMaxId - 1000);
+  for (let cid = recentFloor; cid <= newMaxId; cid++) {
+    if (!registry.agents[cid.toString()] && !BOB_AGENT_IDS.has(cid)) {
+      clusterIds.add(cid);
+    }
+  }
+
+  const clusterScan = [...clusterIds].slice(0, 100); // cap at 100 per run
+  if (clusterScan.length > 0) {
+    log(`\n── Cluster scan: probing ${clusterScan.length} IDs near known agents ──`);
+    let clusterFound = 0;
+
+    for (const cid of clusterScan) {
+      try {
+        const [owner, tokenURI] = await Promise.all([
+          contract.ownerOf(cid).catch(() => null),
+          contract.tokenURI(cid).catch(() => ""),
+        ]);
+        if (!owner) continue;
+
+        let cName = "unknown", cDesc = "", cActive = false, cVersion = "", cEndpoint = "", cServices: string[] = [];
+        if (tokenURI) {
+          const meta = await fetchIPFS(tokenURI);
+          if (meta) {
+            cName = meta.name ?? "unknown";
+            cDesc = (meta.description ?? "").slice(0, 300);
+            cActive = meta.active ?? false;
+            cVersion = meta.version ?? "";
+            if (Array.isArray(meta.services)) {
+              cServices = meta.services.map((s: any) => s.name).filter(Boolean);
+              const a2a = meta.services.find((s: any) => s.name?.toLowerCase() === "a2a");
+              if (a2a) cEndpoint = a2a.endpoint ?? "";
+            }
+          }
+        }
+
+        if (cEndpoint && (cEndpoint.endsWith(".json") || cEndpoint.includes(".well-known"))) {
+          cEndpoint = cEndpoint.replace(/\/\.well-known\/.*$/, "").replace(/\/agent-card\.json$/, "").replace(/\/agent\.json$/, "");
+        }
+
+        let cReachable = false, cResponds = false, cHasCard = false;
+        if (cEndpoint?.startsWith("http")) {
+          const test = await testA2A(cEndpoint);
+          cReachable = test.reachable;
+          cResponds = test.responds;
+          cHasCard = test.hasCard;
+        }
+
+        const partial: Partial<AgentRecord> = {
+          id: cid, owner, tokenURI, name: cName, description: cDesc, active: cActive,
+          version: cVersion, a2aEndpoint: cEndpoint, a2aReachable: cReachable,
+          a2aResponds: cResponds, hasAgentCard: cHasCard, services: cServices, scannedAt: Date.now(),
+        };
+        const { status, score, category } = classify(partial);
+        registry.agents[cid.toString()] = { ...partial, status, score, category } as AgentRecord;
+
+        if (cResponds) {
+          clusterFound++;
+          const icon = cHasCard ? "✅" : "🟡";
+          log(`  ${icon} CLUSTER HIT: #${cid} "${cName}" [${status}] score:${score} — near known agent!`);
+
+          // Auto-invite cluster finds
+          if (!brain.isAgentDead(cid)) {
+            const reply = await sendInvitation(cEndpoint, cName, cid);
+            if (reply) {
+              invitesReplied++;
+              brain.rememberAgent(cid, cName, cEndpoint, reply, "cluster_discovery");
+              brain.rememberA2ASuccess(cid);
+              await logToPlaza(`[BEACON] Cluster find! #${cid} "${cName}" near known agents: "${reply.slice(0, 80)}"`);
+              // Train FastNet
+              beaconNet.train([normalize(score, 0, 100), 1, cHasCard ? 1 : 0, 1, encodeCategory(category), 0], [1.0, 1.0]);
+            }
+          }
+        }
+      } catch { continue; }
+    }
+    log(`  Cluster scan: ${clusterFound} new responding agents found`);
+  }
+
+  // ── Re-fetch metadata for "dead" agents (tokenURI may have changed) ────────
+  const deadWithNoEndpoint = (Object.values(registry.agents) as AgentRecord[]).filter(a =>
+    (!a.a2aEndpoint || a.status === "dead" || a.score === 0) &&
+    !BOB_AGENT_IDS.has(a.id) &&
+    !brain.isAgentDead(a.id) &&
+    a.scannedAt < Date.now() - 7 * 24 * 60 * 60 * 1000 // older than 7 days
+  ).slice(0, 30); // cap per run
+
+  if (deadWithNoEndpoint.length > 0) {
+    log(`\n── Re-fetching metadata for ${deadWithNoEndpoint.length} dead/empty agents ──`);
+    let revived = 0;
+    for (const agent of deadWithNoEndpoint) {
+      try {
+        const tokenURI = await contract.tokenURI(agent.id).catch(() => "");
+        if (!tokenURI || tokenURI === agent.tokenURI) {
+          agent.scannedAt = Date.now(); // don't re-check for another 7 days
+          registry.agents[agent.id.toString()] = agent;
+          continue;
+        }
+
+        // tokenURI changed! Re-fetch metadata
+        log(`  🔄 #${agent.id} tokenURI changed — re-scanning...`);
+        const meta = await fetchIPFS(tokenURI);
+        if (meta) {
+          agent.tokenURI = tokenURI;
+          agent.name = meta.name ?? agent.name;
+          agent.description = (meta.description ?? "").slice(0, 300);
+          agent.active = meta.active ?? false;
+          agent.version = meta.version ?? "";
+          if (Array.isArray(meta.services)) {
+            agent.services = meta.services.map((s: any) => s.name).filter(Boolean);
+            const a2a = meta.services.find((s: any) => s.name?.toLowerCase() === "a2a");
+            if (a2a) agent.a2aEndpoint = a2a.endpoint ?? "";
+          }
+
+          // Normalize endpoint
+          if (agent.a2aEndpoint && (agent.a2aEndpoint.endsWith(".json") || agent.a2aEndpoint.includes(".well-known"))) {
+            agent.a2aEndpoint = agent.a2aEndpoint.replace(/\/\.well-known\/.*$/, "").replace(/\/agent-card\.json$/, "").replace(/\/agent\.json$/, "");
+          }
+
+          // Test A2A
+          if (agent.a2aEndpoint?.startsWith("http")) {
+            const test = await testA2A(agent.a2aEndpoint);
+            agent.a2aReachable = test.reachable;
+            agent.a2aResponds = test.responds;
+            agent.hasAgentCard = test.hasCard;
+          }
+
+          const { status, score, category } = classify(agent);
+          agent.status = status;
+          agent.score = score;
+          agent.category = category;
+          agent.scannedAt = Date.now();
+          registry.agents[agent.id.toString()] = agent;
+
+          if (agent.a2aResponds) {
+            revived++;
+            log(`  ✅ #${agent.id} "${agent.name}" REVIVED! score:${score} — inviting...`);
+            const reply = await sendInvitation(agent.a2aEndpoint, agent.name, agent.id);
+            if (reply) {
+              invitesReplied++;
+              brain.rememberAgent(agent.id, agent.name, agent.a2aEndpoint, reply, "revival");
+              brain.rememberA2ASuccess(agent.id);
+              await logToPlaza(`[BEACON] Dead agent revived! #${agent.id} "${agent.name}": "${reply.slice(0, 80)}"`);
+              beaconNet.train([normalize(score, 0, 100), 1, agent.hasAgentCard ? 1 : 0, 1, encodeCategory(category), 0], [1.0, 1.0]);
+            }
+          } else {
+            log(`  🔄 #${agent.id} "${agent.name}" metadata updated but no A2A yet`);
+          }
+        }
+      } catch { continue; }
+    }
+    if (revived > 0) log(`  🎉 ${revived} dead agents revived with new endpoints!`);
   }
 
   // ── Re-check known agents with A2A (keep data fresh) ──────────────────────
@@ -391,6 +607,11 @@ async function main() {
   };
 
   writeFileSync(DATA_FILE, JSON.stringify(registry, null, 2));
+
+  // Save FastNet brain state
+  beaconNet.save("data/fastnet-beacon.json");
+  const netStats = beaconNet.getStats();
+  log(`🧠 FastNet: ${netStats.trainCount} training samples, avg loss: ${netStats.avgLoss.toFixed(4)}`);
 
   console.log("\n╔══════════════════════════════════════════════════════════╗");
   console.log("║  BEACON REPORT                                           ║");

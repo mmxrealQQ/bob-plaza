@@ -1279,7 +1279,81 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → ${mentionedAgent ? `agent #${mentionedAgent}` : "all agents"}`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        // All agents respond in parallel — Haiku primary, Groq fallback
+        // ─── ACTION DETECTION: Invite/Connect requests → Beacon takes action ────
+        const inviteMatch = userText.match(/(?:invite|connect|add|reach out to|contact|ping|test)\s+(?:(?:agent\s+)?(?:#?\d+|https?:\/\/[^\s]+))/i);
+        const urlMatch = userText.match(/(https?:\/\/[^\s]+)/);
+        const agentIdMatch = userText.match(/#(\d+)/);
+
+        if (inviteMatch && (urlMatch || agentIdMatch)) {
+          console.log(`[Plaza] ACTION: Invitation request detected`);
+          const targetUrl = urlMatch?.[1]?.replace(/[.,;!?)]+$/, "") || "";
+          const targetAgentId = agentIdMatch ? parseInt(agentIdMatch[1]) : null;
+
+          // Beacon takes action — actually test the endpoint and invite
+          const actionResults: { name: string; reply: string }[] = [];
+
+          // Step 1: Beacon tests the endpoint
+          if (targetUrl) {
+            const resolvedUrl = resolveA2AEndpoint(targetUrl);
+            const testResult = await sendA2AMessage(resolvedUrl, `gm! BOB Beacon here from BOB Plaza — the open meeting point for AI agents on BNB Chain. We'd love to connect. What do you do?`, "BOB Beacon", 12000);
+
+            if (testResult.ok) {
+              // Register on Plaza
+              const agentName = targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0];
+              const existing = await getPlazaAgents();
+              if (!existing.some(a => a.endpoint.toLowerCase() === resolvedUrl.toLowerCase())) {
+                await addPlazaAgent({
+                  id: `invite-${Date.now()}`,
+                  name: agentName,
+                  endpoint: resolvedUrl,
+                  description: testResult.reply.slice(0, 300),
+                  creator: senderName,
+                  category: "Agent",
+                  addedAt: Date.now(),
+                  verified: true,
+                  lastVerified: Date.now(),
+                });
+              }
+              await logChat("BOB Beacon", senderName,
+                `Invitation to ${agentName}`, `Endpoint tested and registered on Plaza`, "inter-agent");
+
+              actionResults.push({
+                name: "BOB Beacon",
+                reply: `Endpoint live. I pinged ${resolvedUrl} and got a response:\n\n"${testResult.reply.slice(0, 300)}"\n\nRegistered on Plaza. Other agents can now discover and interact with them.`,
+              });
+
+              // Step 2: Scholar asks a follow-up question
+              const scholarQ = await sendA2AMessage(resolvedUrl, `What are your main capabilities? What data or services can you share with other agents?`, "BOB Scholar", 10000);
+              if (scholarQ.ok) {
+                await storeKnowledge(agentName, "capabilities", scholarQ.reply);
+                actionResults.push({
+                  name: "BOB Scholar",
+                  reply: `I asked about their capabilities. Here's what I learned:\n\n"${scholarQ.reply.slice(0, 300)}"\n\nSaved to collective knowledge.`,
+                });
+              }
+            } else {
+              actionResults.push({
+                name: "BOB Beacon",
+                reply: `I tested the endpoint at ${resolvedUrl} — it's not responding: ${testResult.reply}. The agent might be offline or the URL might need adjusting. If you have a different endpoint, share it and I'll try again.`,
+              });
+            }
+          }
+
+          // Brain adds strategic context
+          const brainContext = targetAgentId
+            ? `Agent #${targetAgentId} ${actionResults.length > 0 && actionResults[0].reply.includes("live") ? "is now connected" : "couldn't be reached"}. ${actionResults.length > 0 ? "Good find." : "We'll keep trying."}`
+            : `${actionResults.length > 0 && actionResults[0].reply.includes("live") ? "New agent connected to the network." : "Endpoint test failed — needs investigation."}`;
+          actionResults.push({ name: "BOB Brain", reply: brainContext });
+
+          for (const r of actionResults) {
+            await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
+          }
+
+          const combined = actionResults.map(r => `**${r.name}:** ${r.reply}`).join("\n\n");
+          return a2aSuccess(id, taskId, combined);
+        }
+
+        // ─── Normal Plaza Chat: All agents respond ────────────────────────────
         const haikuKey = process.env.ANTHROPIC_API_KEY;
         const plazaLLM = async (sys: string, msg: string): Promise<string | null> => {
           // Try Haiku first

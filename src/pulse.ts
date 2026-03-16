@@ -13,6 +13,7 @@
 import "dotenv/config";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { Brain } from "./brain.js";
+import { createPulseNet, normalize } from "./fastnet.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ async function pingA2A(endpoint: string): Promise<boolean> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: "pulse-ping",
-        params: { message: { messageId: `ping-${Date.now()}`, role: "user", parts: [{ kind: "text", text: "ping" }] } },
+        params: { message: { messageId: `ping-${Date.now()}`, role: "user", parts: [{ type: "text", text: "ping" }] } },
       }),
     });
     if (!resp.ok) return false;
@@ -101,7 +102,7 @@ async function logToPlaza(message: string): Promise<void> {
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `pulse-log-${Date.now()}`,
         params: {
-          message: { messageId: `plog-${Date.now()}`, role: "user", parts: [{ kind: "text", text: message }] },
+          message: { messageId: `plog-${Date.now()}`, role: "user", parts: [{ type: "text", text: message }] },
           senderName: "BOB Pulse",
         },
       }),
@@ -120,6 +121,7 @@ async function main() {
   if (!existsSync("data")) mkdirSync("data", { recursive: true });
 
   const brain = new Brain();
+  const pulseNet = createPulseNet();
 
   const registry = existsSync(DATA_FILE) ? JSON.parse(readFileSync(DATA_FILE, "utf-8")) : { agents: {}, stats: {}, maxAgentId: 0 };
   const kb = existsSync(KNOWLEDGE_FILE) ? JSON.parse(readFileSync(KNOWLEDGE_FILE, "utf-8")) : { entries: [], agentsCovered: 0 };
@@ -155,6 +157,35 @@ async function main() {
 
   const healthRate = sampleAgents.length > 0 ? Math.round(healthy / sampleAgents.length * 100) : 100;
   log(`\nHealth: ${healthy}/${sampleAgents.length} (${healthRate}%) responding`);
+
+  // FastNet: predict health and detect anomalies
+  const prevSnapshot = pulseHistory.length > 0 ? pulseHistory[pulseHistory.length - 1] : null;
+  const prevHealth = prevSnapshot?.networkHealth ?? healthRate;
+  const timeSinceCheck = prevSnapshot ? (Date.now() - prevSnapshot.ts) / 3600000 : 24;
+  const respondingCount = allAgents.filter(a => a.a2aResponds).length;
+  const respondingRatio = allAgents.length > 0 ? respondingCount / allAgents.length : 0;
+
+  const pulseInput = [
+    normalize(prevHealth, 0, 100),
+    normalize(timeSinceCheck, 0, 48),
+    respondingRatio,
+    normalize(healthRate, 0, 100),
+  ];
+  const pulsePrediction = pulseNet.predict(pulseInput);
+  const predictedHealth = pulsePrediction.output[0] * 100;
+  const anomalyScore = pulsePrediction.output[1];
+
+  log(`🧠 FastNet: predicted health=${predictedHealth.toFixed(0)}% anomaly=${(anomalyScore*100).toFixed(0)}%`);
+
+  // Train with actual health rate
+  pulseNet.train(pulseInput, [
+    normalize(healthRate, 0, 100),
+    Math.abs(healthRate - prevHealth) > 20 ? 1.0 : 0.0, // anomaly if big change
+  ]);
+
+  if (anomalyScore > 0.7 && pulseNet.trainCount > 20) {
+    log(`⚠️  FastNet ANOMALY DETECTED: score ${(anomalyScore*100).toFixed(0)}% — investigating...`);
+  }
 
   // ── Market Data ───────────────────────────────────────────────────────────
   log("\nFetching market data...");
@@ -218,6 +249,11 @@ async function main() {
   if (pulseHistory.length > 90) pulseHistory.splice(0, pulseHistory.length - 90);
 
   writeFileSync(PULSE_FILE, JSON.stringify(pulseHistory, null, 2));
+
+  // Save FastNet
+  pulseNet.save("data/fastnet-pulse.json");
+  const netStats = pulseNet.getStats();
+  log(`🧠 FastNet: ${netStats.trainCount} samples, avg loss: ${netStats.avgLoss.toFixed(4)}`);
 
   console.log("\n╔══════════════════════════════════════════════════════════╗");
   console.log("║  PULSE REPORT                                            ║");

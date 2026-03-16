@@ -19,6 +19,7 @@ import "dotenv/config";
 import { spawn, ChildProcess, execSync } from "child_process";
 import { appendFileSync, existsSync, statSync, renameSync, readFileSync, readdirSync } from "fs";
 import { Brain, type AgentName, type ThinkContext } from "./brain.js";
+import { createBrainNet, normalize } from "./fastnet.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,7 @@ const state: BobState = {
 let shuttingDown = false;
 let currentChild: ChildProcess | null = null;
 let brain: Brain;
+let brainNet: ReturnType<typeof createBrainNet>;
 
 // Track file modification times for hot reload
 let fileMtimes: Record<string, number> = {};
@@ -340,6 +342,25 @@ async function intelligentCycle(agent: AgentName, forceAction?: string): Promise
   logBrain(`Learning from ${agent} result (${result.success ? "success" : "failed"})...`);
   brain.learn(agent, decision.action, result);
 
+  // FastNet meta-learning: train with actual outcome
+  const agentIdx = { BEACON: 0, SCHOLAR: 1, SYNAPSE: 2, PULSE: 3 }[agent] ?? 0;
+  const hour = new Date().getHours();
+  const recentErrors = state.lastDecisions.filter(d => d.ts > Date.now() - 3600000).length;
+  const brainInput = [
+    isDue("BEACON", BEACON_INTERVAL) ? 1 : 0,
+    isDue("SCHOLAR", SCHOLAR_INTERVAL) ? 1 : 0,
+    isDue("SYNAPSE", SYNAPSE_INTERVAL) ? 1 : 0,
+    isDue("PULSE", PULSE_INTERVAL) ? 1 : 0,
+    result.success ? 1 : 0,
+    normalize(recentErrors, 0, 10),
+    normalize(hour, 0, 23),
+    normalize(state.cycleCount % 10, 0, 10),
+  ];
+  const target = [0, 0, 0, 0];
+  target[agentIdx] = result.success ? 1.0 : 0.2;
+  brainNet.train(brainInput, target);
+  brainNet.save("data/fastnet-brain.json");
+
   // Check inter-agent messages
   const unread = brain.getUnreadCount(agent);
   if (unread > 0) {
@@ -491,11 +512,13 @@ async function main() {
 
   rotateLog();
 
-  // Initialize Brain
+  // Initialize Brain + FastNet
   brain = new Brain();
+  brainNet = createBrainNet();
   const brainStats = brain.getStats();
   logBrain(`Brain loaded: ${brainStats.totalThoughts} thoughts, ${brainStats.totalEvolutions} evolutions, ${brainStats.relationships} relationships`);
   logBrain(`Memory file: ${existsSync("data/brain.json") ? "restored from disk" : "fresh start"}`);
+  logBrain(`FastNet: ${brainNet.trainCount} training samples loaded`);
 
   // Track v8.0 features for on-chain update decision
   brain.trackFeature("BEACON: Autonomous Agent Discovery + Invitations");

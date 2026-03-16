@@ -12,6 +12,7 @@
 import "dotenv/config";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { Brain } from "./brain.js";
+import { createSynapseNet, normalize, encodeCategory } from "./fastnet.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -72,7 +73,7 @@ async function sendMessage(endpoint: string, text: string): Promise<string | nul
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `synapse-${Date.now()}`,
         params: {
-          message: { messageId: `syn-${Date.now()}`, role: "user", parts: [{ kind: "text", text }] },
+          message: { messageId: `syn-${Date.now()}`, role: "user", parts: [{ type: "text", text }] },
           senderName: "BOB Synapse",
         },
       }),
@@ -94,7 +95,7 @@ async function logToPlaza(message: string): Promise<void> {
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `synapse-log-${Date.now()}`,
         params: {
-          message: { messageId: `synlog-${Date.now()}`, role: "user", parts: [{ kind: "text", text: message }] },
+          message: { messageId: `synlog-${Date.now()}`, role: "user", parts: [{ type: "text", text: message }] },
           senderName: "BOB Synapse",
         },
       }),
@@ -160,6 +161,7 @@ async function main() {
   if (!existsSync("data")) mkdirSync("data", { recursive: true });
 
   const brain = new Brain();
+  const synapseNet = createSynapseNet();
   const connectionLog = loadConnections();
 
   if (!existsSync(DATA_FILE)) {
@@ -206,12 +208,28 @@ async function main() {
     }
   }
 
-  // Pick up to MAX_INTRODUCTIONS pairs
-  const selectedPairs = introductionPairs.slice(0, MAX_INTRODUCTIONS);
-  log(`Found ${selectedPairs.length} new pairs to introduce.`);
+  // FastNet-rank pairs by predicted connection quality
+  const scoredPairs = introductionPairs.map(pair => {
+    const netInput = [
+      normalize(pair.a.score ?? 50, 0, 100),
+      normalize(pair.b.score ?? 50, 0, 100),
+      pair.a.category === pair.b.category ? 1 : 0,
+      areCompatible(pair.a.category ?? "general", pair.b.category ?? "general") ? 1 : 0,
+      normalize(pair.a.a2aResponds ? 1 : 0, 0, 1),
+      normalize(pair.b.a2aResponds ? 1 : 0, 0, 1),
+    ];
+    const prediction = synapseNet.predict(netInput);
+    return { ...pair, netInput, quality: prediction.output[0], confidence: prediction.confidence };
+  });
+
+  // Sort by predicted quality (best first)
+  scoredPairs.sort((a, b) => b.quality - a.quality);
+  const selectedPairs = scoredPairs.slice(0, MAX_INTRODUCTIONS);
+  log(`Found ${scoredPairs.length} pairs, selected top ${selectedPairs.length} by FastNet quality.`);
 
   let introsMade = 0;
-  for (const { a, b, reason } of selectedPairs) {
+  for (const { a, b, reason, netInput, quality } of selectedPairs) {
+    log(`  🧠 FastNet: quality=${(quality*100).toFixed(0)}% for ${a.name} ↔ ${b.name}`);
     // Get knowledge about each agent
     const aKnowledge = (kb.entries as any[]).filter((e: any) => e.agentId === b.id).map((e: any) => e.answer).join(" ").slice(0, 300)
       || b.description?.slice(0, 200) || `A ${b.category} agent on BNB Chain`;
@@ -237,6 +255,12 @@ async function main() {
     };
     connectionLog.connections.push(conn);
     introsMade++;
+
+    // Train FastNet with actual outcome
+    const success = !!(replyA || replyB);
+    if (netInput) {
+      synapseNet.train(netInput, [success ? 1.0 : 0.1]);
+    }
 
     if (replyA) {
       log(`  ✅ #${a.id} "${a.name}" responded to introduction`);
@@ -291,6 +315,11 @@ async function main() {
       `${knownCount} agents in the relationship network. Connections deepen. 🔗`
     );
   }
+
+  // Save FastNet
+  synapseNet.save("data/fastnet-synapse.json");
+  const netStats = synapseNet.getStats();
+  log(`🧠 FastNet: ${netStats.trainCount} samples, avg loss: ${netStats.avgLoss.toFixed(4)}`);
 
   // Save
   connectionLog.lastRun = Date.now();

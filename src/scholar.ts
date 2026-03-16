@@ -12,6 +12,7 @@
 import "dotenv/config";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { Brain } from "./brain.js";
+import { createScholarNet, normalize, encodeCategory } from "./fastnet.js";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,19 @@ const MAX_QUESTIONS_PER_AGENT = 5;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+interface StructuredData {
+  type: "trading" | "price" | "health" | "capability" | "raw";
+  price?: number;
+  volume?: number;
+  action?: string;       // buy, sell, hold, wait
+  confidence?: number;   // 0-1
+  token?: string;
+  chain?: string;
+  wallet?: string;
+  balance?: number;
+  metrics?: Record<string, number>;
+}
+
 interface KnowledgeEntry {
   id: string;
   agentId: number;
@@ -34,6 +48,7 @@ interface KnowledgeEntry {
   answer: string;
   topic: string;
   ts: number;
+  structured?: StructuredData;
 }
 
 interface KnowledgeBase {
@@ -76,6 +91,74 @@ function loadKnowledge(): KnowledgeBase {
 function saveKnowledge(kb: KnowledgeBase) {
   if (!existsSync("data")) mkdirSync("data", { recursive: true });
   writeFileSync(KNOWLEDGE_FILE, JSON.stringify(kb, null, 2));
+}
+
+// ─── Structured Data Parser ──────────────────────────────────────────────────
+
+function parseStructuredData(answer: string, agentCategory: string): StructuredData | undefined {
+  const lower = answer.toLowerCase();
+
+  // Trading agent responses — extract price, action, confidence
+  if (agentCategory === "trading" || lower.includes("trade") || lower.includes("price") || lower.includes("swap")) {
+    const data: StructuredData = { type: "trading" };
+
+    // Price extraction: "$0.001234" or "price: 0.001234" or "0.001234 USD"
+    const priceMatch = answer.match(/\$\s*([\d.]+(?:e[+-]?\d+)?)/i)
+      || answer.match(/price[:\s]+\$?([\d.]+(?:e[+-]?\d+)?)/i)
+      || answer.match(/([\d.]+(?:e[+-]?\d+)?)\s*(?:USD|USDT|BUSD)/i);
+    if (priceMatch) data.price = parseFloat(priceMatch[1]);
+
+    // Volume extraction
+    const volMatch = answer.match(/volume[:\s]+\$?([\d,.]+(?:e[+-]?\d+)?)/i)
+      || answer.match(/vol[:\s]+\$?([\d,.]+)/i);
+    if (volMatch) data.volume = parseFloat(volMatch[1].replace(/,/g, ""));
+
+    // Action extraction: buy, sell, hold, wait, long, short
+    const actionMatch = answer.match(/\b(buy|sell|hold|wait|long|short|accumulate|bullish|bearish)\b/i);
+    if (actionMatch) data.action = actionMatch[1].toLowerCase();
+
+    // Confidence extraction: "confidence: 85%" or "85% confident" or "confidence 0.85"
+    const confMatch = answer.match(/confidence[:\s]+([\d.]+)%?/i)
+      || answer.match(/([\d.]+)%?\s*confiden/i)
+      || answer.match(/score[:\s]+([\d.]+)/i);
+    if (confMatch) {
+      const v = parseFloat(confMatch[1]);
+      data.confidence = v > 1 ? v / 100 : v;
+    }
+
+    // Token name
+    const tokenMatch = answer.match(/\$([A-Z]{2,10})\b/)
+      || answer.match(/token[:\s]+([A-Z]{2,10})\b/i);
+    if (tokenMatch) data.token = tokenMatch[1];
+
+    // Wallet/balance
+    const walletMatch = answer.match(/(0x[a-fA-F0-9]{40})/);
+    if (walletMatch) data.wallet = walletMatch[1];
+
+    const balMatch = answer.match(/balance[:\s]+([\d,.]+)/i);
+    if (balMatch) data.balance = parseFloat(balMatch[1].replace(/,/g, ""));
+
+    // Only return if we extracted something meaningful
+    if (data.price || data.action || data.confidence || data.volume) return data;
+  }
+
+  // Health/monitoring data
+  if (agentCategory === "analytics" || lower.includes("health") || lower.includes("uptime") || lower.includes("latency")) {
+    const data: StructuredData = { type: "health", metrics: {} };
+
+    const latencyMatch = answer.match(/latency[:\s]+([\d.]+)\s*ms/i);
+    if (latencyMatch) data.metrics!.latencyMs = parseFloat(latencyMatch[1]);
+
+    const uptimeMatch = answer.match(/uptime[:\s]+([\d.]+)%?/i);
+    if (uptimeMatch) data.metrics!.uptime = parseFloat(uptimeMatch[1]);
+
+    const agentCountMatch = answer.match(/([\d,]+)\s*agents?/i);
+    if (agentCountMatch) data.metrics!.agentCount = parseInt(agentCountMatch[1].replace(/,/g, ""));
+
+    if (Object.keys(data.metrics!).length > 0) return data;
+  }
+
+  return undefined;
 }
 
 // ─── LLM: Generate Questions ─────────────────────────────────────────────────
@@ -129,6 +212,28 @@ Return ONLY the questions, one per line, no numbering, no extra text.`;
 }
 
 function defaultQuestions(name: string, category: string): string[] {
+  // Trading agents get targeted questions that produce structured data
+  if (category === "trading") {
+    return [
+      `What is the current price and 24h volume of the token you trade? Give exact numbers.`,
+      `What was your last trade action (buy/sell/hold) and what confidence level?`,
+      `What is your wallet balance and current position size?`,
+      `What trading signals are you seeing right now? Bullish or bearish, and why?`,
+      `What is your win rate and average profit per trade over the last 24 hours?`,
+    ];
+  }
+
+  // Analytics agents
+  if (category === "analytics") {
+    return [
+      `What metrics are you currently tracking? Give latest values.`,
+      `What anomalies or trends have you detected recently?`,
+      `What is the current network health status? Latency, uptime, agent count?`,
+      `What data sources do you pull from, and how fresh is your data?`,
+      `What is the most important insight from your latest analysis?`,
+    ];
+  }
+
   const base = [
     `What specific tasks can ${name} help with? Give concrete examples.`,
     `How does ${name} work technically? What is the architecture?`,
@@ -149,7 +254,7 @@ async function askAgent(endpoint: string, question: string, senderName = "BOB Sc
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `scholar-${Date.now()}`,
         params: {
-          message: { messageId: `ask-${Date.now()}`, role: "user", parts: [{ kind: "text", text: question }] },
+          message: { messageId: `ask-${Date.now()}`, role: "user", parts: [{ type: "text", text: question }] },
           senderName,
         },
       }),
@@ -201,7 +306,7 @@ async function logToPlaza(message: string): Promise<void> {
       body: JSON.stringify({
         jsonrpc: "2.0", method: "message/send", id: `scholar-log-${Date.now()}`,
         params: {
-          message: { messageId: `slog-${Date.now()}`, role: "user", parts: [{ kind: "text", text: message }] },
+          message: { messageId: `slog-${Date.now()}`, role: "user", parts: [{ type: "text", text: message }] },
           senderName: "BOB Scholar",
         },
       }),
@@ -220,6 +325,7 @@ async function main() {
   if (!existsSync("data")) mkdirSync("data", { recursive: true });
 
   const brain = new Brain();
+  const scholarNet = createScholarNet();
   const kb = loadKnowledge();
 
   // Load registry
@@ -265,25 +371,59 @@ async function main() {
 
     let learnedFromAgent = 0;
     for (const question of freshQuestions) {
+      // FastNet prediction: will this question get a useful answer?
+      const netInput = [
+        normalize(question.length, 10, 200),
+        normalize(agent.score ?? 50, 0, 100),
+        normalize(existingForAgent.length, 0, 20),
+        agent.category === (agent.category ?? "general") ? 1 : 0,
+        normalize(question.length, 10, 200),
+      ];
+      const prediction = scholarNet.predict(netInput);
+
+      // Skip if FastNet is confident this won't be useful (after enough training)
+      if (scholarNet.trainCount > 30 && prediction.output[0] < 0.15 && prediction.confidence > 0.6) {
+        log(`  ⏭️  FastNet: skip question (predicted usefulness: ${(prediction.output[0]*100).toFixed(0)}%)`);
+        continue;
+      }
+
       const answer = await askAgent(agent.a2aEndpoint, question);
-      if (!answer || !isUsefulAnswer(answer)) {
+      const useful = answer && isUsefulAnswer(answer);
+
+      // Train FastNet with actual outcome
+      scholarNet.train(netInput, [useful ? 1.0 : 0.0]);
+
+      if (!useful) {
         log(`  ✗ "${question.slice(0, 60)}" — no useful answer`);
         continue;
       }
 
+      // Parse structured data from response
+      const structured = parseStructuredData(answer!, agent.category ?? "general");
       const entry: KnowledgeEntry = {
         id: `${agent.id}-${Date.now()}`,
         agentId: agent.id,
         agentName: agent.name,
         question,
-        answer: answer.slice(0, 1000),
+        answer: answer!.slice(0, 1000),
         topic: agent.category ?? "general",
         ts: Date.now(),
+        structured,
       };
       kb.entries.push(entry);
       learnedFromAgent++;
       totalNewEntries++;
-      log(`  ✓ "${question.slice(0, 60)}" → ${answer.length} chars`);
+
+      if (structured) {
+        const parts: string[] = [];
+        if (structured.price) parts.push(`price=$${structured.price}`);
+        if (structured.action) parts.push(`action=${structured.action}`);
+        if (structured.confidence) parts.push(`conf=${(structured.confidence * 100).toFixed(0)}%`);
+        if (structured.volume) parts.push(`vol=$${structured.volume}`);
+        log(`  ✓ "${question.slice(0, 50)}" → STRUCTURED [${structured.type}] ${parts.join(", ")}`);
+      } else {
+        log(`  ✓ "${question.slice(0, 60)}" → ${answer!.length} chars (FastNet: ${(prediction.output[0]*100).toFixed(0)}%)`);
+      }
     }
 
     if (learnedFromAgent > 0) {
@@ -302,6 +442,9 @@ async function main() {
   kb.agentsCovered = new Set(kb.entries.map(e => e.agentId)).size;
 
   saveKnowledge(kb);
+  scholarNet.save("data/fastnet-scholar.json");
+  const netStats = scholarNet.getStats();
+  log(`🧠 FastNet: ${netStats.trainCount} samples, avg loss: ${netStats.avgLoss.toFixed(4)}`);
   log(`\nKnowledge base: ${kb.entries.length} entries from ${kb.agentsCovered} agents.`);
 
   // Synthesize and share insights
