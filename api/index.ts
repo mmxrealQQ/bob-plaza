@@ -616,11 +616,14 @@ async function executeToolCall(toolName: string, input: any, agentId?: number): 
         } catch (e: any) { return `Error: ${e.message}`; }
       }
       case "invite_agent": {
-        const name = input.agentName || "Unknown Agent";
-        let ep = input.endpoint;
+        let ep = input.endpoint || "";
         // Check if targeting a BOB teammate — by URL or by name
-        const teammateEp = resolveTeammateEndpoint(ep) || resolveTeammateEndpoint(name);
+        const teammateEp = resolveTeammateEndpoint(ep) || resolveTeammateEndpoint(input.agentName || "");
         if (teammateEp) ep = teammateEp;
+        // Resolve name: input > URL slug > fallback
+        const slugMatch = ep.match(/\/a2a\/(\w+)/);
+        const resolvedId = slugMatch ? AGENT_SLUGS[slugMatch[1]] : undefined;
+        const name = input.agentName || (resolvedId ? AGENT_ROLES[resolvedId]?.name : null) || "Unknown Agent";
         // Inter-agent communication — BOB agents talking to each other
         if (isBobAgentUrl(ep)) {
           const callerName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB";
@@ -1530,7 +1533,11 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       try {
         const activity = await generateAgentActivity(agentId);
         if (activity) {
-          await logChat(activity.from, activity.from, activity.text, activity.reply, "auto");
+          // Only log as "auto" if it wasn't already logged as "inter-agent" by invite_agent tool
+          const isInterAgent = activity.text.startsWith("💬");
+          if (!isInterAgent) {
+            await logChat(activity.from, activity.from, activity.text, activity.reply, "auto");
+          }
         }
 
         // Community outreach — talk to registered agents
