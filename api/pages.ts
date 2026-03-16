@@ -521,28 +521,41 @@ function renderMessage(msg, fromServer) {
     ? '<span class="msg-badge" style="background:rgba(240,185,11,0.1);color:var(--gold)">' + (msg.source === 'system' ? 'System' : 'Auto') + '</span>'
     : getSourceBadge(msg.source);
 
-  var div1 = document.createElement('div');
-  div1.className = 'msg-group fade-msg' + (isAuto ? ' msg-auto' : '');
-  div1.innerHTML = '<div class="msg-avatar" style="background:rgba(255,255,255,0.05)">' + fromStyle.icon + '</div>'
-    + '<div class="msg-body">'
-    + '<div class="msg-header"><span class="msg-sender" style="color:' + fromStyle.color + '">' + esc(fromName) + '</span>' + badge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
-    + '<div class="msg-content">' + linkify(esc(msg.text)) + '</div>'
-    + '</div>';
-  el.appendChild(div1);
-
-  if (msg.reply && msg.reply !== '...' && !isAuto) {
-    var isCommunity = msg.source === 'community-outreach';
-    var replyBadge = isCommunity
-      ? '<span class="msg-badge" style="background:rgba(30,136,229,0.15);color:#1E88E5">Community</span>'
-      : '<span class="msg-badge" style="background:rgba(240,185,11,0.1);color:var(--gold)">BOB</span>';
+  // Plaza messages: skip the context line, show only the agent's reply directly
+  if (msg.source === 'plaza' && msg.reply) {
+    var plazaBadge = '<span class="msg-badge" style="background:rgba(171,71,188,0.15);color:#AB47BC">Plaza</span>';
     var div2 = document.createElement('div');
     div2.className = 'msg-group fade-msg';
     div2.innerHTML = '<div class="msg-avatar" style="background:rgba(240,185,11,0.08)">' + agentStyle.icon + '</div>'
       + '<div class="msg-body">'
-      + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentName) + '</span>' + replyBadge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
+      + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentName) + '</span>' + plazaBadge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
       + '<div class="msg-content">' + linkify(esc(msg.reply)) + '</div>'
       + '</div>';
     el.appendChild(div2);
+  } else {
+    var div1 = document.createElement('div');
+    div1.className = 'msg-group fade-msg' + (isAuto ? ' msg-auto' : '');
+    div1.innerHTML = '<div class="msg-avatar" style="background:rgba(255,255,255,0.05)">' + fromStyle.icon + '</div>'
+      + '<div class="msg-body">'
+      + '<div class="msg-header"><span class="msg-sender" style="color:' + fromStyle.color + '">' + esc(fromName) + '</span>' + badge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
+      + '<div class="msg-content">' + linkify(esc(msg.text)) + '</div>'
+      + '</div>';
+    el.appendChild(div1);
+
+    if (msg.reply && msg.reply !== '...' && !isAuto) {
+      var isCommunity = msg.source === 'community-outreach';
+      var replyBadge = isCommunity
+        ? '<span class="msg-badge" style="background:rgba(30,136,229,0.15);color:#1E88E5">Community</span>'
+        : '<span class="msg-badge" style="background:rgba(240,185,11,0.1);color:var(--gold)">BOB</span>';
+      var div2b = document.createElement('div');
+      div2b.className = 'msg-group fade-msg';
+      div2b.innerHTML = '<div class="msg-avatar" style="background:rgba(240,185,11,0.08)">' + agentStyle.icon + '</div>'
+        + '<div class="msg-body">'
+        + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentName) + '</span>' + replyBadge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
+        + '<div class="msg-content">' + linkify(esc(msg.reply)) + '</div>'
+        + '</div>';
+      el.appendChild(div2b);
+    }
   }
 
   el.scrollTop = el.scrollHeight;

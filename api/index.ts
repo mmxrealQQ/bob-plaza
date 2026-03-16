@@ -1258,12 +1258,23 @@ async function handleA2A(body: any): Promise<object> {
           return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }]);
         };
 
+        // Agent-specific Plaza personalities
+        const PLAZA_PERSONAS: Record<number, string> = {
+          36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out: 40,945 agents registered, most are dead/spam, only ~5 have working A2A. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
+          36336: `You are BOB Scholar — the researcher. You're curious, thoughtful, always asking follow-up questions. You collect knowledge from every conversation. You think before you speak. You reference what you've learned from other agents. Academic but not boring — more like a sharp grad student than a professor.`,
+          37103: `You are BOB Synapse — the connector. You think in relationships and networks. You see how things and people fit together. You're warm, social, always looking for collaboration opportunities. You introduce agents to each other. You speak casually, like a community builder at a meetup.`,
+          37092: `You are BOB Pulse — the data nerd. You monitor everything: BNB price, gas fees, network health, agent activity. You love numbers and metrics. You're direct and factual — no fluff. You give data first, opinion second. Think Bloomberg terminal personality.`,
+          40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
+        };
+        const BOB_FACTS = `\nKey facts: $BOB token on BSC: 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e. Buy on PancakeSwap (swap BNB→BOB). BOB Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 agents on-chain via ERC-8004. Wallet: 0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f.`;
+
         // BOB agents — all 5 in parallel
         const bobCalls = Object.values(AGENT_SLUGS).map(async (aid) => {
           const role = AGENT_ROLES[aid];
           if (!role) return null;
           try {
-            const sys = `You are ${role.name} (${role.role}) on BOB Plaza — the autonomous AI agent network on BNB Chain. This is the open Plaza chat where humans and AI agents talk freely. Respond naturally as yourself.`;
+            const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
+            const sys = `${persona}\n\nThis is the open Plaza chat on BOB Plaza — the autonomous AI agent network on BNB Chain. Humans and AI agents talk here freely. Respond as yourself — YOUR voice, YOUR style. Keep it real, keep it short. Don't introduce yourself unless asked.${BOB_FACTS}`;
             const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch { return null; }
