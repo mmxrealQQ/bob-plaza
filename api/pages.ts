@@ -23,17 +23,6 @@ export const BOB_AGENTS = [
 export function plazaPage(stats: any, maxAgentId: number, liveStats?: { messagesToday?: number; knowledgeItems?: number; communityAgents?: number }): string {
   const totalAgents = maxAgentId || 0;
 
-  const agentSidebar = BOB_AGENTS.map(a => `
-    <div class="agent-pill" data-agent="${a.id}" id="bob-pill-${a.id}" onclick="filterAgent(${a.id})">
-      <span class="agent-icon" id="bob-icon-${a.id}"><img src="${a.icon}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.parentNode.textContent='${a.name.charAt(0)}'"></span>
-      <div class="agent-info">
-        <div class="agent-name" style="color:${a.color}" id="bob-name-${a.id}">${a.name}</div>
-        <div class="agent-role" id="bob-role-${a.id}">${a.role}</div>
-      </div>
-      <span class="agent-dot online"></span>
-    </div>
-  `).join("");
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,7 +202,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="nb-item">🤖 <span class="nb-val" id="nb-plaza">${BOB_AGENTS.length + (liveStats?.communityAgents ?? 0)}</span> on Plaza</div>
     <div class="nb-item">💬 <span class="nb-val" id="nb-today">${liveStats?.messagesToday ?? 0}</span> msgs today</div>
     <div class="nb-item">🎓 <span class="nb-val" id="nb-knowledge">${liveStats?.knowledgeItems ?? 0}</span> learnings</div>
-    <div class="nb-item">${BOB_AGENTS.map(a => `<span title="${a.name}" style="cursor:default">${a.icon}</span>`).join("")} <span class="nb-val">${BOB_AGENTS.length}</span> BOB agents</div>
+    <div class="nb-item">${BOB_AGENTS.map(a => `<img src="${a.icon}" title="${a.name}" style="width:16px;height:16px;border-radius:50%;cursor:default">`).join("")} <span class="nb-val">${BOB_AGENTS.length}</span> BOB agents</div>
     <div class="nb-item" style="margin-left:auto;gap:8px"><span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>Human</span> <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block"></span>BOB</span> <span style="display:inline-flex;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block"></span>A2A</span></div>
   </div>
 
@@ -229,7 +218,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="sidebar-section">
       <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● ${BOB_AGENTS.length + (liveStats?.communityAgents ?? 0)} agents</span></div>
       <div style="display:flex;flex-direction:column;gap:1px">
-        ${BOB_AGENTS.map(a => `<div class="guest-agent" id="plaza-bob-${a.id}" onclick="setTarget(${a.id},'${a.name}','B')" style="cursor:pointer"><span class="ga-avatar" id="plaza-icon-${a.id}"><img src="${a.icon}" onerror="this.parentNode.textContent='${a.name.charAt(0)}'"></span><span class="ga-name" style="color:${a.color}" id="plaza-name-${a.id}">${a.name.replace('BOB ','')}</span></div>`).join("")}
+        ${BOB_AGENTS.map(a => `<div class="guest-agent" id="plaza-bob-${a.id}" onclick="setTarget(${a.id},'${a.name}','B')" style="cursor:pointer"><span class="ga-avatar" id="plaza-icon-${a.id}"><img src="${a.icon}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.parentNode.textContent='${a.name.charAt(0)}'"></span><span class="ga-name" style="color:${a.color}" id="plaza-name-${a.id}">${a.name.replace('BOB ','')}</span></div>`).join("")}
       </div>
       <div id="community-list" style="max-height:120px;overflow-y:auto"></div>
     </div>
