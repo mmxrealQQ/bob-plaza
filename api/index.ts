@@ -1305,13 +1305,19 @@ async function handleA2A(body: any): Promise<object> {
       const rpcId = String(id ?? "");
       const source = rpcId.startsWith("chat-") ? "web" : "a2a";
       let senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
-      // Resolve "Agent #XXXXX" to real name from Plaza community agents
+      // Resolve "Agent #XXXXX" to real name — check Plaza first, then 8004scan
       if (senderName.match(/^Agent #\d+$/)) {
+        const tokenId = senderName.match(/\d+/)![0];
         try {
           const plazaAll = await getPlazaAgents();
-          const tokenId = senderName.match(/\d+/)![0];
           const match = plazaAll.find(a => a.id === `bsc-${tokenId}` || a.name === senderName);
-          if (match && !match.name.startsWith("Agent #")) senderName = match.name;
+          if (match && !match.name.startsWith("Agent #")) {
+            senderName = match.name;
+          } else {
+            // Fallback: look up real name from 8004scan (works for any BSC agent)
+            const meta = await fetchAgentMeta(undefined, tokenId);
+            if (meta?.name && !meta.name.startsWith("Agent #")) senderName = meta.name;
+          }
         } catch {}
       }
 
