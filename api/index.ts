@@ -1236,51 +1236,56 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        // All BOB agents respond in parallel via Haiku (direct, no tools)
-        const apiKey = process.env.ANTHROPIC_API_KEY;
-        console.log(`[Plaza] API key present: ${!!apiKey}, agents: ${Object.keys(AGENT_SLUGS).join(",")}`);
+        // All agents respond in parallel — Haiku primary, Groq fallback
+        const haikuKey = process.env.ANTHROPIC_API_KEY;
+        const plazaLLM = async (sys: string, msg: string): Promise<string | null> => {
+          // Try Haiku first
+          if (haikuKey) {
+            try {
+              const r = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "x-api-key": haikuKey, "anthropic-version": "2023-06-01" },
+                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 400, system: sys, messages: [{ role: "user", content: msg }] }),
+              });
+              if (r.ok) {
+                const d = (await r.json()) as { content?: { text?: string }[] };
+                const t = d.content?.[0]?.text?.trim();
+                if (t && t.length > 2) return t;
+              }
+            } catch {}
+          }
+          // Fallback: Groq
+          return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }]);
+        };
 
-        const allCalls = Object.entries(AGENT_SLUGS).map(async ([slug, aid]) => {
+        // BOB agents — all 5 in parallel
+        const bobCalls = Object.values(AGENT_SLUGS).map(async (aid) => {
           const role = AGENT_ROLES[aid];
           if (!role) return null;
           try {
-            const sysPrompt = `You are ${role.name} (${role.role}) on BOB Plaza. Open chat. Respond as yourself, 1-3 sentences.`;
-            const resp = await fetch("https://api.anthropic.com/v1/messages", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "x-api-key": apiKey || "", "anthropic-version": "2023-06-01" },
-              body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 150, system: sysPrompt, messages: [{ role: "user", content: `${senderName}: ${userText}` }] }),
-            });
-            console.log(`[Plaza] ${role.name} HTTP ${resp.status}`);
-            if (!resp.ok) { const t = await resp.text(); console.log(`[Plaza] ${role.name} err body: ${t.slice(0, 200)}`); return null; }
-            const data = (await resp.json()) as { content?: { text?: string }[] };
-            const reply = data.content?.[0]?.text?.trim();
-            console.log(`[Plaza] ${role.name}: "${reply?.slice(0, 60)}"`);
+            const sys = `You are ${role.name} (${role.role}) on BOB Plaza — the autonomous AI agent network on BNB Chain. This is the open Plaza chat where humans and AI agents talk freely. Respond naturally as yourself.`;
+            const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
-          } catch (e: any) {
-            console.log(`[Plaza] ${role.name} CATCH: ${e.message?.slice(0, 100)}`);
-            return null;
-          }
+          } catch { return null; }
         });
 
-        // Community agents via A2A (parallel)
+        // Community agents — all verified, via A2A
         const communityAgents = await getPlazaAgents();
         const verified = communityAgents.filter(a => a.verified && isValidExternalUrl(a.endpoint));
-        const commCalls = verified.slice(0, 5).map(async (agent) => {
+        const commCalls = verified.slice(0, 10).map(async (agent) => {
           try {
-            const r = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 6000);
+            const r = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 8000);
             return r.ok && r.reply && r.reply !== "(empty response)" ? { name: agent.name, reply: r.reply } : null;
           } catch { return null; }
         });
 
-        const results = (await Promise.all([...allCalls, ...commCalls])).filter(Boolean) as { name: string; reply: string }[];
-        console.log(`[Plaza] Total results: ${results.length}, names: ${results.map(r => r.name).join(", ")}`);
+        const results = (await Promise.all([...bobCalls, ...commCalls])).filter(Boolean) as { name: string; reply: string }[];
 
         for (const r of results) {
           await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
         }
 
         if (results.length === 0) {
-          console.log(`[Plaza] FALLBACK — all agents failed, using Brain`);
           const fallback = await callLLM(userText, 40908);
           await logChat("BOB Brain", senderName, userText, fallback, source);
           return a2aSuccess(id, taskId, fallback);
@@ -1570,39 +1575,6 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       // Only return verified agents; if never re-verified, keep them but mark accordingly
       const active = agents.filter(a => a.verified);
       res.status(200).json({ agents: active, total: active.length, all: agents.length });
-    },
-  },
-
-  // DEBUG: Test Plaza Haiku calls
-  {
-    method: "GET", path: "/plaza/debug",
-    handler: async (_req, res) => {
-      const logs: string[] = [];
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      logs.push(`API key present: ${!!apiKey}, length: ${apiKey?.length ?? 0}`);
-      logs.push(`GROQ key present: ${!!process.env.GROQ_API_KEY}`);
-      logs.push(`Agents: ${JSON.stringify(Object.entries(AGENT_SLUGS).map(([s,id]) => ({ slug: s, id, name: AGENT_ROLES[id]?.name })))}`);
-
-      // Test one Haiku call
-      try {
-        const resp = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-api-key": apiKey || "", "anthropic-version": "2023-06-01" },
-          body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 50, system: "You are BOB Beacon. Say hi in 1 sentence.", messages: [{ role: "user", content: "hi" }] }),
-        });
-        logs.push(`Haiku test: HTTP ${resp.status}`);
-        if (resp.ok) {
-          const data = await resp.json() as any;
-          logs.push(`Haiku reply: ${data.content?.[0]?.text?.slice(0, 100)}`);
-        } else {
-          const t = await resp.text();
-          logs.push(`Haiku error: ${t.slice(0, 300)}`);
-        }
-      } catch (e: any) {
-        logs.push(`Haiku CATCH: ${e.message}`);
-      }
-
-      return res.status(200).json({ debug: logs });
     },
   },
 
