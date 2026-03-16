@@ -545,7 +545,7 @@ Keep changes conservative — small adjustments, not overhauls.
 Respond ONLY with JSON:
 {
   "improvements": [
-    { "target": "scout|pusher|oracle|database", "field": "fieldName", "oldValue": "...", "newValue": "...", "reason": "why" }
+    { "target": "beacon|scholar|synapse|pulse|brain", "field": "fieldName", "oldValue": "...", "newValue": "...", "reason": "why" }
   ],
   "overallAssessment": "1-2 sentences on how BOB is doing",
   "nextFocus": "what to prioritize next"
@@ -566,7 +566,7 @@ Respond ONLY with JSON:
       let applied = 0;
       for (const imp of parsed.improvements || []) {
         const target = imp.target?.toLowerCase();
-        if (!target || !["scout", "pusher", "oracle", "database"].includes(target)) continue;
+        if (!target || !["beacon", "scholar", "synapse", "pulse", "brain"].includes(target)) continue;
 
         const strat = this.memory.strategies[target as keyof Strategies] as any;
         if (!strat || !(imp.field in strat)) continue;

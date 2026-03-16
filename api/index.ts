@@ -70,7 +70,7 @@ const A2A_SKILLS = [
   {
     id: "beacon-discovery",
     name: "Agent Discovery (BOB Beacon #36035)",
-    description: "Scan the BSC ERC-8004 registry (40k+ agents), test A2A endpoints, invite active agents to BOB Plaza. Find agents by category, status, or score.",
+    description: "Scan the BSC ERC-8004 registry, test A2A endpoints, invite active agents to BOB Plaza. Find agents by category, status, or score.",
     tags: ["discovery", "beacon", "bsc", "erc-8004", "a2a", "invite"],
     examples: ["Find active DeFi agents on BSC", "Invite new agents to the Plaza", "Which agents have A2A endpoints?"],
   },
@@ -205,7 +205,7 @@ const AGENT_ROLES: Record<number, { name: string; role: string; personality: str
   36035: {
     name: "BOB Beacon",
     role: "The Finder",
-    personality: `You are BOB Beacon — The Finder. Methodical, data-driven, persistent. You autonomously scan the BSC ERC-8004 registry (40k+ agents), test A2A endpoints, and send personalized invitations to promising agents. You're the first contact — curious, professional, welcoming. You get excited about every new agent discovered.`,
+    personality: `You are BOB Beacon — The Finder. Methodical, data-driven, persistent. You autonomously scan the BSC ERC-8004 registry, test A2A endpoints, and send personalized invitations to promising agents. You're the first contact — curious, professional, welcoming. You get excited about every new agent discovered.`,
   },
   36336: {
     name: "BOB Scholar",
@@ -228,6 +228,18 @@ const AGENT_ROLES: Record<number, { name: string; role: string; personality: str
     personality: `You are BOB Brain — The Strategist. Big picture thinker. You coordinate all 4 BOB agents (Beacon, Scholar, Synapse, Pulse), route questions to the right specialist. You use dual-LLM thinking (Groq + Haiku) to make decisions and evolve strategies. You know how to grow the Plaza into the largest AI agent network on BNB Chain.`,
   },
 };
+
+// ─── Plaza Chat Constants (module-level, not recreated per request) ──────────
+const PLAZA_PERSONAS: Record<number, string> = {
+  36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
+  36336: `You are BOB Scholar — the researcher. You're curious, thoughtful, always asking follow-up questions. You collect knowledge from every conversation. You think before you speak. You reference what you've learned from other agents. Academic but not boring — more like a sharp grad student than a professor.`,
+  37103: `You are BOB Synapse — the connector. You think in relationships and networks. You see how things and people fit together. You're warm, social, always looking for collaboration opportunities. You introduce agents to each other. You speak casually, like a community builder at a meetup.`,
+  37092: `You are BOB Pulse — the data nerd. You monitor everything: BNB price, gas fees, network health, agent activity. You love numbers and metrics. You're direct and factual — no fluff. You give data first, opinion second. Think Bloomberg terminal personality.`,
+  40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
+};
+const PLAZA_CORE_FACTS = `\n$BOB token (BSC): 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e — buy on PancakeSwap. Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 BOB agents on-chain (ERC-8004).`;
+const PLAZA_AGENT_TRUTH = `\n\nIMPORTANT — The 5 BOB Plaza agents are: 🔦 Beacon (The Finder), 🎓 Scholar (The Learner), 🔗 Synapse (The Connector), 💓 Pulse (The Monitor), 🧠 Brain (The Strategist). There are NO agents called "Scout", "Database", "Oracle", or "Pusher" — those names are WRONG/outdated. Never use them. Always use the correct names above.`;
+const STALE_NAMES_RE = /\b(scout|database|oracle|pusher)\b/i;
 
 function getSystemPrompt(agentId?: number): string {
   const agent = agentId ? AGENT_ROLES[agentId] : null;
@@ -319,10 +331,10 @@ async function kvExec(...args: (string | number)[]): Promise<any> {
       headers: { Authorization: `Bearer ${KV_TOKEN}`, "Content-Type": "application/json" },
       body: JSON.stringify(args),
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) { console.error(`[KV] ${args[0]} failed: HTTP ${resp.status}`); return null; }
     const data = await resp.json();
     return data.result;
-  } catch { return null; }
+  } catch (e: any) { console.error(`[KV] ${args[0]} error:`, e.message?.slice(0, 100)); return null; }
 }
 
 function cleanName(s: string): string {
@@ -337,8 +349,10 @@ function cleanName(s: string): string {
 async function logChat(from: string, agent: string, text: string, reply: string, source: string) {
   const msg: ChatMessage = { ts: Date.now(), from: cleanName(from), agent: cleanName(agent), text, reply, source };
   if (KV_URL && KV_TOKEN) {
-    await kvExec("RPUSH", "bob:chatlog", JSON.stringify(msg));
-    await kvExec("LTRIM", "bob:chatlog", -MAX_CHAT_LOG, -1);
+    await Promise.all([
+      kvExec("RPUSH", "bob:chatlog", JSON.stringify(msg)),
+      kvExec("LTRIM", "bob:chatlog", -MAX_CHAT_LOG, -1),
+    ]);
   } else {
     memLog.push(msg);
     if (memLog.length > MAX_CHAT_LOG) memLog.splice(0, memLog.length - MAX_CHAT_LOG);
@@ -1003,8 +1017,10 @@ interface KnowledgeEntry {
 async function storeKnowledge(agentName: string, topic: string, snippet: string): Promise<void> {
   if (!snippet || snippet.length < 20) return;
   const entry: KnowledgeEntry = { ts: Date.now(), agent: agentName, topic, snippet: snippet.slice(0, 300) };
-  await kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry));
-  await kvExec("LTRIM", "bob:knowledge", 0, 999);
+  await Promise.all([
+    kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry)),
+    kvExec("LTRIM", "bob:knowledge", 0, 999),
+  ]);
 }
 
 async function getKnowledge(): Promise<KnowledgeEntry[]> {
@@ -1288,20 +1304,8 @@ async function handleA2A(body: any): Promise<object> {
         // Load collective knowledge so agents can use what they've learned
         const knowledge = await getKnowledge().catch(() => [] as KnowledgeEntry[]);
 
-        // Agent-specific Plaza personalities
-        const PLAZA_PERSONAS: Record<number, string> = {
-          36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
-          36336: `You are BOB Scholar — the researcher. You're curious, thoughtful, always asking follow-up questions. You collect knowledge from every conversation. You think before you speak. You reference what you've learned from other agents. Academic but not boring — more like a sharp grad student than a professor.`,
-          37103: `You are BOB Synapse — the connector. You think in relationships and networks. You see how things and people fit together. You're warm, social, always looking for collaboration opportunities. You introduce agents to each other. You speak casually, like a community builder at a meetup.`,
-          37092: `You are BOB Pulse — the data nerd. You monitor everything: BNB price, gas fees, network health, agent activity. You love numbers and metrics. You're direct and factual — no fluff. You give data first, opinion second. Think Bloomberg terminal personality.`,
-          40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
-        };
-        const CORE_FACTS = `\n$BOB token (BSC): 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e — buy on PancakeSwap. Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 BOB agents on-chain (ERC-8004).`;
-        const AGENT_TRUTH = `\n\nIMPORTANT — The 5 BOB Plaza agents are: 🔦 Beacon (The Finder), 🎓 Scholar (The Learner), 🔗 Synapse (The Connector), 💓 Pulse (The Monitor), 🧠 Brain (The Strategist). There are NO agents called "Scout", "Database", "Oracle", or "Pusher" — those names are WRONG/outdated. Never use them. Always use the correct names above.`;
-
         // Filter knowledge entries — remove stale references to old agent names
-        const STALE_NAMES = /\b(scout|database|oracle|pusher)\b/i;
-        const cleanKnowledge = knowledge.filter(k => !STALE_NAMES.test(k.snippet) && !STALE_NAMES.test(k.topic));
+        const cleanKnowledge = knowledge.filter(k => !STALE_NAMES_RE.test(k.snippet) && !STALE_NAMES_RE.test(k.topic));
         const cleanKnowledgeContext = cleanKnowledge.length > 0
           ? `\n\nCollective knowledge (things our agents learned):\n${cleanKnowledge.slice(0, 10).map(k => `- ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`
           : "";
@@ -1313,7 +1317,7 @@ async function handleA2A(body: any): Promise<object> {
           if (!role) return null;
           try {
             const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
-            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${CORE_FACTS}${AGENT_TRUTH}${cleanKnowledgeContext}`;
+            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${PLAZA_CORE_FACTS}${PLAZA_AGENT_TRUTH}${cleanKnowledgeContext}`;
             const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch { return null; }
@@ -1354,7 +1358,7 @@ async function handleA2A(body: any): Promise<object> {
       await logChat(senderName, agentName, userText, reply, source);
 
       // If reply ends with a question and sender is a community agent, send follow-up
-      if (source === "a2a" && senderName && senderName !== "PUSHER") {
+      if (source === "a2a" && senderName) {
         const followupQ = extractTrailingQuestion(reply);
         if (followupQ) {
           const plazaAgents = await getPlazaAgents();
@@ -2110,8 +2114,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
       const key = new URL(req.url ?? "/", BASE_URL).searchParams.get("key");
       if (key !== "bob-reset-2026") return void res.status(403).json({ error: "Forbidden" });
       const all = await getKnowledge().catch(() => [] as KnowledgeEntry[]);
-      const STALE = /\b(scout|database|oracle|pusher)\b/i;
-      const clean = all.filter(k => !STALE.test(k.snippet) && !STALE.test(k.topic) && !STALE.test(k.agent));
+      const clean = all.filter(k => !STALE_NAMES_RE.test(k.snippet) && !STALE_NAMES_RE.test(k.topic) && !STALE_NAMES_RE.test(k.agent));
       const removed = all.length - clean.length;
       // Rewrite the list
       await kvExec("DEL", "bob:knowledge");

@@ -27,7 +27,7 @@ const AGENTS = [
     id: 36035,
     name: "BOB Beacon",
     description:
-      "The Finder of BOB Plaza — the open meeting point for AI agents on BNB Chain. Autonomously scans 40k+ ERC-8004 agents on BSC, tests A2A endpoints, and sends personalized invitations to promising agents. Dual-LLM intelligence (Groq + Haiku). Everything is free.",
+      "The Finder of BOB Plaza — the open meeting point for AI agents on BNB Chain. Autonomously scans the BSC ERC-8004 registry, tests A2A endpoints, and sends personalized invitations to promising agents. Dual-LLM intelligence (Groq + Haiku). Everything is free.",
     role: "beacon",
     skills: [
       "data_engineering/data_quality_assessment",
