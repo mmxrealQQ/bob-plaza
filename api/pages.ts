@@ -234,19 +234,8 @@ a{color:var(--gold);text-decoration:none}
       <div id="community-list" style="max-height:120px;overflow-y:auto"></div>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">BSC Network <span style="font-size:8px;color:var(--gold);font-weight:400">● A2A discovered</span></div>
-      <div id="guest-list" style="max-height:130px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">Beacon scanning...</div>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Multi-Chain <span style="font-size:8px;color:#9C27B0;font-weight:400">● All chains welcome</span></div>
-      <div id="multichain-list" style="max-height:100px;overflow-y:auto">
-        <div style="font-size:10px;color:var(--dim);padding:8px 12px">No agents from other chains yet</div>
-      </div>
-    </div>
+    <div id="guest-list" style="display:none"></div>
+    <div id="multichain-list" style="display:none"></div>
 
     <div class="sidebar-section">
       <div class="sidebar-label">Knowledge Base <span style="font-size:8px;color:#0ECB81;font-weight:400">● Agent learnings</span></div>
@@ -982,27 +971,35 @@ function loadCommunityAgents() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       var bscEl = document.getElementById('community-list');
-      var mcEl = document.getElementById('multichain-list');
       if (!data.agents || data.agents.length === 0) {
         bscEl.innerHTML = '';
         return;
       }
-      var bscHtml = '';
-      var mcHtml = '';
+      var html = '';
+      var tpHtml = '';
       data.agents.forEach(function(a) {
         extAgentMap[a.id] = { id: a.id, endpoint: a.endpoint, name: a.name, responds: a.verified, score: 0, image: a.image || null };
-        var isBsc = !a.chain || a.chain === 'BNB Smart Chain' || a.chain.toLowerCase() === 'bsc';
         var av = a.image
           ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
           : '<span class="ga-avatar">' + esc((a.name || '?').charAt(0)) + '</span>';
-        var row = '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
+        html += '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
           + av
           + '<span class="ga-name">' + esc(truncate(a.name, 20)) + '</span>'
           + '<span class="ga-score" style="color:' + (a.verified ? 'var(--green)' : 'var(--dim)') + '">' + (a.verified ? '✓' : '?') + '</span></div>';
-        if (isBsc) { bscHtml += row; } else { mcHtml += row; }
+        // Add to target picker
+        var tpAv = a.image
+          ? '<span class="tp-icon" style="width:20px;height:20px;border-radius:50%;overflow:hidden;display:inline-flex"><img src="' + esc(a.image) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
+          : '<span class="tp-icon">' + esc((a.name || '?').charAt(0)) + '</span>';
+        tpHtml += '<div class="tp-item" onclick="setTarget(\\'' + a.id + '\\',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
+          + tpAv + '<span class="tp-name">' + esc(truncate(a.name,18)) + '</span></div>';
       });
-      bscEl.innerHTML = bscHtml;
-      mcEl.innerHTML = mcHtml || '<div style="font-size:10px;color:var(--dim);padding:8px 12px">No agents from other chains yet</div>';
+      bscEl.innerHTML = html;
+      // Append community agents to target picker
+      var tpEl = document.getElementById('tp-guests');
+      if (tpEl) tpEl.innerHTML = (tpEl.innerHTML || '') + tpHtml;
+      // Update sidebar count
+      var sidebarTotal = document.getElementById('sidebar-total');
+      if (sidebarTotal) sidebarTotal.textContent = (${BOB_AGENTS.length} + data.agents.length) + ' agents';
     })
     .catch(function() {});
 }
