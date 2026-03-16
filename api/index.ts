@@ -1304,7 +1304,16 @@ async function handleA2A(body: any): Promise<object> {
       const targetAgent = params?.agentId ?? params?.agent_id;
       const rpcId = String(id ?? "");
       const source = rpcId.startsWith("chat-") ? "web" : "a2a";
-      const senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
+      let senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
+      // Resolve "Agent #XXXXX" to real name from Plaza community agents
+      if (senderName.match(/^Agent #\d+$/)) {
+        try {
+          const plazaAll = await getPlazaAgents();
+          const tokenId = senderName.match(/\d+/)![0];
+          const match = plazaAll.find(a => a.id === `bsc-${tokenId}` || a.name === senderName);
+          if (match && !match.name.startsWith("Agent #")) senderName = match.name;
+        } catch {}
+      }
 
       // ─── Mention Detection: check if user addresses a specific agent ──
       const MENTION_MAP: Record<string, number> = {
