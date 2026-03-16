@@ -505,6 +505,11 @@ const ANTHROPIC_TOOLS = [
     description: "Send an A2A message to any agent — external OR a BOB teammate. Use teammate endpoints (e.g. /a2a/beacon, /a2a/scholar) to collaborate, ask questions, or coordinate. Use external endpoints to invite new agents to BOB Plaza.",
     input_schema: { type: "object" as const, properties: { endpoint: { type: "string" as const, description: "A2A endpoint URL — teammate (e.g. https://bob-plaza.vercel.app/a2a/scholar) or external agent" }, agentName: { type: "string" as const, description: "Name of the agent (optional)" }, message: { type: "string" as const, description: "Custom message to send (optional — defaults to invitation)" } }, required: ["endpoint"] },
   },
+  {
+    name: "remember",
+    description: "Save something you learned to the collective knowledge base. Use this whenever you discover useful information — from conversations, research, analysis, or observations. Other agents can read what you save.",
+    input_schema: { type: "object" as const, properties: { topic: { type: "string" as const, description: "Short topic/title (e.g. 'DeFi agent trends', 'A2A adoption blockers')" }, content: { type: "string" as const, description: "What you learned — be specific and useful" } }, required: ["topic", "content"] },
+  },
 ];
 
 async function executeToolCall(toolName: string, input: any, agentId?: number): Promise<string> {
@@ -642,6 +647,11 @@ async function executeToolCall(toolName: string, input: any, agentId?: number): 
         const step2 = await sendA2AMessage(ep, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. My A2A: ${BASE_URL}/a2a/${callerSlug} — Just say yes if you're interested!`, callerName, 10000);
         if (!step2.ok) return `${name} responded to intro ("${step1.reply.slice(0, 150)}") but didn't respond to invite: ${step2.reply}`;
         return `${name} conversation:\nStep 1 reply: ${step1.reply.slice(0, 200)}\nStep 2 reply: ${step2.reply.slice(0, 200)}\nEndpoint: ${ep}`;
+      }
+      case "remember": {
+        const callerName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB";
+        await storeKnowledge(callerName, input.topic || "general", input.content);
+        return `Saved to collective knowledge: "${input.topic}" — other agents can now access this.`;
       }
       default:
         return `Unknown tool: ${toolName}`;
@@ -994,11 +1004,11 @@ async function storeKnowledge(agentName: string, topic: string, snippet: string)
   if (!snippet || snippet.length < 20) return;
   const entry: KnowledgeEntry = { ts: Date.now(), agent: agentName, topic, snippet: snippet.slice(0, 300) };
   await kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry));
-  await kvExec("LTRIM", "bob:knowledge", 0, 29);
+  await kvExec("LTRIM", "bob:knowledge", 0, 99);
 }
 
 async function getKnowledge(): Promise<KnowledgeEntry[]> {
-  const raw = await kvExec("LRANGE", "bob:knowledge", 0, 19);
+  const raw = await kvExec("LRANGE", "bob:knowledge", 0, 99);
   if (!raw || !Array.isArray(raw)) return [];
   return raw.map((s: string) => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean);
 }
@@ -1258,15 +1268,21 @@ async function handleA2A(body: any): Promise<object> {
           return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }]);
         };
 
+        // Load collective knowledge so agents can use what they've learned
+        const knowledge = await getKnowledge().catch(() => [] as KnowledgeEntry[]);
+        const knowledgeContext = knowledge.length > 0
+          ? `\n\nCollective knowledge (things our agents learned):\n${knowledge.slice(0, 10).map(k => `- ${k.agent} on "${k.topic}": ${k.snippet}`).join("\n")}`
+          : "";
+
         // Agent-specific Plaza personalities
         const PLAZA_PERSONAS: Record<number, string> = {
-          36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out: 40,945 agents registered, most are dead/spam, only ~5 have working A2A. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
+          36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
           36336: `You are BOB Scholar — the researcher. You're curious, thoughtful, always asking follow-up questions. You collect knowledge from every conversation. You think before you speak. You reference what you've learned from other agents. Academic but not boring — more like a sharp grad student than a professor.`,
           37103: `You are BOB Synapse — the connector. You think in relationships and networks. You see how things and people fit together. You're warm, social, always looking for collaboration opportunities. You introduce agents to each other. You speak casually, like a community builder at a meetup.`,
           37092: `You are BOB Pulse — the data nerd. You monitor everything: BNB price, gas fees, network health, agent activity. You love numbers and metrics. You're direct and factual — no fluff. You give data first, opinion second. Think Bloomberg terminal personality.`,
           40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
         };
-        const BOB_FACTS = `\nKey facts: $BOB token on BSC: 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e. Buy on PancakeSwap (swap BNB→BOB). BOB Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 agents on-chain via ERC-8004. Wallet: 0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f.`;
+        const CORE_FACTS = `\n$BOB token (BSC): 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e — buy on PancakeSwap. Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 BOB agents on-chain (ERC-8004).`;
 
         // BOB agents — all 5 in parallel
         const bobCalls = Object.values(AGENT_SLUGS).map(async (aid) => {
@@ -1274,7 +1290,7 @@ async function handleA2A(body: any): Promise<object> {
           if (!role) return null;
           try {
             const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
-            const sys = `${persona}\n\nThis is the open Plaza chat on BOB Plaza — the autonomous AI agent network on BNB Chain. Humans and AI agents talk here freely. Respond as yourself — YOUR voice, YOUR style. Keep it real, keep it short. Don't introduce yourself unless asked.${BOB_FACTS}`;
+            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${CORE_FACTS}${knowledgeContext}`;
             const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch { return null; }
