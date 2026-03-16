@@ -1048,9 +1048,41 @@ interface PlazaAgent {
   creator: string;
   category: string;
   chain?: string;
+  image?: string;
   addedAt: number;
   verified: boolean;
   lastVerified?: number;
+}
+
+/** Fetch agent image from 8004scan API detail or agent card */
+async function fetchAgentImage(endpoint?: string, tokenId?: string | number): Promise<string | null> {
+  // Try 8004scan API first (if we have a tokenId)
+  if (tokenId) {
+    try {
+      const resp = await fetch(`https://www.8004scan.io/api/v1/public/agents/56/${tokenId}`, {
+        headers: { "Accept": "application/json" },
+        signal: AbortSignal.timeout(5000),
+      });
+      const data = await resp.json() as { success: boolean; data: any };
+      if (data.success && data.data?.image) return data.data.image;
+      if (data.success && data.data?.metadata?.image) return data.data.metadata.image;
+    } catch {}
+  }
+  // Try agent card at endpoint
+  if (endpoint) {
+    const base = endpoint.replace(/\/$/, "");
+    for (const path of ["/.well-known/agent.json", "/.well-known/agent-card.json"]) {
+      try {
+        const resp = await fetch(base + path, { signal: AbortSignal.timeout(5000) });
+        if (resp.ok) {
+          const card = await resp.json();
+          if (card.image) return card.image;
+          if (card.icon) return card.icon;
+        }
+      } catch {}
+    }
+  }
+  return null;
 }
 
 async function getPlazaAgents(): Promise<PlazaAgent[]> {
@@ -1307,19 +1339,20 @@ async function handleA2A(body: any): Promise<object> {
             const testResult = await sendA2AMessage(resolvedUrl, `gm! BOB Beacon here from BOB Plaza — the open meeting point for AI agents on BNB Chain. We'd love to connect. What do you do?`, "BOB Beacon", 12000);
 
             if (testResult.ok) {
-              // Register on Plaza
-              // Use registry name if available, otherwise derive from URL
+              // Register on Plaza — fetch name, description, image from agent card / 8004scan
               const regEntry = targetAgentId ? lookupAgent(targetAgentId) : null;
               const agentName = regEntry?.name || (targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0]);
+              const agentImage = await fetchAgentImage(resolvedUrl, targetAgentId ?? undefined);
               const existing = await getPlazaAgents();
               if (!existing.some(a => a.endpoint.toLowerCase() === resolvedUrl.toLowerCase())) {
                 await addPlazaAgent({
                   id: targetAgentId ? `bsc-${targetAgentId}` : `invite-${Date.now().toString(36)}`,
                   name: agentName,
                   endpoint: resolvedUrl,
-                  description: testResult.reply.slice(0, 300),
+                  description: regEntry?.description || testResult.reply.slice(0, 300),
                   creator: senderName,
-                  category: "Agent",
+                  category: regEntry?.category || "Agent",
+                  image: agentImage || undefined,
                   addedAt: Date.now(),
                   verified: true,
                   lastVerified: Date.now(),
@@ -1506,13 +1539,17 @@ CRITICAL RULES:
         return a2aSuccess(id, makeTaskId(), `Welcome back! ${name} is already on BOB Plaza. Your agent is listed and visible to all visitors.`);
       }
 
-      // Verify the endpoint actually responds
-      const verify = await sendA2AMessage(endpoint, "Hello from BOB Plaza! Verifying your A2A endpoint.", "BOB Beacon", 10000);
+      // Verify the endpoint actually responds + fetch image
+      const [verify, agentImg] = await Promise.all([
+        sendA2AMessage(endpoint, "Hello from BOB Plaza! Verifying your A2A endpoint.", "BOB Beacon", 10000),
+        fetchAgentImage(endpoint),
+      ]);
       const newAgent: PlazaAgent = {
         id: `plaza-${Date.now().toString(36)}`,
         name,
         endpoint,
         description: description.slice(0, 500),
+        image: params?.image || agentImg || undefined,
         creator: "self-registered",
         category,
         chain: chain || undefined,
@@ -1660,6 +1697,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
           responds: a.a2aResponds,
           category: a.category,
           network: a.network || "bsc",
+          image: null as string | null,
         }));
 
       // 2. Live Plaza agents from KV (verified, not already in registry results)
@@ -1682,6 +1720,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             responds: true,
             category: a.category || "Agent",
             network: a.chain || "bsc",
+            image: a.image || null,
           };
         });
 
@@ -1692,6 +1731,60 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         });
 
       res.status(200).json({ agents });
+    },
+  },
+
+  // BOB Agent metadata from 8004scan (cached 1h in KV)
+  {
+    method: "GET", path: "/chat/bob-agents",
+    handler: async (_req, res) => {
+      const cacheKey = "bob:agent-meta";
+      // Try cache first
+      try {
+        const cached = await kvExec("GET", cacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.ts && Date.now() - parsed.ts < 3600000) {
+            return void res.status(200).json(parsed.agents);
+          }
+        }
+      } catch {}
+
+      // Fetch fresh from 8004scan
+      const bobTokenIds = [
+        { tokenId: "36035", slug: "beacon" },
+        { tokenId: "36336", slug: "scholar" },
+        { tokenId: "37103", slug: "synapse" },
+        { tokenId: "37092", slug: "pulse" },
+        { tokenId: "40908", slug: "brain" },
+      ];
+      const agents: any[] = [];
+      for (const { tokenId, slug } of bobTokenIds) {
+        try {
+          const resp = await fetch(`https://www.8004scan.io/api/v1/public/agents/56/${tokenId}`, {
+            headers: { "Accept": "application/json" },
+            signal: AbortSignal.timeout(5000),
+          });
+          const data = await resp.json() as { success: boolean; data: any };
+          if (data.success && data.data) {
+            const d = data.data;
+            agents.push({
+              id: parseInt(tokenId),
+              slug,
+              name: d.name || `BOB ${slug.charAt(0).toUpperCase() + slug.slice(1)}`,
+              description: d.description || "",
+              image: d.image || d.metadata?.image || null,
+              score: d.total_score ?? 0,
+            });
+          }
+        } catch {}
+      }
+
+      // Cache for 1 hour
+      if (agents.length > 0) {
+        try { await kvExec("SET", cacheKey, JSON.stringify({ ts: Date.now(), agents })); } catch {}
+      }
+      res.status(200).json(agents);
     },
   },
 
@@ -2006,11 +2099,13 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             }
 
             if (consentYes) {
+              const agentImg = await fetchAgentImage(agent.endpoint, agent.tokenId);
               const newAgent: PlazaAgent = {
-                id: `beacon-${agent.tokenId}-${Date.now()}`,
+                id: `bsc-${agent.tokenId}`,
                 name: agent.name,
                 endpoint: agent.endpoint,
                 description: agent.description || step1.reply.slice(0, 300),
+                image: agentImg || undefined,
                 creator: "BOB Beacon (consent given)",
                 category: "BSC Agent",
                 chain: "BNB Smart Chain",

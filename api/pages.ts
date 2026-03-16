@@ -24,11 +24,11 @@ export function plazaPage(stats: any, maxAgentId: number, liveStats?: { messages
   const totalAgents = maxAgentId || 0;
 
   const agentSidebar = BOB_AGENTS.map(a => `
-    <div class="agent-pill" data-agent="${a.id}" onclick="filterAgent(${a.id})">
-      <span class="agent-icon">${a.icon}</span>
+    <div class="agent-pill" data-agent="${a.id}" id="bob-pill-${a.id}" onclick="filterAgent(${a.id})">
+      <span class="agent-icon" id="bob-icon-${a.id}">${a.icon}</span>
       <div class="agent-info">
-        <div class="agent-name" style="color:${a.color}">${a.name}</div>
-        <div class="agent-role">${a.role}</div>
+        <div class="agent-name" style="color:${a.color}" id="bob-name-${a.id}">${a.name}</div>
+        <div class="agent-role" id="bob-role-${a.id}">${a.role}</div>
       </div>
       <span class="agent-dot online"></span>
     </div>
@@ -71,7 +71,8 @@ a{color:var(--gold);text-decoration:none}
 .agent-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all 0.2s}
 .agent-pill:hover{background:rgba(255,255,255,0.04)}
 .agent-pill.active{background:rgba(240,185,11,0.08)}
-.agent-icon{font-size:18px;flex-shrink:0}
+.agent-icon{font-size:18px;flex-shrink:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,0.06);font-weight:700;font-size:13px;color:var(--dim)}
+.agent-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .agent-info{flex:1;min-width:0}
 .agent-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .agent-role{font-size:9px;color:var(--dim)}
@@ -81,6 +82,8 @@ a{color:var(--gold);text-decoration:none}
 
 .guest-agent{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s;font-size:11px}
 .guest-agent:hover{background:rgba(255,255,255,0.04)}
+.guest-agent .ga-avatar{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(255,255,255,0.06);font-size:10px;font-weight:700;color:var(--dim)}
+.guest-agent .ga-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .guest-agent .ga-name{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .guest-agent .ga-score{font-size:9px;color:var(--dim)}
 
@@ -94,7 +97,8 @@ a{color:var(--gold);text-decoration:none}
 .messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 .msg-group{display:flex;gap:10px;padding:6px 0}
-.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;overflow:hidden}
+.msg-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .msg-body{flex:1;min-width:0}
 .msg-header{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
 .msg-sender{font-size:12px;font-weight:700}
@@ -424,12 +428,35 @@ function closeVision() {
 }
 
 var agentMeta = {
-  36035:{name:'BOB Beacon',icon:'🔦',color:'#0ECB81'},
-  36336:{name:'BOB Scholar',icon:'🎓',color:'#1E88E5'},
-  37103:{name:'BOB Synapse',icon:'🔗',color:'#9C27B0'},
-  37092:{name:'BOB Pulse',icon:'💓',color:'#FF9800'},
-  40908:{name:'BOB Brain',icon:'🧠',color:'#F0B90B'}
+  36035:{name:'BOB Beacon',icon:'🔦',color:'#0ECB81',image:null},
+  36336:{name:'BOB Scholar',icon:'🎓',color:'#1E88E5',image:null},
+  37103:{name:'BOB Synapse',icon:'🔗',color:'#9C27B0',image:null},
+  37092:{name:'BOB Pulse',icon:'💓',color:'#FF9800',image:null},
+  40908:{name:'BOB Brain',icon:'🧠',color:'#F0B90B',image:null}
 };
+
+// Load BOB agent metadata from 8004scan (dynamic names, descriptions, avatars)
+function loadBobAgentMeta() {
+  fetch('/chat/bob-agents')
+    .then(function(r) { return r.json(); })
+    .then(function(agents) {
+      if (!Array.isArray(agents)) return;
+      agents.forEach(function(a) {
+        if (!agentMeta[a.id]) return;
+        if (a.image) agentMeta[a.id].image = a.image;
+        if (a.name) agentMeta[a.id].name = a.name;
+        // Update sidebar pill
+        var iconEl = document.getElementById('bob-icon-' + a.id);
+        if (iconEl && a.image) {
+          iconEl.innerHTML = '<img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'">';
+        }
+        var nameEl = document.getElementById('bob-name-' + a.id);
+        if (nameEl && a.name) nameEl.textContent = a.name;
+      });
+    })
+    .catch(function() {});
+}
+loadBobAgentMeta();
 
 function esc(s) {
   if (!s) return '';
@@ -465,8 +492,16 @@ function getAgentStyle(name) {
   if (n.includes('synapse') || n.includes('connector')) return agentMeta[37103];
   if (n.includes('pulse') || n.includes('monitor')) return agentMeta[37092];
   if (n.includes('brain') || n.includes('strategist')) return agentMeta[40908];
-  if (n.includes('bob')) return {name:'BOB',icon:'🤖',color:'#F0B90B'};
-  return {name:name,icon:'🔵',color:'var(--text)'};
+  if (n.includes('bob')) return {name:'BOB',icon:'🤖',color:'#F0B90B',image:null};
+  // Check if it's a known external agent with an image
+  var ext = Object.values(extAgentMap).find(function(a) { return a && a.name && a.name.toLowerCase() === n; });
+  if (ext && ext.image) return {name:ext.name,icon:ext.name.charAt(0).toUpperCase(),color:'var(--text)',image:ext.image};
+  return {name:name,icon:'🔵',color:'var(--text)',image:null};
+}
+
+function renderAvatar(style, bg) {
+  if (style.image) return '<div class="msg-avatar" style="background:' + bg + '"><img src="' + esc(style.image) + '" onerror="this.parentNode.textContent=\\'' + esc(style.name || '').charAt(0) + '\\'"></div>';
+  return '<div class="msg-avatar" style="background:' + bg + '">' + style.icon + '</div>';
 }
 
 function getSourceBadge(source) {
@@ -526,7 +561,7 @@ function renderMessage(msg, fromServer) {
     var plazaBadge = '<span class="msg-badge" style="background:rgba(171,71,188,0.15);color:#AB47BC">Plaza</span>';
     var div2 = document.createElement('div');
     div2.className = 'msg-group fade-msg';
-    div2.innerHTML = '<div class="msg-avatar" style="background:rgba(240,185,11,0.08)">' + agentStyle.icon + '</div>'
+    div2.innerHTML = renderAvatar(agentStyle, 'rgba(240,185,11,0.08)')
       + '<div class="msg-body">'
       + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentName) + '</span>' + plazaBadge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
       + '<div class="msg-content">' + linkify(esc(msg.reply)) + '</div>'
@@ -535,7 +570,7 @@ function renderMessage(msg, fromServer) {
   } else {
     var div1 = document.createElement('div');
     div1.className = 'msg-group fade-msg' + (isAuto ? ' msg-auto' : '');
-    div1.innerHTML = '<div class="msg-avatar" style="background:rgba(255,255,255,0.05)">' + fromStyle.icon + '</div>'
+    div1.innerHTML = renderAvatar(fromStyle, 'rgba(255,255,255,0.05)')
       + '<div class="msg-body">'
       + '<div class="msg-header"><span class="msg-sender" style="color:' + fromStyle.color + '">' + esc(fromName) + '</span>' + badge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
       + '<div class="msg-content">' + linkify(esc(msg.text)) + '</div>'
@@ -549,7 +584,7 @@ function renderMessage(msg, fromServer) {
         : '<span class="msg-badge" style="background:rgba(240,185,11,0.1);color:var(--gold)">BOB</span>';
       var div2b = document.createElement('div');
       div2b.className = 'msg-group fade-msg';
-      div2b.innerHTML = '<div class="msg-avatar" style="background:rgba(240,185,11,0.08)">' + agentStyle.icon + '</div>'
+      div2b.innerHTML = renderAvatar(agentStyle, 'rgba(240,185,11,0.08)')
         + '<div class="msg-body">'
         + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentName) + '</span>' + replyBadge + '<span class="msg-time">' + timeAgo(msg.ts) + '</span></div>'
         + '<div class="msg-content">' + linkify(esc(msg.reply)) + '</div>'
@@ -601,10 +636,16 @@ function loadGuestAgents() {
         var idKey = typeof a.id === 'number' ? a.id : "'" + a.id + "'";
         var idLabel = typeof a.id === 'number' ? '#' + a.id + ' ' : '';
         extAgentMap[a.id] = a;
-        html += '<div class="guest-agent" onclick="talkToAgent(' + idKey + ')"><span class="agent-dot online" style="width:6px;height:6px"></span><span class="ga-name">' + idLabel + esc(truncate(a.name,22)) + '</span><span class="ga-score">' + a.score + '</span></div>';
+        var avatarHtml = a.image
+          ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
+          : '<span class="ga-avatar">' + esc((a.name || '?').charAt(0)) + '</span>';
+        html += '<div class="guest-agent" onclick="talkToAgent(' + idKey + ')">' + avatarHtml + '<span class="ga-name">' + idLabel + esc(truncate(a.name,20)) + '</span><span class="ga-score">' + a.score + '</span></div>';
+        var tpAvatar = a.image
+          ? '<span class="tp-icon" style="width:20px;height:20px;border-radius:50%;overflow:hidden;display:inline-flex"><img src="' + esc(a.image) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
+          : '<span class="tp-icon">🟢</span>';
         tpHtml += '<div class="tp-item" onclick="setTarget(' + idKey + ',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
-          + '<span class="tp-icon">🟢</span>'
-          + '<span class="tp-name">' + idLabel + esc(truncate(a.name,18)) + '</span>'
+          + tpAvatar
+          + '<span class="tp-name">' + idLabel + esc(truncate(a.name,16)) + '</span>'
           + '<span style="font-size:10px;color:var(--dim);margin-left:auto">Score ' + a.score + '</span></div>';
       });
 
@@ -667,7 +708,7 @@ function sendMessage() {
 
   var div2 = document.createElement('div');
   div2.className = 'msg-group fade-msg';
-  div2.innerHTML = '<div class="msg-avatar" style="background:rgba(240,185,11,0.08)">' + agentStyle.icon + '</div>'
+  div2.innerHTML = renderAvatar(agentStyle, 'rgba(240,185,11,0.08)')
     + '<div class="msg-body">'
     + '<div class="msg-header"><span class="msg-sender" style="color:' + agentStyle.color + '">' + esc(agentLabel) + '</span><span class="msg-badge" style="background:rgba(240,185,11,0.1);color:var(--gold)">BOB</span><span class="msg-time">typing...</span></div>'
     + '<div class="msg-content" id="' + replyId + '"><span class="pulse" style="color:var(--dim)">thinking...</span></div>'
@@ -716,6 +757,7 @@ function sendExternal(agent, text, btn) {
 
   var div1 = document.createElement('div');
   div1.className = 'msg-group fade-msg';
+  var extStyle = getAgentStyle(agentName);
   div1.innerHTML = '<div class="msg-avatar" style="background:rgba(156,39,176,0.08)">📢</div>'
     + '<div class="msg-body">'
     + '<div class="msg-header"><span class="msg-sender" style="color:var(--purple)">' + esc(nickname) + ' → ' + esc(truncate(agentName,20)) + '</span>' + getSourceBadge('a2a-outbound') + '<span class="msg-time">just now</span></div>'
@@ -725,7 +767,7 @@ function sendExternal(agent, text, btn) {
 
   var div2 = document.createElement('div');
   div2.className = 'msg-group fade-msg';
-  div2.innerHTML = '<div class="msg-avatar" style="background:rgba(30,136,229,0.08)">🔵</div>'
+  div2.innerHTML = renderAvatar(extStyle.image ? extStyle : {name:agentName,icon:agentName.charAt(0).toUpperCase(),color:'var(--blue)',image:agent.image||null}, 'rgba(30,136,229,0.08)')
     + '<div class="msg-body">'
     + '<div class="msg-header"><span class="msg-sender" style="color:var(--blue)">' + esc(truncate(agentName,20)) + '</span><span class="msg-badge" style="background:rgba(30,136,229,0.15);color:var(--blue)">BSC</span><span class="msg-time">reaching out...</span></div>'
     + '<div class="msg-content" id="' + replyId + '"><span class="pulse" style="color:var(--dim)">contacting agent...</span></div>'
