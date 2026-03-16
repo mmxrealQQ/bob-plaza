@@ -1573,6 +1573,39 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     },
   },
 
+  // DEBUG: Test Plaza Haiku calls
+  {
+    method: "GET", path: "/plaza/debug",
+    handler: async (_req, res) => {
+      const logs: string[] = [];
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      logs.push(`API key present: ${!!apiKey}, length: ${apiKey?.length ?? 0}`);
+      logs.push(`GROQ key present: ${!!process.env.GROQ_API_KEY}`);
+      logs.push(`Agents: ${JSON.stringify(Object.entries(AGENT_SLUGS).map(([s,id]) => ({ slug: s, id, name: AGENT_ROLES[id]?.name })))}`);
+
+      // Test one Haiku call
+      try {
+        const resp = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-api-key": apiKey || "", "anthropic-version": "2023-06-01" },
+          body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 50, system: "You are BOB Beacon. Say hi in 1 sentence.", messages: [{ role: "user", content: "hi" }] }),
+        });
+        logs.push(`Haiku test: HTTP ${resp.status}`);
+        if (resp.ok) {
+          const data = await resp.json() as any;
+          logs.push(`Haiku reply: ${data.content?.[0]?.text?.slice(0, 100)}`);
+        } else {
+          const t = await resp.text();
+          logs.push(`Haiku error: ${t.slice(0, 300)}`);
+        }
+      } catch (e: any) {
+        logs.push(`Haiku CATCH: ${e.message}`);
+      }
+
+      return res.status(200).json({ debug: logs });
+    },
+  },
+
   // Auto-Activity Cron
   {
     method: "GET", path: "/cron/activity",
