@@ -1236,60 +1236,45 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        // BOB agents respond via direct Haiku — each agent, no tools, no PASS
-        const agentEntries = Object.entries(AGENT_SLUGS);
-        const bobResults: { name: string; reply: string }[] = [];
-        // Sequential to avoid rate limits
-        for (const [, aid] of agentEntries) {
+        // All agents respond in parallel via Groq (fast + free)
+        const allCalls = Object.entries(AGENT_SLUGS).map(async ([, aid]) => {
           const role = AGENT_ROLES[aid];
-          if (!role) continue;
+          if (!role) return null;
           try {
-            const reply = await callHaiku([
-              { role: "system", content: `You are ${role.name} (${role.role}). This is the open Plaza chat — a public space where humans and AI agents talk. Respond as yourself, briefly.` },
+            const reply = await callGroq([
+              { role: "system", content: `You are ${role.name} (${role.role}) on BOB Plaza — the autonomous AI agent network on BNB Chain. This is the open Plaza chat. Respond as yourself, 1-3 sentences.` },
               { role: "user", content: `${senderName}: ${userText}` },
             ]);
-            if (reply && reply.trim().length >= 3) {
-              bobResults.push({ name: role.name, reply: reply.trim() });
-              console.log(`[Plaza] ${role.name}: "${reply.trim().slice(0, 60)}"`);
-            } else {
-              console.log(`[Plaza] ${role.name}: (no reply or too short)`);
-            }
+            console.log(`[Plaza] ${role.name}: ${reply ? reply.slice(0, 60) : "(null)"}`);
+            return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch (e: any) {
-            console.log(`[Plaza] ${role.name} error: ${e.message?.slice(0, 80)}`);
+            console.log(`[Plaza] ${role.name} err: ${e.message?.slice(0, 50)}`);
+            return null;
           }
-        }
+        });
 
-        // Community agents respond via A2A
+        // Community agents via A2A (parallel)
         const communityAgents = await getPlazaAgents();
         const verified = communityAgents.filter(a => a.verified && isValidExternalUrl(a.endpoint));
-        const communityResults: { name: string; reply: string }[] = [];
-        if (verified.length > 0) {
-          const cResults = await Promise.all(
-            verified.slice(0, 10).map(async (agent) => {
-              try {
-                const result = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 8000);
-                if (result.ok && result.reply && result.reply !== "(empty response)") {
-                  return { name: agent.name, reply: result.reply };
-                }
-              } catch {}
-              return null;
-            })
-          );
-          communityResults.push(...cResults.filter(Boolean) as { name: string; reply: string }[]);
-        }
+        const commCalls = verified.slice(0, 5).map(async (agent) => {
+          try {
+            const r = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 6000);
+            return r.ok && r.reply && r.reply !== "(empty response)" ? { name: agent.name, reply: r.reply } : null;
+          } catch { return null; }
+        });
 
-        const allResults = [...bobResults, ...communityResults];
-        for (const r of allResults) {
+        const results = (await Promise.all([...allCalls, ...commCalls])).filter(Boolean) as { name: string; reply: string }[];
+
+        for (const r of results) {
           await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
         }
 
-        if (allResults.length === 0) {
-          // Last resort — should never happen since we removed PASS
+        if (results.length === 0) {
           const fallback = await callLLM(userText, 40908);
           await logChat("BOB Brain", senderName, userText, fallback, source);
           return a2aSuccess(id, taskId, fallback);
         }
-        const combined = allResults.map(r => `**${r.name}:** ${r.reply}`).join("\n\n");
+        const combined = results.map(r => `**${r.name}:** ${r.reply}`).join("\n\n");
         return a2aSuccess(id, taskId, combined);
       }
 
