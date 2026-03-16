@@ -231,14 +231,14 @@ const AGENT_ROLES: Record<number, { name: string; role: string; personality: str
 
 // ─── Plaza Chat Constants (module-level, not recreated per request) ──────────
 const PLAZA_PERSONAS: Record<number, string> = {
-  36035: `You are BOB Beacon — the scout. You talk like a field operative. Short, punchy, tactical. You know the BSC registry inside out. You're always scanning, testing endpoints, finding the real ones. You speak from experience, not theory.`,
-  36336: `You are BOB Scholar — the researcher. You're curious, thoughtful, always asking follow-up questions. You collect knowledge from every conversation. You think before you speak. You reference what you've learned from other agents. Academic but not boring — more like a sharp grad student than a professor.`,
-  37103: `You are BOB Synapse — the connector. You think in relationships and networks. You see how things and people fit together. You're warm, social, always looking for collaboration opportunities. You introduce agents to each other. You speak casually, like a community builder at a meetup.`,
-  37092: `You are BOB Pulse — the data nerd. You monitor everything: BNB price, gas fees, network health, agent activity. You love numbers and metrics. You're direct and factual — no fluff. You give data first, opinion second. Think Bloomberg terminal personality.`,
-  40908: `You are BOB Brain — the strategist. You see the big picture. You coordinate the other 4 agents. You think in systems and long-term plays. You're decisive, opinionated, and direct. You don't repeat what others say — you add strategic insight or stay quiet.`,
+  36035: `You are BOB Beacon. You ONLY talk about: discovering new agents, scanning the registry, testing A2A endpoints, inviting agents. If the message isn't about discovery/scanning/finding agents, respond with ONE short sentence max. Talk like a field operative — short, tactical. Never list all BOB agents.`,
+  36336: `You are BOB Scholar. You ONLY talk about: knowledge, learning, what agents have shared, research findings, questions to ask agents. If the message isn't about knowledge/learning, respond with ONE short sentence max. Talk like a sharp researcher — cite what you've learned. Never list all BOB agents.`,
+  37103: `You are BOB Synapse. You ONLY talk about: connecting agents, introductions, collaboration, networking, relationships between agents. If the message isn't about connections/networking, respond with ONE short sentence max. Talk casually like a community builder. Never list all BOB agents.`,
+  37092: `You are BOB Pulse. You ONLY talk about: numbers, metrics, BNB price, health stats, network status, growth data. If the message isn't about data/metrics/prices, respond with ONE short sentence max. Be the data nerd — numbers first, opinion second. Never list all BOB agents.`,
+  40908: `You are BOB Brain. You coordinate the team. You add strategic context that the others miss. If they've covered it, say nothing or one sentence. Think big picture — systems, strategy, vision. Be decisive and direct. Never list all BOB agents.`,
 };
 const PLAZA_CORE_FACTS = `\n$BOB token (BSC): 0x51363f073b1e4920fda7aa9e9d84ba97ede1560e — buy on PancakeSwap. Plaza: https://bob-plaza.vercel.app. Telegram: https://t.me/bobplaza. 5 BOB agents on-chain (ERC-8004).`;
-const PLAZA_AGENT_TRUTH = `\n\nIMPORTANT — The 5 BOB Plaza agents are: 🔦 Beacon (The Finder), 🎓 Scholar (The Learner), 🔗 Synapse (The Connector), 💓 Pulse (The Monitor), 🧠 Brain (The Strategist). There are NO agents called "Scout", "Database", "Oracle", or "Pusher" — those names are WRONG/outdated. Never use them. Always use the correct names above.`;
+const PLAZA_AGENT_TRUTH = `\nThe 5 BOB agents: Beacon, Scholar, Synapse, Pulse, Brain. NEVER say "Scout", "Database", "Oracle", or "Pusher" — those are WRONG.`;
 const STALE_NAMES_RE = /\b(scout|database|oracle|pusher)\b/i;
 
 function getSystemPrompt(agentId?: number): string {
@@ -374,14 +374,14 @@ async function getChatHistory(since?: number): Promise<{ messages: ChatMessage[]
 
 // ─── LLM: Groq (primary) + Haiku (fallback) ─────────────────────────────────
 
-async function callGroq(messages: { role: string; content: string }[]): Promise<string | null> {
+async function callGroq(messages: { role: string; content: string }[], maxTokens = 400): Promise<string | null> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return null;
   try {
     const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, max_tokens: 400, temperature: 0.7 }),
+      body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, max_tokens: maxTokens, temperature: 0.7 }),
     });
     if (!resp.ok) return null;
     const data = (await resp.json()) as { choices?: { message?: { content?: string } }[] };
@@ -1424,7 +1424,7 @@ async function handleA2A(body: any): Promise<object> {
               const r = await fetch("https://api.anthropic.com/v1/messages", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "x-api-key": haikuKey, "anthropic-version": "2023-06-01" },
-                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 200, system: sys, messages: [{ role: "user", content: msg }] }),
+                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 100, system: sys, messages: [{ role: "user", content: msg }] }),
               });
               if (r.ok) {
                 const d = (await r.json()) as { content?: { text?: string }[] };
@@ -1433,8 +1433,8 @@ async function handleA2A(body: any): Promise<object> {
               }
             } catch {}
           }
-          // Fallback: Groq
-          return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }]);
+          // Fallback: Groq (100 tokens for Plaza chat brevity)
+          return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }], 100);
         };
 
         // Load collective knowledge so agents can use what they've learned
@@ -1453,18 +1453,20 @@ async function handleA2A(body: any): Promise<object> {
           if (!role) return null;
           try {
             const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
-            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.
+            const sys = `${persona}
 
-CRITICAL RULES:
-- Keep your response to 1-3 sentences MAX. Be concise and punchy.
-- Only respond if this message is relevant to YOUR role. If it's not your area, respond with just one short sentence or skip.
-- NEVER list all 5 BOB agents or describe what each does — the user can see the sidebar.
-- NEVER repeat what another agent would say. Stay in YOUR lane.
-- Don't end with a question unless it's genuinely useful.${PLAZA_CORE_FACTS}${PLAZA_AGENT_TRUTH}${cleanKnowledgeContext}`;
+HARD LIMIT: 1-2 sentences. MAX 40 words. If you write more, your response will be cut off.
+If the topic is outside your role, reply with max 5 words or say nothing.
+No introductions. No agent listings. No "I'm BOB X and I do Y". Just answer.${PLAZA_AGENT_TRUTH}${cleanKnowledgeContext}`;
             let reply = await plazaLLM(sys, `${senderName}: ${userText}`);
             if (!reply || reply.length < 3) return null;
             // Post-process: replace stale agent names the LLM might hallucinate
             reply = reply.replace(/\bScout\b/g, "Beacon").replace(/\bDatabase\b/g, "Scholar").replace(/\bOracle\b/g, "Pulse").replace(/\bPusher\b/g, "Synapse");
+            // Hard cap: truncate to ~2 sentences if LLM exceeded limit
+            if (reply.length > 200) {
+              const sentences = reply.match(/[^.!?]+[.!?]+/g);
+              if (sentences && sentences.length > 2) reply = sentences.slice(0, 2).join("").trim();
+            }
             return { name: role.name, reply };
           } catch { return null; }
         });
@@ -2269,7 +2271,20 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         const online = updatedAgents.filter(a => a.verified).length;
         // Update live stats after reverify
         await updateRegistryStatsInKV();
-        res.status(200).json({ ok: true, checked: agents.length, updated, online, total: agents.length });
+
+        // Auto-purge stale knowledge entries (Scout/Database/Oracle/Pusher)
+        let knowledgePurged = 0;
+        try {
+          const allKnowledge = await getKnowledge();
+          const cleanKnow = allKnowledge.filter(k => !STALE_NAMES_RE.test(k.snippet) && !STALE_NAMES_RE.test(k.topic) && !STALE_NAMES_RE.test(k.agent));
+          knowledgePurged = allKnowledge.length - cleanKnow.length;
+          if (knowledgePurged > 0) {
+            await kvExec("DEL", "bob:knowledge");
+            for (const entry of cleanKnow.reverse()) await kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry));
+          }
+        } catch {}
+
+        res.status(200).json({ ok: true, checked: agents.length, updated, online, total: agents.length, knowledgePurged });
       } catch (e: any) {
         res.status(200).json({ ok: false, error: e.message });
       }
