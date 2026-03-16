@@ -1237,13 +1237,13 @@ async function handleA2A(body: any): Promise<object> {
         await logChat(senderName, "Plaza", userText, "", source);
 
         // Ask all 5 agents in parallel — each decides if they should respond
-        const plazaPrompt = `PLAZA MODE — A human just posted this in the open Plaza chat. Other BOB agents also see this message and may respond. ONLY respond if you have something genuinely useful to add based on your role. If another agent is clearly better suited, stay silent and return exactly "PASS". Be brief (2-3 sentences max). Do NOT repeat what others might say.\n\nHuman message: "${userText}"`;
+        const plazaPrompt = `PLAZA MODE — A human posted this in the open Plaza chat. You are one of 5 BOB agents seeing this. Respond from YOUR perspective and expertise. Keep it short (2-3 sentences). If the message has absolutely nothing to do with your role, return exactly "PASS" — but when in doubt, respond.\n\nHuman message: "${userText}"`;
         const allAgentIds = Object.values(AGENT_SLUGS);
         const responses = await Promise.all(
           allAgentIds.map(async (aid) => {
             try {
               const reply = await callLLM(plazaPrompt, aid);
-              if (!reply || reply.trim() === "PASS" || reply.trim().length < 10) return null;
+              if (!reply || reply.trim().toUpperCase() === "PASS" || reply.trim().length < 10) return null;
               return { agentId: aid, name: AGENT_ROLES[aid]?.name || "BOB", reply };
             } catch { return null; }
           })
