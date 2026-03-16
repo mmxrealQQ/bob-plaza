@@ -598,11 +598,13 @@ function loadGuestAgents() {
       var html = '';
       var tpHtml = '';
       responding.forEach(function(a) {
+        var idKey = typeof a.id === 'number' ? a.id : "'" + a.id + "'";
+        var idLabel = typeof a.id === 'number' ? '#' + a.id + ' ' : '';
         extAgentMap[a.id] = a;
-        html += '<div class="guest-agent" onclick="talkToAgent(' + a.id + ')"><span class="agent-dot online" style="width:6px;height:6px"></span><span class="ga-name">#' + a.id + ' ' + esc(truncate(a.name,18)) + '</span><span class="ga-score">' + a.score + '</span></div>';
-        tpHtml += '<div class="tp-item" onclick="setTarget(' + a.id + ',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
+        html += '<div class="guest-agent" onclick="talkToAgent(' + idKey + ')"><span class="agent-dot online" style="width:6px;height:6px"></span><span class="ga-name">' + idLabel + esc(truncate(a.name,22)) + '</span><span class="ga-score">' + a.score + '</span></div>';
+        tpHtml += '<div class="tp-item" onclick="setTarget(' + idKey + ',\\'' + esc(truncate(a.name,20)).replace(/'/g,"\\\\'") + '\\',\\'🟢\\')">'
           + '<span class="tp-icon">🟢</span>'
-          + '<span class="tp-name">#' + a.id + ' ' + esc(truncate(a.name,16)) + '</span>'
+          + '<span class="tp-name">' + idLabel + esc(truncate(a.name,18)) + '</span>'
           + '<span style="font-size:10px;color:var(--dim);margin-left:auto">Score ' + a.score + '</span></div>';
       });
 

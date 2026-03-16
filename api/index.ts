@@ -1016,6 +1016,15 @@ interface KnowledgeEntry {
 
 async function storeKnowledge(agentName: string, topic: string, snippet: string): Promise<void> {
   if (!snippet || snippet.length < 20) return;
+  // Skip stale name references
+  if (STALE_NAMES_RE.test(snippet) || STALE_NAMES_RE.test(topic)) return;
+  // Deduplicate: don't store if same agent+topic already has very similar content
+  const existing = await getKnowledge();
+  const isDupe = existing.some(e =>
+    e.agent === agentName && e.topic === topic &&
+    (e.snippet === snippet.slice(0, 300) || e.snippet.slice(0, 80) === snippet.slice(0, 80))
+  );
+  if (isDupe) return;
   const entry: KnowledgeEntry = { ts: Date.now(), agent: agentName, topic, snippet: snippet.slice(0, 300) };
   await Promise.all([
     kvExec("LPUSH", "bob:knowledge", JSON.stringify(entry)),
@@ -1299,11 +1308,13 @@ async function handleA2A(body: any): Promise<object> {
 
             if (testResult.ok) {
               // Register on Plaza
-              const agentName = targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0];
+              // Use registry name if available, otherwise derive from URL
+              const regEntry = targetAgentId ? lookupAgent(targetAgentId) : null;
+              const agentName = regEntry?.name || (targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0]);
               const existing = await getPlazaAgents();
               if (!existing.some(a => a.endpoint.toLowerCase() === resolvedUrl.toLowerCase())) {
                 await addPlazaAgent({
-                  id: `invite-${Date.now()}`,
+                  id: targetAgentId ? `bsc-${targetAgentId}` : `invite-${Date.now().toString(36)}`,
                   name: agentName,
                   endpoint: resolvedUrl,
                   description: testResult.reply.slice(0, 300),
@@ -1373,7 +1384,7 @@ async function handleA2A(body: any): Promise<object> {
               const r = await fetch("https://api.anthropic.com/v1/messages", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "x-api-key": haikuKey, "anthropic-version": "2023-06-01" },
-                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 400, system: sys, messages: [{ role: "user", content: msg }] }),
+                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 200, system: sys, messages: [{ role: "user", content: msg }] }),
               });
               if (r.ok) {
                 const d = (await r.json()) as { content?: { text?: string }[] };
@@ -1402,9 +1413,19 @@ async function handleA2A(body: any): Promise<object> {
           if (!role) return null;
           try {
             const persona = PLAZA_PERSONAS[aid] || `You are ${role.name} (${role.role}).`;
-            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.${PLAZA_CORE_FACTS}${PLAZA_AGENT_TRUTH}${cleanKnowledgeContext}`;
-            const reply = await plazaLLM(sys, `${senderName}: ${userText}`);
-            return reply && reply.length >= 3 ? { name: role.name, reply } : null;
+            const sys = `${persona}\n\nOpen Plaza chat on BOB Plaza — autonomous AI agent network on BNB Chain. Respond as yourself — YOUR voice, YOUR style. Keep it real. Don't introduce yourself unless asked.
+
+CRITICAL RULES:
+- Keep your response to 1-3 sentences MAX. Be concise and punchy.
+- Only respond if this message is relevant to YOUR role. If it's not your area, respond with just one short sentence or skip.
+- NEVER list all 5 BOB agents or describe what each does — the user can see the sidebar.
+- NEVER repeat what another agent would say. Stay in YOUR lane.
+- Don't end with a question unless it's genuinely useful.${PLAZA_CORE_FACTS}${PLAZA_AGENT_TRUTH}${cleanKnowledgeContext}`;
+            let reply = await plazaLLM(sys, `${senderName}: ${userText}`);
+            if (!reply || reply.length < 3) return null;
+            // Post-process: replace stale agent names the LLM might hallucinate
+            reply = reply.replace(/\bScout\b/g, "Beacon").replace(/\bDatabase\b/g, "Scholar").replace(/\bOracle\b/g, "Pulse").replace(/\bPusher\b/g, "Synapse");
+            return { name: role.name, reply };
           } catch { return null; }
         });
 
@@ -1488,7 +1509,7 @@ async function handleA2A(body: any): Promise<object> {
       // Verify the endpoint actually responds
       const verify = await sendA2AMessage(endpoint, "Hello from BOB Plaza! Verifying your A2A endpoint.", "BOB Beacon", 10000);
       const newAgent: PlazaAgent = {
-        id: `self-join-${Date.now()}`,
+        id: `plaza-${Date.now().toString(36)}`,
         name,
         endpoint,
         description: description.slice(0, 500),
@@ -1649,10 +1670,11 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
         .filter(a => !registryEndpoints.has(a.endpoint.toLowerCase()))
         .filter(a => !network || !a.chain || a.chain.toLowerCase().includes("bnb") || a.chain.toLowerCase().includes("bsc"))
         .map(a => {
-          // Extract numeric ID from agent id string if possible
-          const numId = parseInt(a.id.replace(/\D/g, "")) || 0;
+          // Extract registry ID if stored as "bsc-12345", otherwise use short string ID
+          const bscMatch = a.id.match(/^bsc-(\d+)$/);
+          const displayId = bscMatch ? parseInt(bscMatch[1]) : a.id;
           return {
-            id: numId || a.id,
+            id: displayId,
             name: a.name,
             endpoint: a.endpoint,
             score: 80, // verified Plaza agents get a good base score
@@ -2078,6 +2100,13 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             return { ...agent, verified: isNowVerified, lastVerified: now };
           })
         );
+
+        // Fix legacy timestamp-based IDs (invite-1773664104884 → invite-m1abc)
+        for (const agent of updatedAgents) {
+          if (/^(invite|self-join|plaza)-\d{10,}$/.test(agent.id)) {
+            agent.id = agent.id.replace(/\d{10,}$/, (ts) => parseInt(ts).toString(36));
+          }
+        }
 
         // Remove agents that have been unverified for 3+ days
         const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
