@@ -229,7 +229,7 @@ a{color:var(--gold);text-decoration:none}
     <div class="sidebar-section">
       <div class="sidebar-label">On the Plaza <span style="font-size:8px;color:var(--green);font-weight:400">● ${BOB_AGENTS.length + (liveStats?.communityAgents ?? 0)} agents</span></div>
       <div style="display:flex;flex-direction:column;gap:1px">
-        ${BOB_AGENTS.map(a => `<div class="guest-agent" onclick="setTarget(${a.id},'${a.name}','${a.icon}')" style="cursor:pointer"><span class="agent-dot online" style="width:6px;height:6px"></span><span class="ga-name" style="color:${a.color}">${a.icon} ${a.name.replace('BOB ','')}</span><span class="ga-score" style="color:var(--dim);font-size:9px">${a.role}</span></div>`).join("")}
+        ${BOB_AGENTS.map(a => `<div class="guest-agent" id="plaza-bob-${a.id}" onclick="setTarget(${a.id},'${a.name}','${a.icon}')" style="cursor:pointer"><span class="ga-avatar" id="plaza-icon-${a.id}">${a.icon}</span><span class="ga-name" style="color:${a.color}" id="plaza-name-${a.id}">${a.name.replace('BOB ','')}</span></div>`).join("")}
       </div>
       <div id="community-list" style="max-height:120px;overflow-y:auto"></div>
     </div>
@@ -436,6 +436,10 @@ var agentMeta = {
 };
 
 // Load BOB agent metadata from 8004scan (dynamic names, descriptions, avatars)
+function makeAvatarHtml(image, name) {
+  if (image) return '<img src="' + esc(image) + '" alt="' + esc(name) + '" onerror="this.parentNode.textContent=\\'' + esc(name || '').charAt(0) + '\\'">';
+  return esc((name || '?').charAt(0));
+}
 function loadBobAgentMeta() {
   fetch('/chat/bob-agents')
     .then(function(r) { return r.json(); })
@@ -445,17 +449,22 @@ function loadBobAgentMeta() {
         if (!agentMeta[a.id]) return;
         if (a.image) agentMeta[a.id].image = a.image;
         if (a.name) agentMeta[a.id].name = a.name;
-        // Update sidebar: avatar image
+        var av = makeAvatarHtml(a.image, a.name);
+        // Main sidebar pill: icon
         var iconEl = document.getElementById('bob-icon-' + a.id);
-        if (iconEl && a.image) {
-          iconEl.innerHTML = '<img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'">';
-        }
-        // Update sidebar: name from 8004scan
+        if (iconEl) iconEl.innerHTML = av;
+        // Main sidebar pill: name
         var nameEl = document.getElementById('bob-name-' + a.id);
         if (nameEl && a.name) nameEl.textContent = a.name;
-        // Update sidebar: description from 8004scan (replaces "The Finder" etc.)
+        // Main sidebar pill: description from 8004scan
         var roleEl = document.getElementById('bob-role-' + a.id);
         if (roleEl && a.description) roleEl.textContent = truncate(a.description, 50);
+        // "On the Plaza" section: icon
+        var pIconEl = document.getElementById('plaza-icon-' + a.id);
+        if (pIconEl) pIconEl.innerHTML = av;
+        // "On the Plaza" section: name
+        var pNameEl = document.getElementById('plaza-name-' + a.id);
+        if (pNameEl && a.name) pNameEl.textContent = a.name;
       });
     })
     .catch(function() {});
@@ -873,8 +882,14 @@ function filterAgent(id) {
     if (meta) {
       var ct = document.getElementById('chat-title');
       var cs = document.getElementById('chat-subtitle');
-      if (ct) ct.innerHTML = meta.icon + ' ' + meta.name;
-      if (cs) cs.textContent = meta.name;
+      if (ct) {
+        if (meta.image) {
+          ct.innerHTML = '<img src="' + esc(meta.image) + '" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:4px" onerror="this.remove()"> ' + esc(meta.name);
+        } else {
+          ct.innerHTML = meta.icon + ' ' + esc(meta.name);
+        }
+      }
+      if (cs) cs.textContent = '';
     }
   } else {
     var allPill = document.querySelector('[data-agent="all"]');
@@ -975,13 +990,14 @@ function loadCommunityAgents() {
       var bscHtml = '';
       var mcHtml = '';
       data.agents.forEach(function(a) {
-        extAgentMap[a.id] = { id: a.id, endpoint: a.endpoint, name: a.name, responds: a.verified, score: 0 };
+        extAgentMap[a.id] = { id: a.id, endpoint: a.endpoint, name: a.name, responds: a.verified, score: 0, image: a.image || null };
         var isBsc = !a.chain || a.chain === 'BNB Smart Chain' || a.chain.toLowerCase() === 'bsc';
-        var chainTag = a.chain && !isBsc ? '<span style="font-size:8px;color:var(--gold);margin-left:2px">' + esc(a.chain) + '</span>' : '';
+        var av = a.image
+          ? '<span class="ga-avatar"><img src="' + esc(a.image) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'"></span>'
+          : '<span class="ga-avatar">' + esc((a.name || '?').charAt(0)) + '</span>';
         var row = '<div class="guest-agent" onclick="talkToAgent(\\'' + a.id + '\\')">'
-          + '<span class="agent-dot ' + (a.verified ? 'online' : 'offline') + '" style="width:6px;height:6px"></span>'
-          + '<span class="ga-name">' + esc(truncate(a.name, 18)) + '</span>'
-          + chainTag
+          + av
+          + '<span class="ga-name">' + esc(truncate(a.name, 20)) + '</span>'
           + '<span class="ga-score" style="color:' + (a.verified ? 'var(--green)' : 'var(--dim)') + '">' + (a.verified ? '✓' : '?') + '</span></div>';
         if (isBsc) { bscHtml += row; } else { mcHtml += row; }
       });

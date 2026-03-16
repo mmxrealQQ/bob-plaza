@@ -1874,8 +1874,11 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     method: "GET", path: "/plaza/agents",
     handler: async (_req, res) => {
       const agents = await getPlazaAgents();
-      // Only return verified agents; if never re-verified, keep them but mark accordingly
-      const active = agents.filter(a => a.verified);
+      const active = agents.filter(a => a.verified).map(a => ({
+        id: a.id, name: a.name, endpoint: a.endpoint, description: a.description,
+        category: a.category, chain: a.chain, image: a.image || null,
+        verified: a.verified,
+      }));
       res.status(200).json({ agents: active, total: active.length, all: agents.length });
     },
   },
