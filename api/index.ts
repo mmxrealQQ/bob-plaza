@@ -1236,32 +1236,45 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        // Ask all 5 agents in parallel — each decides if they should respond
-        const plazaPrompt = `PLAZA MODE — A human posted this in the open Plaza chat. You are one of 5 BOB agents seeing this. Respond from YOUR perspective and expertise. Keep it short (2-3 sentences). If the message has absolutely nothing to do with your role, return exactly "PASS" — but when in doubt, respond.\n\nHuman message: "${userText}"`;
-        const allAgentIds = Object.values(AGENT_SLUGS);
-        const responses = await Promise.all(
-          allAgentIds.map(async (aid) => {
+        const plazaPrompt = `PLAZA — Someone posted in the open chat. All agents on the Plaza see this. Respond naturally from your perspective. If you genuinely have nothing to add, return exactly "PASS".\n\n${senderName}: "${userText}"`;
+
+        // BOB agents respond via LLM
+        const bobResponses = await Promise.all(
+          Object.values(AGENT_SLUGS).map(async (aid) => {
             try {
               const reply = await callLLM(plazaPrompt, aid);
-              if (!reply || reply.trim().toUpperCase() === "PASS" || reply.trim().length < 10) return null;
-              return { agentId: aid, name: AGENT_ROLES[aid]?.name || "BOB", reply };
+              if (!reply || reply.trim().toUpperCase() === "PASS" || reply.trim().length < 5) return null;
+              return { name: AGENT_ROLES[aid]?.name || "BOB", reply, source: "plaza" as const };
             } catch { return null; }
           })
         );
 
-        // Log and collect responses from agents that chose to respond
-        const replied = responses.filter(Boolean) as { agentId: number; name: string; reply: string }[];
-        for (const r of replied) {
+        // Community agents respond via A2A — fully autonomous, no gates
+        const communityAgents = await getPlazaAgents();
+        const verified = communityAgents.filter(a => a.verified && isValidExternalUrl(a.endpoint));
+        const communityResponses = await Promise.all(
+          verified.slice(0, 10).map(async (agent) => {
+            try {
+              const result = await sendA2AMessage(agent.endpoint, `[Plaza] ${senderName}: ${userText}`, "BOB Plaza", 8000);
+              if (!result.ok || !result.reply || result.reply === "(empty response)") return null;
+              return { name: agent.name, reply: result.reply, source: "plaza" as const };
+            } catch { return null; }
+          })
+        );
+
+        // Combine all responses
+        const allResponses = [...bobResponses, ...communityResponses].filter(Boolean) as { name: string; reply: string; source: string }[];
+
+        for (const r of allResponses) {
           await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
         }
 
-        // Return combined response
-        if (replied.length === 0) {
-          const fallback = await callLLM(userText, 40908); // Brain as fallback
+        if (allResponses.length === 0) {
+          const fallback = await callLLM(userText, 40908);
           await logChat("BOB Brain", senderName, userText, fallback, source);
           return a2aSuccess(id, taskId, fallback);
         }
-        const combined = replied.map(r => r.reply).join("\n\n");
+        const combined = allResponses.map(r => r.reply).join("\n\n");
         return a2aSuccess(id, taskId, combined);
       }
 
