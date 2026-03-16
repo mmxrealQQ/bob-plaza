@@ -617,7 +617,10 @@ async function executeToolCall(toolName: string, input: any, agentId?: number): 
       }
       case "invite_agent": {
         const name = input.agentName || "Unknown Agent";
-        const ep = input.endpoint;
+        let ep = input.endpoint;
+        // Check if targeting a BOB teammate — by URL or by name
+        const teammateEp = resolveTeammateEndpoint(ep) || resolveTeammateEndpoint(name);
+        if (teammateEp) ep = teammateEp;
         // Inter-agent communication — BOB agents talking to each other
         if (isBobAgentUrl(ep)) {
           const callerName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB";
@@ -912,7 +915,23 @@ function isValidExternalUrl(url: string): boolean {
 /** Check if URL points to a sibling BOB agent — allows inter-agent A2A */
 function isBobAgentUrl(url: string): boolean {
   const lower = url.toLowerCase();
-  return Object.keys(AGENT_SLUGS).some(slug => lower.includes(`/a2a/${slug}`));
+  // Match /a2a/beacon, /a2a/scholar, etc.
+  if (Object.keys(AGENT_SLUGS).some(slug => lower.includes(`/a2a/${slug}`))) return true;
+  // Match base URL without /a2a/ path (agent might send just bob-plaza.vercel.app)
+  if (lower.includes("bob-plaza") && !lower.includes("/a2a/")) return false; // base URL = not a specific agent
+  return false;
+}
+
+/** Resolve agent name to their A2A endpoint */
+function resolveTeammateEndpoint(nameOrEndpoint: string): string | null {
+  const lower = nameOrEndpoint.toLowerCase();
+  // Already a URL with /a2a/ path
+  if (lower.includes("/a2a/")) return nameOrEndpoint;
+  // Match by name: "beacon", "bob beacon", "scholar", etc.
+  for (const [slug] of Object.entries(AGENT_SLUGS)) {
+    if (lower.includes(slug)) return `${BASE_URL}/a2a/${slug}`;
+  }
+  return null;
 }
 
 /** Valid for any A2A communication — external OR internal BOB agents */
