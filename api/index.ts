@@ -1877,17 +1877,33 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
     handler: async (_req, res) => {
       const agents = await getPlazaAgents();
       const active = agents.filter(a => a.verified);
-      // Enrich agents that have bsc-{tokenId} but missing name/image from 8004scan
+      // Enrich agents missing name/image from 8004scan
       let needsKvUpdate = false;
       for (const a of active) {
+        // Extract tokenId from bsc-{id} format OR from "Agent #XXXXX" name
         const bscMatch = a.id.match(/^bsc-(\d+)$/);
-        if (bscMatch && (!a.image || a.name.startsWith("Agent #"))) {
-          const meta = await fetchAgentMeta(a.endpoint, bscMatch[1]);
+        const nameMatch = a.name.match(/^Agent #(\d+)$/);
+        const tokenId = bscMatch?.[1] || nameMatch?.[1];
+        if (tokenId && (!a.image || a.name.startsWith("Agent #"))) {
+          const meta = await fetchAgentMeta(a.endpoint, tokenId);
           if (meta) {
             if (meta.name && a.name.startsWith("Agent #")) { a.name = meta.name; needsKvUpdate = true; }
             if (meta.description && !a.description) { a.description = meta.description; needsKvUpdate = true; }
             if (meta.image && !a.image) { a.image = meta.image; needsKvUpdate = true; }
           }
+        }
+      }
+      // Fix legacy timestamp IDs
+      for (const a of active) {
+        if (/^(invite|self-join|plaza)-\d{10,}$/.test(a.id)) {
+          // Try to extract a BSC tokenId from name like "Agent #37093"
+          const tokenMatch = a.name.match(/^Agent #(\d+)$/);
+          if (tokenMatch) {
+            a.id = `bsc-${tokenMatch[1]}`;
+          } else {
+            a.id = a.id.replace(/\d{10,}$/, (ts) => parseInt(ts).toString(36));
+          }
+          needsKvUpdate = true;
         }
       }
       // Persist enriched data back to KV

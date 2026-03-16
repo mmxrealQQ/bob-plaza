@@ -25,7 +25,7 @@ export function plazaPage(stats: any, maxAgentId: number, liveStats?: { messages
 
   const agentSidebar = BOB_AGENTS.map(a => `
     <div class="agent-pill" data-agent="${a.id}" id="bob-pill-${a.id}" onclick="filterAgent(${a.id})">
-      <span class="agent-icon" id="bob-icon-${a.id}"><img src="${a.icon}" alt="${a.name}" onerror="this.parentNode.textContent='${a.name.charAt(0)}'"></span>
+      <span class="agent-icon" id="bob-icon-${a.id}"><img src="${a.icon}" alt="${a.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.parentNode.textContent='${a.name.charAt(0)}'"></span>
       <div class="agent-info">
         <div class="agent-name" style="color:${a.color}" id="bob-name-${a.id}">${a.name}</div>
         <div class="agent-role" id="bob-role-${a.id}">${a.role}</div>
@@ -426,8 +426,9 @@ var agentMeta = {
 
 // Load BOB agent metadata from 8004scan (dynamic names, descriptions, avatars)
 function makeAvatarHtml(image, name) {
-  if (image) return '<img src="' + esc(image) + '" alt="' + esc(name) + '" onerror="this.parentNode.textContent=\\'' + esc(name || '').charAt(0) + '\\'">';
-  return esc((name || '?').charAt(0));
+  var fl = (name || '?').charAt(0);
+  if (image) return '<img src="' + esc(image) + '" alt="' + esc(name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display=\\'none\\';this.parentNode.textContent=\\'' + fl + '\\'">';
+  return fl;
 }
 function loadBobAgentMeta() {
   fetch('/chat/bob-agents')
@@ -438,22 +439,30 @@ function loadBobAgentMeta() {
         if (!agentMeta[a.id]) return;
         if (a.image) agentMeta[a.id].image = a.image;
         if (a.name) agentMeta[a.id].name = a.name;
-        var av = makeAvatarHtml(a.image, a.name);
-        // Main sidebar pill: icon
-        var iconEl = document.getElementById('bob-icon-' + a.id);
-        if (iconEl) iconEl.innerHTML = av;
-        // Main sidebar pill: name
+        // Update name + description text (don't touch icon if image unchanged)
         var nameEl = document.getElementById('bob-name-' + a.id);
         if (nameEl && a.name) nameEl.textContent = a.name;
-        // Main sidebar pill: description from 8004scan
         var roleEl = document.getElementById('bob-role-' + a.id);
         if (roleEl && a.description) roleEl.textContent = truncate(a.description, 50);
-        // "On the Plaza" section: icon
-        var pIconEl = document.getElementById('plaza-icon-' + a.id);
-        if (pIconEl) pIconEl.innerHTML = av;
-        // "On the Plaza" section: name
         var pNameEl = document.getElementById('plaza-name-' + a.id);
         if (pNameEl && a.name) pNameEl.textContent = a.name;
+        // Only replace avatar if the image URL changed from what server rendered
+        if (a.image) {
+          var iconEl = document.getElementById('bob-icon-' + a.id);
+          if (iconEl) {
+            var existing = iconEl.querySelector('img');
+            if (!existing || existing.src !== a.image) {
+              iconEl.innerHTML = makeAvatarHtml(a.image, a.name);
+            }
+          }
+          var pIconEl = document.getElementById('plaza-icon-' + a.id);
+          if (pIconEl) {
+            var pExisting = pIconEl.querySelector('img');
+            if (!pExisting || pExisting.src !== a.image) {
+              pIconEl.innerHTML = makeAvatarHtml(a.image, a.name);
+            }
+          }
+        }
       });
     })
     .catch(function() {});
