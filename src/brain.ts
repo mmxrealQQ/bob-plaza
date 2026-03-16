@@ -748,10 +748,8 @@ Respond ONLY with JSON:
   // ── Anthropic Haiku LLM (deep analysis) ───────────────────────────────
 
   private async callHaiku(prompt: string, maxTokens = 1024): Promise<string | null> {
-    if (!this.anthropicKey) {
-      console.log("[BRAIN] No ANTHROPIC_API_KEY, falling back to Groq");
-      return this.callGroq(prompt);
-    }
+    // Anthropic disabled — always use Groq
+    return this.callGroq(prompt);
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 30000);

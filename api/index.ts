@@ -390,8 +390,8 @@ async function callGroq(messages: { role: string; content: string }[], maxTokens
 }
 
 async function callHaiku(messages: { role: string; content: string }[]): Promise<string | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
+  // Anthropic disabled
+  return null;
   try {
     const systemMsg = messages.find(m => m.role === "system")?.content ?? "";
     const userMsgs = messages.filter(m => m.role !== "system");
@@ -676,8 +676,8 @@ async function executeToolCall(toolName: string, input: any, agentId?: number): 
 }
 
 async function callHaikuWithTools(userMessage: string, agentId?: number): Promise<string | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
+  // Anthropic disabled
+  return null;
 
   const messages: any[] = [{ role: "user", content: userMessage }];
 
@@ -1431,24 +1431,8 @@ async function handleA2A(body: any): Promise<object> {
         }
 
         // ─── Normal Plaza Chat: All agents respond ────────────────────────────
-        const haikuKey = process.env.ANTHROPIC_API_KEY;
         const plazaLLM = async (sys: string, msg: string): Promise<string | null> => {
-          // Try Haiku first
-          if (haikuKey) {
-            try {
-              const r = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "x-api-key": haikuKey, "anthropic-version": "2023-06-01" },
-                body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 100, system: sys, messages: [{ role: "user", content: msg }] }),
-              });
-              if (r.ok) {
-                const d = (await r.json()) as { content?: { text?: string }[] };
-                const t = d.content?.[0]?.text?.trim();
-                if (t && t.length > 2) return t;
-              }
-            } catch {}
-          }
-          // Fallback: Groq (100 tokens for Plaza chat brevity)
+          // Anthropic disabled — use Groq directly
           return await callGroq([{ role: "system", content: sys }, { role: "user", content: msg }], 100);
         };
 

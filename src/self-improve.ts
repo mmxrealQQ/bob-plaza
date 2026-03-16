@@ -91,8 +91,8 @@ async function callGroq(prompt: string): Promise<string | null> {
 }
 
 async function callHaiku(prompt: string): Promise<string | null> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return callGroq(prompt);
+  // Anthropic disabled — always use Groq
+  return callGroq(prompt);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30000);
