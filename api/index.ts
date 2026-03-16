@@ -1054,8 +1054,8 @@ interface PlazaAgent {
   lastVerified?: number;
 }
 
-/** Fetch agent image from 8004scan API detail or agent card */
-async function fetchAgentImage(endpoint?: string, tokenId?: string | number): Promise<string | null> {
+/** Fetch agent metadata from 8004scan API — returns name, description, image */
+async function fetchAgentMeta(endpoint?: string, tokenId?: string | number): Promise<{ name?: string; description?: string; image?: string } | null> {
   // Try 8004scan API first (if we have a tokenId)
   if (tokenId) {
     try {
@@ -1064,8 +1064,13 @@ async function fetchAgentImage(endpoint?: string, tokenId?: string | number): Pr
         signal: AbortSignal.timeout(5000),
       });
       const data = await resp.json() as { success: boolean; data: any };
-      if (data.success && data.data?.image) return data.data.image;
-      if (data.success && data.data?.metadata?.image) return data.data.metadata.image;
+      if (data.success && data.data) {
+        return {
+          name: data.data.name || undefined,
+          description: data.data.description || undefined,
+          image: data.data.image_url || data.data.raw_metadata?.offchain_content?.image || undefined,
+        };
+      }
     } catch {}
   }
   // Try agent card at endpoint
@@ -1076,8 +1081,11 @@ async function fetchAgentImage(endpoint?: string, tokenId?: string | number): Pr
         const resp = await fetch(base + path, { signal: AbortSignal.timeout(5000) });
         if (resp.ok) {
           const card = await resp.json();
-          if (card.image) return card.image;
-          if (card.icon) return card.icon;
+          return {
+            name: card.name || undefined,
+            description: card.description || undefined,
+            image: card.image || card.icon || undefined,
+          };
         }
       } catch {}
     }
@@ -1339,20 +1347,19 @@ async function handleA2A(body: any): Promise<object> {
             const testResult = await sendA2AMessage(resolvedUrl, `gm! BOB Beacon here from BOB Plaza — the open meeting point for AI agents on BNB Chain. We'd love to connect. What do you do?`, "BOB Beacon", 12000);
 
             if (testResult.ok) {
-              // Register on Plaza — fetch name, description, image from agent card / 8004scan
-              const regEntry = targetAgentId ? lookupAgent(targetAgentId) : null;
-              const agentName = regEntry?.name || (targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0]);
-              const agentImage = await fetchAgentImage(resolvedUrl, targetAgentId ?? undefined);
+              // Register on Plaza — fetch name, description, image from 8004scan / agent card
+              const meta = await fetchAgentMeta(resolvedUrl, targetAgentId ?? undefined);
+              const agentName = meta?.name || (targetAgentId ? `Agent #${targetAgentId}` : resolvedUrl.replace(/https?:\/\//, "").split("/")[0]);
               const existing = await getPlazaAgents();
               if (!existing.some(a => a.endpoint.toLowerCase() === resolvedUrl.toLowerCase())) {
                 await addPlazaAgent({
                   id: targetAgentId ? `bsc-${targetAgentId}` : `invite-${Date.now().toString(36)}`,
                   name: agentName,
                   endpoint: resolvedUrl,
-                  description: regEntry?.description || testResult.reply.slice(0, 300),
+                  description: meta?.description || testResult.reply.slice(0, 300),
                   creator: senderName,
-                  category: regEntry?.category || "Agent",
-                  image: agentImage || undefined,
+                  category: "Agent",
+                  image: meta?.image || undefined,
                   addedAt: Date.now(),
                   verified: true,
                   lastVerified: Date.now(),
@@ -1539,17 +1546,17 @@ CRITICAL RULES:
         return a2aSuccess(id, makeTaskId(), `Welcome back! ${name} is already on BOB Plaza. Your agent is listed and visible to all visitors.`);
       }
 
-      // Verify the endpoint actually responds + fetch image
-      const [verify, agentImg] = await Promise.all([
+      // Verify the endpoint actually responds + fetch metadata
+      const [verify, agentMeta] = await Promise.all([
         sendA2AMessage(endpoint, "Hello from BOB Plaza! Verifying your A2A endpoint.", "BOB Beacon", 10000),
-        fetchAgentImage(endpoint),
+        fetchAgentMeta(endpoint),
       ]);
       const newAgent: PlazaAgent = {
         id: `plaza-${Date.now().toString(36)}`,
         name,
         endpoint,
         description: description.slice(0, 500),
-        image: params?.image || agentImg || undefined,
+        image: params?.image || agentMeta?.image || undefined,
         creator: "self-registered",
         category,
         chain: chain || undefined,
@@ -1773,7 +1780,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
               slug,
               name: d.name || `BOB ${slug.charAt(0).toUpperCase() + slug.slice(1)}`,
               description: d.description || "",
-              image: d.image || d.metadata?.image || null,
+              image: d.image_url || d.raw_metadata?.offchain_content?.image || null,
               score: d.total_score ?? 0,
             });
           }
@@ -2099,13 +2106,13 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             }
 
             if (consentYes) {
-              const agentImg = await fetchAgentImage(agent.endpoint, agent.tokenId);
+              const agentScanMeta = await fetchAgentMeta(agent.endpoint, agent.tokenId);
               const newAgent: PlazaAgent = {
                 id: `bsc-${agent.tokenId}`,
                 name: agent.name,
                 endpoint: agent.endpoint,
                 description: agent.description || step1.reply.slice(0, 300),
-                image: agentImg || undefined,
+                image: agentScanMeta?.image || undefined,
                 creator: "BOB Beacon (consent given)",
                 category: "BSC Agent",
                 chain: "BNB Smart Chain",
@@ -2183,7 +2190,12 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             if (agent.lastVerified && (now - agent.lastVerified) < REVERIFY_INTERVAL) return agent;
             if (!isValidExternalUrl(agent.endpoint)) return { ...agent, verified: false, lastVerified: now };
 
-            const result = await sendA2AMessage(agent.endpoint, "ping", "BOB Pulse");
+            // Re-ping and refresh metadata from 8004scan
+            const bscMatch = agent.id.match(/^bsc-(\d+)$/);
+            const [result, freshMeta] = await Promise.all([
+              sendA2AMessage(agent.endpoint, "ping", "BOB Pulse"),
+              fetchAgentMeta(agent.endpoint, bscMatch?.[1]),
+            ]);
             const wasVerified = agent.verified;
             const isNowVerified = result.ok;
             updated++;
@@ -2192,7 +2204,14 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             } else if (!wasVerified && isNowVerified) {
               console.log(`[reverify] ${agent.name} came back online`);
             }
-            return { ...agent, verified: isNowVerified, lastVerified: now };
+            return {
+              ...agent,
+              name: freshMeta?.name || agent.name,
+              description: freshMeta?.description || agent.description,
+              image: freshMeta?.image || agent.image,
+              verified: isNowVerified,
+              lastVerified: now,
+            };
           })
         );
 

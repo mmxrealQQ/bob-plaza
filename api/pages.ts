@@ -445,13 +445,17 @@ function loadBobAgentMeta() {
         if (!agentMeta[a.id]) return;
         if (a.image) agentMeta[a.id].image = a.image;
         if (a.name) agentMeta[a.id].name = a.name;
-        // Update sidebar pill
+        // Update sidebar: avatar image
         var iconEl = document.getElementById('bob-icon-' + a.id);
         if (iconEl && a.image) {
           iconEl.innerHTML = '<img src="' + esc(a.image) + '" alt="' + esc(a.name) + '" onerror="this.parentNode.textContent=\\'' + esc(a.name || '').charAt(0) + '\\'">';
         }
+        // Update sidebar: name from 8004scan
         var nameEl = document.getElementById('bob-name-' + a.id);
         if (nameEl && a.name) nameEl.textContent = a.name;
+        // Update sidebar: description from 8004scan (replaces "The Finder" etc.)
+        var roleEl = document.getElementById('bob-role-' + a.id);
+        if (roleEl && a.description) roleEl.textContent = truncate(a.description, 50);
       });
     })
     .catch(function() {});
