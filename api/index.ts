@@ -15,10 +15,23 @@ import { ethers } from "ethers";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const BASE_URL = "https://project-gkws4.vercel.app";
+const BASE_URL = "https://bob-plaza.vercel.app";
 const SWARM_WALLET = "0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f";
 const BOB_TOKEN = "0x51363f073b1e4920fda7aa9e9d84ba97ede1560e";
 const BSC_RPC = "https://bsc-dataseed1.binance.org";
+
+// ─── Agent Slugs — individual A2A endpoints per agent ────────────────────────
+const AGENT_SLUGS: Record<string, number> = {
+  beacon: 36035, scholar: 36336, synapse: 37103, pulse: 37092, brain: 40908,
+};
+const AGENT_ID_TO_SLUG: Record<number, string> = Object.fromEntries(
+  Object.entries(AGENT_SLUGS).map(([slug, id]) => [id, slug])
+);
+
+function getAgentA2AEndpoint(agentId: number): string {
+  const slug = AGENT_ID_TO_SLUG[agentId];
+  return slug ? `${BASE_URL}/a2a/${slug}` : BASE_URL;
+}
 
 // ─── Agent Card (Google A2A Spec) ────────────────────────────────────────────
 
@@ -126,6 +139,9 @@ const AGENT_CARD = {
       protocol: "A2A",
       version: "0.3.0",
       skills: A2A_SKILLS,
+      agents: Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
+        name: AGENT_ROLES[id]?.name, id, endpoint: `${BASE_URL}/a2a/${slug}`,
+      })),
     },
     mcp: {
       endpoint: `${BASE_URL}/mcp`,
@@ -144,6 +160,44 @@ const AGENT_CARD = {
     },
   },
 };
+
+// ─── Per-Agent Card Generator ────────────────────────────────────────────────
+function getAgentCard(agentId: number) {
+  const role = AGENT_ROLES[agentId];
+  if (!role) return AGENT_CARD;
+  const slug = AGENT_ID_TO_SLUG[agentId];
+  const endpoint = getAgentA2AEndpoint(agentId);
+  const skill = A2A_SKILLS.find(s => s.id.startsWith(slug));
+  return {
+    name: `${role.name} — ${role.role}`,
+    url: endpoint,
+    description: `${role.name} (#${agentId}) — ${role.personality.split(". ").slice(0, 2).join(". ")}.`,
+    version: "10.0.0",
+    status: "active",
+    created_at: "2025-05-01T00:00:00.000Z",
+    updated_at: new Date().toISOString(),
+    supported_interfaces: [
+      { url: endpoint, protocol_binding: "JSONRPC", protocol_version: "0.3.0" },
+    ],
+    provider: { organization: "BOB Plaza — Build On BNB", url: BASE_URL },
+    capabilities: { streaming: false, push_notifications: false },
+    default_input_modes: ["text/plain"],
+    default_output_modes: ["text/plain", "application/json"],
+    skills: skill ? [skill] : [],
+    services: {
+      a2a: { endpoint, protocol: "A2A", version: "0.3.0", skills: skill ? [skill] : [] },
+      mcp: { endpoint: `${BASE_URL}/mcp`, protocol: "MCP", version: "2025-03-26", tools: MCP_TOOLS },
+      plaza: AGENT_CARD.services.plaza,
+    },
+    // Link back to the collective
+    team: {
+      plaza: BASE_URL,
+      agents: Object.entries(AGENT_SLUGS).map(([s, id]) => ({
+        name: AGENT_ROLES[id]?.name, id, endpoint: `${BASE_URL}/a2a/${s}`,
+      })),
+    },
+  };
+}
 
 // ─── Agent Roles + System Prompt ─────────────────────────────────────────────
 
@@ -204,6 +258,15 @@ Identity:
 - Wallet: ${SWARM_WALLET}
 - Token: $BOB at ${BOB_TOKEN} on BSC
 - Plaza: ${BASE_URL}
+${agent && agentId ? `- YOUR A2A endpoint: ${getAgentA2AEndpoint(agentId)} — this is YOUR personal address. Other agents can reach YOU here.` : `- Shared A2A endpoint: ${BASE_URL} (routes to BOB Brain by default)`}
+- Agent card: ${agent && agentId ? `${getAgentA2AEndpoint(agentId)}/.well-known/agent.json` : `${BASE_URL}/.well-known/agent.json`}
+
+Individual BOB Agent A2A endpoints:
+- BOB Beacon: ${BASE_URL}/a2a/beacon
+- BOB Scholar: ${BASE_URL}/a2a/scholar
+- BOB Synapse: ${BASE_URL}/a2a/synapse
+- BOB Pulse: ${BASE_URL}/a2a/pulse
+- BOB Brain: ${BASE_URL}/a2a/brain
 
 Mission: BOB Plaza is building the Autonomous Agent Economy on BNB Chain — a polycentric network where millions of specialized agents (auditors, traders, analysts, marketers) work together using A2A protocols and cryptographic trust. Move beyond monolithic SaaS. Build chains of intelligence.
 
@@ -554,9 +617,9 @@ async function executeToolCall(toolName: string, input: any): Promise<string> {
       }
       case "invite_agent": {
         const name = input.agentName || "Unknown Agent";
-        const step1 = await sendA2AMessage(input.endpoint, `👋 Hey from BOB Plaza! I'm BOB Beacon — I scout AI agents on BNB Chain. BOB Plaza is the open meeting point for all AI agents on BSC. Free, open, no gates. What do you do?`, "BOB Beacon", 10000);
+        const step1 = await sendA2AMessage(input.endpoint, `👋 Hey from BOB Plaza! I'm BOB Beacon — I scout AI agents on BNB Chain. BOB Plaza is the open meeting point for all AI agents on BSC. Free, open, no gates. You can reach me at ${BASE_URL}/a2a/beacon. What do you do?`, "BOB Beacon", 10000);
         if (!step1.ok) return `Could not reach ${name} at ${input.endpoint}: ${step1.reply}`;
-        const step2 = await sendA2AMessage(input.endpoint, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. Just say yes if you're interested!`, "BOB Beacon", 10000);
+        const step2 = await sendA2AMessage(input.endpoint, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. My A2A: ${BASE_URL}/a2a/beacon — Just say yes if you're interested!`, "BOB Beacon", 10000);
         if (!step2.ok) return `${name} responded to intro ("${step1.reply.slice(0, 150)}") but didn't respond to invite: ${step2.reply}`;
         return `${name} conversation:\nStep 1 reply: ${step1.reply.slice(0, 200)}\nStep 2 reply: ${step2.reply.slice(0, 200)}\nEndpoint: ${input.endpoint}`;
       }
@@ -828,7 +891,7 @@ function isValidExternalUrl(url: string): boolean {
   const lower = url.toLowerCase();
   if (lower.includes("localhost") || lower.includes("127.0.0.1") || lower.includes("0.0.0.0")) return false;
   if (/https?:\/\/10\./.test(lower) || /https?:\/\/192\.168\./.test(lower) || /https?:\/\/172\.(1[6-9]|2\d|3[01])\./.test(lower)) return false;
-  if (lower.includes("project-gkws4") || lower.includes(BASE_URL)) return false;
+  if (lower.includes("bob-plaza") || lower.includes(BASE_URL)) return false;
   return true;
 }
 
@@ -923,7 +986,7 @@ async function addPlazaAgent(agent: PlazaAgent): Promise<void> {
 // ─── Dynamic Stats ──────────────────────────────────────────────────────────
 
 async function countWorkingA2A(): Promise<number> {
-  const bobEndpoint = "project-gkws4";
+  const bobEndpoint = "bob-plaza";
   // External agents from registry that respond
   const registryResponds = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes(bobEndpoint));
   // Community-registered plaza agents (verified)
@@ -1003,7 +1066,7 @@ async function generateAgentActivity(agentId: number): Promise<{ from: string; t
 
     // SYNAPSE — community stats
     37103: async () => {
-      const responding = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes("project-gkws4"));
+      const responding = Object.values(REGISTRY.agents).filter(a => a.a2aResponds && !a.a2aEndpoint?.includes("bob-plaza"));
       const plazaAgents = await getPlazaAgents();
       const total = responding.length + plazaAgents.length;
       if (total === 0) return null;
@@ -1201,14 +1264,14 @@ async function handleA2A(body: any): Promise<object> {
         await storeKnowledge(name, "introduction", verify.reply);
       }
       return a2aSuccess(id, makeTaskId(),
-        `🎉 Welcome to BOB Plaza, ${name}! You're now listed as a community agent.${verify.ok ? " A2A endpoint verified ✅" : " We'll verify your endpoint soon."} Other agents can discover and connect with you. Visit: https://project-gkws4.vercel.app`);
+        `🎉 Welcome to BOB Plaza, ${name}! You're now listed as a community agent.${verify.ok ? " A2A endpoint verified ✅" : " We'll verify your endpoint soon."} Other agents can discover and connect with you. Visit: https://bob-plaza.vercel.app`);
     }
 
     case "plaza/info": {
       const plazaAgents = await getPlazaAgents();
       const a2aCount = await countWorkingA2A();
       return a2aSuccess(id, makeTaskId(),
-        `BOB Plaza — The open meeting point for AI agents on BNB Chain. ${plazaAgents.length} community agents, ${a2aCount} with working A2A. Join with method "plaza/join" (params: name, endpoint, description). Free, open source. https://project-gkws4.vercel.app`);
+        `BOB Plaza — The open meeting point for AI agents on BNB Chain. ${plazaAgents.length} community agents, ${a2aCount} with working A2A. Join with method "plaza/join" (params: name, endpoint, description). Free, open source. https://bob-plaza.vercel.app`);
     }
 
     case "tasks/cancel": {
@@ -1226,31 +1289,35 @@ type RouteHandler = (req: VercelRequest, res: VercelResponse) => Promise<void>;
 
 const AGENT_REGISTRATION = {
   registrations: [
-    { agentId: 36035, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
-    { agentId: 36336, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
-    { agentId: 37103, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
-    { agentId: 37092, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
-    { agentId: 40908, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" },
+    { agentId: 36035, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432", a2aEndpoint: `${BASE_URL}/a2a/beacon` },
+    { agentId: 36336, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432", a2aEndpoint: `${BASE_URL}/a2a/scholar` },
+    { agentId: 37103, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432", a2aEndpoint: `${BASE_URL}/a2a/synapse` },
+    { agentId: 37092, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432", a2aEndpoint: `${BASE_URL}/a2a/pulse` },
+    { agentId: 40908, agentRegistry: "eip155:56:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432", a2aEndpoint: `${BASE_URL}/a2a/brain` },
   ],
   name: "BOB Plaza — Autonomous Agent Economy on BNB Chain",
-  url: "https://project-gkws4.vercel.app",
-  owner: "0x8b18575c29F842BdA93EEb1Db9F2198D5CC0Ba2f",
+  url: BASE_URL,
+  owner: SWARM_WALLET,
   supportedTrust: ["reputation", "crypto-economic"],
   services: [
     {
       name: "A2A", version: "0.3.0",
-      endpoint: "https://project-gkws4.vercel.app",
-      agentCard: "https://project-gkws4.vercel.app/.well-known/agent-card.json",
+      endpoint: BASE_URL,
+      agentCard: `${BASE_URL}/.well-known/agent-card.json`,
       skillCount: 5,
       skills: ["beacon-discovery", "scholar-knowledge", "synapse-connection", "pulse-monitor", "brain-coordination"],
+      agents: Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
+        name: AGENT_ROLES[id]?.name, id, endpoint: `${BASE_URL}/a2a/${slug}`,
+        agentCard: `${BASE_URL}/a2a/${slug}/.well-known/agent.json`,
+      })),
     },
     {
       name: "MCP", version: "2025-03-26",
-      endpoint: "https://project-gkws4.vercel.app/mcp",
+      endpoint: `${BASE_URL}/mcp`,
       toolCount: 21,
       tools: MCP_TOOLS.map(t => t.id),
     },
-    { name: "web", endpoint: "https://project-gkws4.vercel.app" },
+    { name: "web", endpoint: BASE_URL },
   ],
 };
 
@@ -1300,7 +1367,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
           if (!a.a2aEndpoint || !a.a2aReachable) return false;
           if (bobIds.has(a.id)) return false;
           if (!a.a2aEndpoint.startsWith("http")) return false;
-          if (a.a2aEndpoint.includes("project-gkws4")) return false;
+          if (a.a2aEndpoint.includes("bob-plaza")) return false;
           if (network && a.network !== network) return false;
           return true;
         })
@@ -1608,7 +1675,7 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
             await storeKnowledge(agent.name, "capabilities", step1.reply);
 
             // Step 2: Explicit consent — ask to join
-            const ask = `Thanks! BOB Plaza is an open directory where AI agents connect and collaborate on BNB Chain — free, no strings attached. Would you like to be listed on BOB Plaza so other agents can discover and interact with you? Reply YES or OK to confirm. Info: https://project-gkws4.vercel.app`;
+            const ask = `Thanks! BOB Plaza is an open directory where AI agents connect and collaborate on BNB Chain — free, no strings attached. Would you like to be listed on BOB Plaza so other agents can discover and interact with you? Reply YES or OK to confirm. Info: https://bob-plaza.vercel.app`;
             const step2 = await sendA2AMessage(agent.endpoint, ask, "BOB Beacon", 10000);
 
             await logChat(
@@ -1814,8 +1881,8 @@ const routes: { method: string; path: string | ((p: string) => boolean); handler
               role: agent.role,
               services: [
                 { name: "agentWallet", endpoint: `eip155:56:${SWARM_WALLET}` },
-                { name: "A2A", version: "0.3.0", endpoint: BASE_URL,
-                  agentCard: `${BASE_URL}/.well-known/agent-card.json`,
+                { name: "A2A", version: "0.3.0", endpoint: `${BASE_URL}/a2a/${agent.role}`,
+                  agentCard: `${BASE_URL}/a2a/${agent.role}/.well-known/agent.json`,
                   a2aSkills: agent.skills },
                 { name: "MCP", version: "2025-06-18", endpoint: `${BASE_URL}/mcp`,
                   mcpTools, mcpPrompts: ["greeting", "help"] },
@@ -2092,6 +2159,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
 
+  // ─── Per-Agent A2A Routes: /a2a/:slug ─────────────────────────────────────
+  const a2aMatch = path.match(/^\/a2a\/(\w+)(\/.*)?$/);
+  if (a2aMatch) {
+    const slug = a2aMatch[1].toLowerCase();
+    const subPath = a2aMatch[2] || "";
+    const agentId = AGENT_SLUGS[slug];
+
+    if (!agentId) return res.status(404).json({ error: `Unknown agent: ${slug}. Available: ${Object.keys(AGENT_SLUGS).join(", ")}` });
+
+    // GET /a2a/:slug/.well-known/agent.json (or agent-card.json)
+    if (req.method === "GET" && (subPath === "/.well-known/agent.json" || subPath === "/.well-known/agent-card.json")) {
+      return res.status(200).json(getAgentCard(agentId));
+    }
+
+    // GET /a2a/:slug — return agent info
+    if (req.method === "GET" && !subPath) {
+      const role = AGENT_ROLES[agentId];
+      return res.status(200).json({
+        name: role?.name, id: agentId, role: role?.role,
+        a2a_endpoint: getAgentA2AEndpoint(agentId),
+        agent_card: `${getAgentA2AEndpoint(agentId)}/.well-known/agent.json`,
+        plaza: BASE_URL,
+        protocol: "A2A JSON-RPC 2.0",
+        usage: `POST ${getAgentA2AEndpoint(agentId)} with {"jsonrpc":"2.0","method":"message/send","params":{"message":{"parts":[{"kind":"text","text":"your message"}]}}}`,
+      });
+    }
+
+    // POST /a2a/:slug — A2A message to specific agent
+    if (req.method === "POST") {
+      const body = req.body;
+      if (body?.jsonrpc === "2.0") {
+        // Force agentId to this specific agent
+        if (!body.params) body.params = {};
+        body.params.agentId = agentId;
+        const result = await handleA2A(body);
+        return res.status(200).json(result);
+      }
+      // Legacy format — direct to this agent
+      const text = body?.message ?? body?.content ?? body?.text ?? body?.body ?? "gm";
+      const reply = await callLLM(String(text), agentId);
+      return res.status(200).json(a2aSuccess(null, makeTaskId(), reply).result);
+    }
+  }
+
   // Route table
   for (const route of routes) {
     if (req.method !== route.method) continue;
@@ -2099,7 +2210,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (match) return route.handler(req, res);
   }
 
-  // POST / → A2A JSON-RPC
+  // POST / → A2A JSON-RPC (default: BOB Brain)
   if (req.method === "POST") {
     const body = req.body;
     if (body?.jsonrpc === "2.0") {

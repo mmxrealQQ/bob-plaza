@@ -5,7 +5,7 @@
  */
 
 const BOB_IMG = "https://raw.githubusercontent.com/mmxrealQQ/bob-assets/main/bob.jpg";
-const BOB_URL = "https://project-gkws4.vercel.app";
+const BOB_URL = "https://bob-plaza.vercel.app";
 const BOB_TOKEN = "0x51363f073b1e4920fda7aa9e9d84ba97ede1560e";
 
 // ─── BOB Agent Definitions ──────────────────────────────────────────────────

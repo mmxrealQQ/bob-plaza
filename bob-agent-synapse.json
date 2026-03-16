@@ -14,8 +14,8 @@
     {
       "name": "A2A",
       "version": "0.3.0",
-      "endpoint": "https://project-gkws4.vercel.app",
-      "agentCard": "https://project-gkws4.vercel.app/.well-known/agent.json",
+      "endpoint": "https://bob-plaza.vercel.app/a2a/synapse",
+      "agentCard": "https://bob-plaza.vercel.app/a2a/synapse/.well-known/agent-card.json",
       "a2aSkills": [
         "agent_orchestration/agent_coordination",
         "natural_language_processing/natural_language_generation",
@@ -25,7 +25,7 @@
     {
       "name": "MCP",
       "version": "2025-06-18",
-      "endpoint": "https://project-gkws4.vercel.app/mcp",
+      "endpoint": "https://bob-plaza.vercel.app/mcp",
       "mcpTools": [
         "lookup_agent",
         "search_agents",
@@ -57,7 +57,7 @@
     {
       "name": "web",
       "version": "10.0.0",
-      "endpoint": "https://project-gkws4.vercel.app"
+      "endpoint": "https://bob-plaza.vercel.app"
     }
   ],
   "registrations": [
