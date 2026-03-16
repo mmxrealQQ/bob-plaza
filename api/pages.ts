@@ -629,7 +629,8 @@ function sendMessage() {
   };
   if (targetAgent && agentMeta[targetAgent]) body.params.agentId = targetAgent;
 
-  var agentLabel = targetAgent && agentMeta[targetAgent] ? agentMeta[targetAgent].name : 'BOB Brain';
+  var isPlaza = !targetAgent;
+  var agentLabel = targetAgent && agentMeta[targetAgent] ? agentMeta[targetAgent].name : (isPlaza ? 'Plaza' : 'BOB Brain');
   var clientKey = msgKey({ from: nickname, text: text });
   pendingKeys.add(clientKey);
 
@@ -670,8 +671,17 @@ function sendMessage() {
     var replyText = '(no response)';
     try { replyText = data.result.artifacts[0].parts[0].text; } catch(e) {}
     var pt = document.getElementById(replyId);
-    if (pt) { pt.innerHTML = linkify(esc(replyText)); pt.removeAttribute('id'); }
+    if (pt) {
+      if (isPlaza) {
+        // Plaza mode — remove the typing bubble, responses come via poll as individual agent messages
+        pt.closest('.msg-group').remove();
+      } else {
+        pt.innerHTML = linkify(esc(replyText));
+        pt.removeAttribute('id');
+      }
+    }
     lastTs = Date.now();
+    if (isPlaza) setTimeout(loadHistory, 1500); // Poll after agents had time to respond
   })
   .catch(function(e) {
     var pt = document.getElementById(replyId);

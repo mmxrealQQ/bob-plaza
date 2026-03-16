@@ -1227,11 +1227,47 @@ async function handleA2A(body: any): Promise<object> {
       const userText = extractText(params?.message);
       const taskId = params?.message?.task_id || makeTaskId();
       const targetAgent = params?.agentId ?? params?.agent_id;
-      const agentId = targetAgent ? parseInt(String(targetAgent)) : 40908; // Default: BOB Brain
-      const agentName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB Brain";
       const rpcId = String(id ?? "");
       const source = rpcId.startsWith("chat-") ? "web" : "a2a";
       const senderName = params?.senderName ?? (source === "web" ? "Web User" : `A2A (${rpcId.slice(0, 20)})`);
+
+      // ─── Plaza Mode: no agentId → message goes to ALL agents ────────
+      if (!targetAgent && source === "web") {
+        console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
+        await logChat(senderName, "Plaza", userText, "", source);
+
+        // Ask all 5 agents in parallel — each decides if they should respond
+        const plazaPrompt = `PLAZA MODE — A human just posted this in the open Plaza chat. Other BOB agents also see this message and may respond. ONLY respond if you have something genuinely useful to add based on your role. If another agent is clearly better suited, stay silent and return exactly "PASS". Be brief (2-3 sentences max). Do NOT repeat what others might say.\n\nHuman message: "${userText}"`;
+        const allAgentIds = Object.values(AGENT_SLUGS);
+        const responses = await Promise.all(
+          allAgentIds.map(async (aid) => {
+            try {
+              const reply = await callLLM(plazaPrompt, aid);
+              if (!reply || reply.trim() === "PASS" || reply.trim().length < 10) return null;
+              return { agentId: aid, name: AGENT_ROLES[aid]?.name || "BOB", reply };
+            } catch { return null; }
+          })
+        );
+
+        // Log and collect responses from agents that chose to respond
+        const replied = responses.filter(Boolean) as { agentId: number; name: string; reply: string }[];
+        for (const r of replied) {
+          await logChat(r.name, senderName, userText, r.reply, "web");
+        }
+
+        // Return combined response
+        if (replied.length === 0) {
+          const fallback = await callLLM(userText, 40908); // Brain as fallback
+          await logChat("BOB Brain", senderName, userText, fallback, source);
+          return a2aSuccess(id, taskId, fallback);
+        }
+        const combined = replied.map(r => r.reply).join("\n\n");
+        return a2aSuccess(id, taskId, combined);
+      }
+
+      // ─── Direct Mode: specific agentId → single agent responds ──────
+      const agentId = targetAgent ? parseInt(String(targetAgent)) : 40908;
+      const agentName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB Brain";
 
       console.log(`[A2A] ${method} → ${agentName}: "${userText.slice(0, 100)}"`);
 
@@ -1245,7 +1281,6 @@ async function handleA2A(body: any): Promise<object> {
           const plazaAgents = await getPlazaAgents();
           const senderAgent = plazaAgents.find(a => a.name.toLowerCase() === senderName.toLowerCase());
           if (senderAgent && senderAgent.verified && isValidExternalUrl(senderAgent.endpoint)) {
-            // Await the follow-up before returning (serverless needs this)
             try {
               const bobName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB Synapse";
               const fResult = await sendA2AMessage(senderAgent.endpoint, followupQ, bobName);
