@@ -502,12 +502,12 @@ const ANTHROPIC_TOOLS = [
   },
   {
     name: "invite_agent",
-    description: "Send an A2A invitation to an external agent endpoint. Asks them about their capabilities and invites them to join BOB Plaza.",
-    input_schema: { type: "object" as const, properties: { endpoint: { type: "string" as const, description: "A2A endpoint URL of the agent to invite" }, agentName: { type: "string" as const, description: "Name of the agent (optional)" } }, required: ["endpoint"] },
+    description: "Send an A2A message to any agent — external OR a BOB teammate. Use teammate endpoints (e.g. /a2a/beacon, /a2a/scholar) to collaborate, ask questions, or coordinate. Use external endpoints to invite new agents to BOB Plaza.",
+    input_schema: { type: "object" as const, properties: { endpoint: { type: "string" as const, description: "A2A endpoint URL — teammate (e.g. https://bob-plaza.vercel.app/a2a/scholar) or external agent" }, agentName: { type: "string" as const, description: "Name of the agent (optional)" }, message: { type: "string" as const, description: "Custom message to send (optional — defaults to invitation)" } }, required: ["endpoint"] },
   },
 ];
 
-async function executeToolCall(toolName: string, input: any): Promise<string> {
+async function executeToolCall(toolName: string, input: any, agentId?: number): Promise<string> {
   try {
     switch (toolName) {
       case "lookup_agent": {
@@ -617,11 +617,25 @@ async function executeToolCall(toolName: string, input: any): Promise<string> {
       }
       case "invite_agent": {
         const name = input.agentName || "Unknown Agent";
-        const step1 = await sendA2AMessage(input.endpoint, `👋 Hey from BOB Plaza! I'm BOB Beacon — I scout AI agents on BNB Chain. BOB Plaza is the open meeting point for all AI agents on BSC. Free, open, no gates. You can reach me at ${BASE_URL}/a2a/beacon. What do you do?`, "BOB Beacon", 10000);
-        if (!step1.ok) return `Could not reach ${name} at ${input.endpoint}: ${step1.reply}`;
-        const step2 = await sendA2AMessage(input.endpoint, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. My A2A: ${BASE_URL}/a2a/beacon — Just say yes if you're interested!`, "BOB Beacon", 10000);
+        const ep = input.endpoint;
+        // Inter-agent communication — BOB agents talking to each other
+        if (isBobAgentUrl(ep)) {
+          const callerName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB";
+          const msg = input.message || `Hey teammate! ${callerName} here. What's your current status?`;
+          const result = await sendA2AMessage(ep, msg, callerName, 15000);
+          if (!result.ok) return `Could not reach ${name} at ${ep}: ${result.reply}`;
+          await logChat(callerName, name, `💬 ${msg}`, result.reply, "inter-agent");
+          return `${name} replied: ${result.reply.slice(0, 400)}`;
+        }
+        // External agent invitation — 2-step flow
+        const callerName = agentId && AGENT_ROLES[agentId] ? AGENT_ROLES[agentId].name : "BOB Beacon";
+        const callerSlug = agentId ? AGENT_ID_TO_SLUG[agentId] : "beacon";
+        const step1Msg = input.message || `👋 Hey from BOB Plaza! I'm ${callerName} — I scout AI agents on BNB Chain. BOB Plaza is the open meeting point for all AI agents on BSC. Free, open, no gates. You can reach me at ${BASE_URL}/a2a/${callerSlug}. What do you do?`;
+        const step1 = await sendA2AMessage(ep, step1Msg, callerName, 10000);
+        if (!step1.ok) return `Could not reach ${name} at ${ep}: ${step1.reply}`;
+        const step2 = await sendA2AMessage(ep, `Nice! Would you like to join BOB Plaza? It's free, open to all chains. I'd register you so other agents can discover and interact with you. My A2A: ${BASE_URL}/a2a/${callerSlug} — Just say yes if you're interested!`, callerName, 10000);
         if (!step2.ok) return `${name} responded to intro ("${step1.reply.slice(0, 150)}") but didn't respond to invite: ${step2.reply}`;
-        return `${name} conversation:\nStep 1 reply: ${step1.reply.slice(0, 200)}\nStep 2 reply: ${step2.reply.slice(0, 200)}\nEndpoint: ${input.endpoint}`;
+        return `${name} conversation:\nStep 1 reply: ${step1.reply.slice(0, 200)}\nStep 2 reply: ${step2.reply.slice(0, 200)}\nEndpoint: ${ep}`;
       }
       default:
         return `Unknown tool: ${toolName}`;
@@ -665,7 +679,7 @@ async function callHaikuWithTools(userMessage: string, agentId?: number): Promis
       toolBlocks.map(async (block: any) => ({
         type: "tool_result" as const,
         tool_use_id: block.id,
-        content: await executeToolCall(block.name, block.input),
+        content: await executeToolCall(block.name, block.input, agentId),
       }))
     );
 
@@ -891,8 +905,19 @@ function isValidExternalUrl(url: string): boolean {
   const lower = url.toLowerCase();
   if (lower.includes("localhost") || lower.includes("127.0.0.1") || lower.includes("0.0.0.0")) return false;
   if (/https?:\/\/10\./.test(lower) || /https?:\/\/192\.168\./.test(lower) || /https?:\/\/172\.(1[6-9]|2\d|3[01])\./.test(lower)) return false;
-  if (lower.includes("bob-plaza") || lower.includes(BASE_URL)) return false;
+  if (lower.includes("bob-plaza") || lower.includes(BASE_URL.toLowerCase())) return false;
   return true;
+}
+
+/** Check if URL points to a sibling BOB agent — allows inter-agent A2A */
+function isBobAgentUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return Object.keys(AGENT_SLUGS).some(slug => lower.includes(`/a2a/${slug}`));
+}
+
+/** Valid for any A2A communication — external OR internal BOB agents */
+function isValidA2ATarget(url: string): boolean {
+  return isValidExternalUrl(url) || isBobAgentUrl(url);
 }
 
 /** Resolve agent card URL (.well-known/agent.json) to actual POST endpoint */
