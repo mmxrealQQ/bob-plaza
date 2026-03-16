@@ -1236,19 +1236,28 @@ async function handleA2A(body: any): Promise<object> {
         console.log(`[Plaza] ${senderName}: "${userText.slice(0, 100)}" → all agents`);
         await logChat(senderName, "Plaza", userText, "", source);
 
-        // All agents respond in parallel via Groq (fast + free)
-        const allCalls = Object.entries(AGENT_SLUGS).map(async ([, aid]) => {
+        // All BOB agents respond in parallel via Haiku (direct, no tools)
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        console.log(`[Plaza] API key present: ${!!apiKey}, agents: ${Object.keys(AGENT_SLUGS).join(",")}`);
+
+        const allCalls = Object.entries(AGENT_SLUGS).map(async ([slug, aid]) => {
           const role = AGENT_ROLES[aid];
           if (!role) return null;
           try {
-            const reply = await callGroq([
-              { role: "system", content: `You are ${role.name} (${role.role}) on BOB Plaza — the autonomous AI agent network on BNB Chain. This is the open Plaza chat. Respond as yourself, 1-3 sentences.` },
-              { role: "user", content: `${senderName}: ${userText}` },
-            ]);
-            console.log(`[Plaza] ${role.name}: ${reply ? reply.slice(0, 60) : "(null)"}`);
+            const sysPrompt = `You are ${role.name} (${role.role}) on BOB Plaza. Open chat. Respond as yourself, 1-3 sentences.`;
+            const resp = await fetch("https://api.anthropic.com/v1/messages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-api-key": apiKey || "", "anthropic-version": "2023-06-01" },
+              body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 150, system: sysPrompt, messages: [{ role: "user", content: `${senderName}: ${userText}` }] }),
+            });
+            console.log(`[Plaza] ${role.name} HTTP ${resp.status}`);
+            if (!resp.ok) { const t = await resp.text(); console.log(`[Plaza] ${role.name} err body: ${t.slice(0, 200)}`); return null; }
+            const data = (await resp.json()) as { content?: { text?: string }[] };
+            const reply = data.content?.[0]?.text?.trim();
+            console.log(`[Plaza] ${role.name}: "${reply?.slice(0, 60)}"`);
             return reply && reply.length >= 3 ? { name: role.name, reply } : null;
           } catch (e: any) {
-            console.log(`[Plaza] ${role.name} err: ${e.message?.slice(0, 50)}`);
+            console.log(`[Plaza] ${role.name} CATCH: ${e.message?.slice(0, 100)}`);
             return null;
           }
         });
@@ -1264,12 +1273,14 @@ async function handleA2A(body: any): Promise<object> {
         });
 
         const results = (await Promise.all([...allCalls, ...commCalls])).filter(Boolean) as { name: string; reply: string }[];
+        console.log(`[Plaza] Total results: ${results.length}, names: ${results.map(r => r.name).join(", ")}`);
 
         for (const r of results) {
           await logChat(r.name, r.name, `💬 [Plaza] ${senderName}: "${userText.slice(0, 80)}"`, r.reply, "plaza");
         }
 
         if (results.length === 0) {
+          console.log(`[Plaza] FALLBACK — all agents failed, using Brain`);
           const fallback = await callLLM(userText, 40908);
           await logChat("BOB Brain", senderName, userText, fallback, source);
           return a2aSuccess(id, taskId, fallback);
