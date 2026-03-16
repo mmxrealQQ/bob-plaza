@@ -139,9 +139,9 @@ const AGENT_CARD = {
       protocol: "A2A",
       version: "0.3.0",
       skills: A2A_SKILLS,
-      agents: Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
+      get agents() { return Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
         name: AGENT_ROLES[id]?.name, id, endpoint: `${BASE_URL}/a2a/${slug}`,
-      })),
+      })); },
     },
     mcp: {
       endpoint: `${BASE_URL}/mcp`,
@@ -1306,10 +1306,10 @@ const AGENT_REGISTRATION = {
       agentCard: `${BASE_URL}/.well-known/agent-card.json`,
       skillCount: 5,
       skills: ["beacon-discovery", "scholar-knowledge", "synapse-connection", "pulse-monitor", "brain-coordination"],
-      agents: Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
+      get agents() { return Object.entries(AGENT_SLUGS).map(([slug, id]) => ({
         name: AGENT_ROLES[id]?.name, id, endpoint: `${BASE_URL}/a2a/${slug}`,
         agentCard: `${BASE_URL}/a2a/${slug}/.well-known/agent.json`,
-      })),
+      })); },
     },
     {
       name: "MCP", version: "2025-03-26",
